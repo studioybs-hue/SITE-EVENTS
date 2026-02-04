@@ -71,11 +71,20 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Détail des services inclus
 - Liste des prestataires associés
 
-### ✅ Messagerie Client → Prestataire (Complète - 04/02/2025)
-- Bouton "Contacter" sur la fiche prestataire
-- Redirection vers messagerie avec présélection du destinataire
-- Envoi/réception de messages en temps réel
-- Liste des conversations existantes
+### ✅ Messagerie Temps Réel avec Fichiers (Complète - 04/02/2025)
+- **Chat temps réel via Socket.IO** :
+  - Connexion WebSocket automatique
+  - Envoi/réception instantané des messages
+  - Indicateur de saisie ("Est en train d'écrire...")
+  - Indicateur de lecture (✓ envoyé, ✓✓ lu)
+- **Envoi de fichiers** :
+  - Upload de fichiers via POST /api/upload-file
+  - Types supportés : images (jpg, png, gif, webp), documents (pdf, doc, docx, xls, xlsx, txt)
+  - Limite de taille : 10MB par fichier
+  - Prévisualisation des images dans le chat
+  - Téléchargement des documents avec icône
+- Liste des conversations avec aperçu
+- Bouton "Contacter" depuis la fiche prestataire
 
 ### ✅ Tableaux de Bord (Complète - 04/02/2025)
 **Dashboard Prestataire (avec onglets: Planning | Prestations | Réservations):**
