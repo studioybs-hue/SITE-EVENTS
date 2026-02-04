@@ -28,7 +28,7 @@ function AppRouter() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/search" element={<SearchPage />} />
-      <Route path="/providers/:providerId" element={<ProviderDetailPage />} />
+      {/* <Route path="/providers/:providerId" element={<ProviderDetailPage />} /> */}
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/marketplace" element={<MarketplacePage />} />
       <Route path="/messages" element={<MessagesPage />} />
