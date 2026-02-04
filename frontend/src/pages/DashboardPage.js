@@ -482,6 +482,11 @@ const DashboardPage = () => {
                           </Button>
                         </div>
                       </Card>
+
+                      {/* Recent Messages for Client */}
+                      <div className="md:col-span-2">
+                        <RecentMessages />
+                      </div>
                     </div>
                   </TabsContent>
 
