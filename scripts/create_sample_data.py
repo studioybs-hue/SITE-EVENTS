@@ -3,6 +3,7 @@ import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime, timezone
 import os
+import bcrypt
 
 async def create_sample_data():
     mongo_url = "mongodb://localhost:27017"
@@ -12,6 +13,59 @@ async def create_sample_data():
     print("🗑️  Cleaning existing data...")
     await db.provider_profiles.delete_many({})
     await db.event_packages.delete_many({})
+    
+    print("👤 Creating sample users for providers...")
+    
+    # Create users for providers first
+    sample_users = [
+        {
+            "user_id": "user_sample_001",
+            "email": "photo@eventwiz.com",
+            "name": "Pierre Martin",
+            "picture": None,
+            "user_type": "provider",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "user_id": "user_sample_002",
+            "email": "dj@eventwiz.com",
+            "name": "Thomas Durand",
+            "picture": None,
+            "user_type": "provider",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "user_id": "user_sample_003",
+            "email": "traiteur@eventwiz.com",
+            "name": "Marie Laurent",
+            "picture": None,
+            "user_type": "provider",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "user_id": "user_sample_004",
+            "email": "fleuriste@eventwiz.com",
+            "name": "Sophie Bernard",
+            "picture": None,
+            "user_type": "provider",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "user_id": "user_sample_005",
+            "email": "video@eventwiz.com",
+            "name": "Antoine Rousseau",
+            "picture": None,
+            "user_type": "provider",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+    ]
+    
+    for user in sample_users:
+        existing = await db.users.find_one({"user_id": user["user_id"]})
+        if not existing:
+            await db.users.insert_one(user)
+    
+    print(f"✅ Created/verified {len(sample_users)} provider users")
     
     print("👥 Creating sample providers...")
     
