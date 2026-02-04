@@ -394,7 +394,6 @@ const DashboardPage = () => {
                   Packs
                 </Button>
               </div>
-              </div>
 
               {/* Main Content - Provider View */}
               {isProvider ? (
