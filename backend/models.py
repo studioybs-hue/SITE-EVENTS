@@ -391,3 +391,28 @@ class FavoriteProviderCreate(BaseModel):
     alert_availability: bool = False
     notes: Optional[str] = None
 
+
+# Payment Transaction Models
+class PaymentTransaction(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    transaction_id: str
+    booking_id: str
+    user_id: str
+    session_id: str  # Stripe checkout session ID
+    amount: float
+    currency: str = "eur"
+    payment_type: str  # "full", "deposit", "installment"
+    installment_number: Optional[int] = None  # 1, 2, 3 for installments
+    total_installments: Optional[int] = None  # e.g., 3 for 3x payment
+    payment_status: str = "pending"  # pending, paid, failed, expired, refunded
+    metadata: dict = {}
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+class PaymentTransactionCreate(BaseModel):
+    booking_id: str
+    amount: float
+    payment_type: str = "full"  # "full", "deposit", "installment"
+    installment_number: Optional[int] = None
+    total_installments: Optional[int] = None
+
