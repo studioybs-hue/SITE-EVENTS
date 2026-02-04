@@ -419,6 +419,70 @@ async def update_user_type(user_type: str, current_user: User = Depends(get_curr
     
     return {"message": "User type updated", "user_type": user_type}
 
+@api_router.post("/auth/change-password")
+async def change_password(
+    current_password: str,
+    new_password: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Change user password"""
+    # Get user with password hash
+    user_doc = await db.users.find_one({"user_id": current_user.user_id})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+    
+    # Check if user has a password (might be Google OAuth only)
+    if 'password_hash' not in user_doc or not user_doc['password_hash']:
+        raise HTTPException(
+            status_code=400, 
+            detail="Votre compte utilise la connexion Google. Vous ne pouvez pas définir de mot de passe."
+        )
+    
+    # Verify current password
+    if not bcrypt.checkpw(current_password.encode(), user_doc['password_hash'].encode()):
+        raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect")
+    
+    # Validate new password
+    if len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="Le nouveau mot de passe doit contenir au moins 8 caractères")
+    
+    # Hash and save new password
+    new_hash = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    await db.users.update_one(
+        {"user_id": current_user.user_id},
+        {"$set": {"password_hash": new_hash}}
+    )
+    
+    return {"message": "Mot de passe modifié avec succès"}
+
+@api_router.post("/auth/set-password")
+async def set_password(
+    new_password: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Set password for OAuth users who don't have one"""
+    user_doc = await db.users.find_one({"user_id": current_user.user_id})
+    
+    # Check if user already has a password
+    if user_doc.get('password_hash'):
+        raise HTTPException(
+            status_code=400, 
+            detail="Vous avez déjà un mot de passe. Utilisez la fonction de changement de mot de passe."
+        )
+    
+    # Validate new password
+    if len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="Le mot de passe doit contenir au moins 8 caractères")
+    
+    # Hash and save password
+    password_hash = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    await db.users.update_one(
+        {"user_id": current_user.user_id},
+        {"$set": {"password_hash": password_hash}}
+    )
+    
+    return {"message": "Mot de passe défini avec succès"}
+
 @api_router.get("/users/{user_id}", response_model=User)
 async def get_user_by_id(user_id: str, current_user: User = Depends(get_current_user)):
     """Get user details by user_id (requires authentication)"""
