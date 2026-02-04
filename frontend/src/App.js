@@ -7,10 +7,11 @@ import { Toaster } from 'sonner';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import SearchPage from '@/pages/SearchPage';
-// import ProviderDetailPage from '@/pages/ProviderDetailPage';
+import ProviderDetailPage from '@/pages/ProviderDetailPage';
 import DashboardPage from '@/pages/DashboardPage';
 import MarketplacePage from '@/pages/MarketplacePage';
 import MessagesPage from '@/pages/MessagesPage';
+import PackagesPage from '@/pages/PackagesPage';
 
 // Components
 import AuthCallback from '@/components/AuthCallback';
