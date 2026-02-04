@@ -108,13 +108,23 @@ const Navbar = ({ user, onLogout }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                onClick={() => navigate('/login')}
-                className="rounded-full h-10 px-6 bg-primary text-primary-foreground hover:scale-105 transition-transform"
-                data-testid="nav-login-btn"
-              >
-                Connexion
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost"
+                  onClick={() => navigate('/login/pro')}
+                  className="rounded-full h-10 px-4 text-muted-foreground hover:text-foreground"
+                  data-testid="nav-pro-btn"
+                >
+                  Espace Pro
+                </Button>
+                <Button 
+                  onClick={() => navigate('/login')}
+                  className="rounded-full h-10 px-6 bg-primary text-primary-foreground hover:scale-105 transition-transform"
+                  data-testid="nav-login-btn"
+                >
+                  Connexion
+                </Button>
+              </div>
             )}
           </div>
         </div>
