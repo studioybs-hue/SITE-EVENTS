@@ -541,6 +541,11 @@ const DashboardPage = () => {
                     </div>
                   </TabsContent>
 
+                  {/* Client Quotes Tab */}
+                  <TabsContent value="quotes">
+                    <ClientQuotes />
+                  </TabsContent>
+
                   <TabsContent value="bookings">
                     <Card className="p-6">
                       <h2 className="text-2xl font-heading font-semibold mb-6">Toutes mes réservations</h2>
