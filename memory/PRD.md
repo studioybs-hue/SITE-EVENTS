@@ -41,7 +41,7 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Liste des conversations existantes
 
 ### ✅ Tableaux de Bord (Complète - 04/02/2025)
-**Dashboard Prestataire :**
+**Dashboard Prestataire (avec onglets: Planning | Prestations | Réservations):**
 - **Calendrier interactif "Planning & Disponibilités"** :
   - Vue mensuelle avec navigation
   - Code couleur : Vert (disponible), Gris (indisponible), Bleu (réservé), Orange (en attente)
@@ -49,17 +49,21 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
   - Panneau de détails au clic (infos événement, lieu)
   - Actions : marquer disponible/indisponible
   - Stats mensuelles (indisponibles, confirmés, en attente)
+- **Gestion des prestations** :
+  - Liste des prestations avec CRUD complet
+  - Champs : titre, description, durée, prix, options
+  - Activer/désactiver une prestation (toggle)
+  - Réordonnancement par glisser (flèches haut/bas)
+  - Options supplémentaires avec prix additionnel
 - Stats : demandes en attente, confirmées, note, revenus
-- Section "Demandes en attente" avec actions (accepter/refuser)
-- Résumé du profil professionnel
-- **Derniers messages** avec badge non-lus et accès rapide
+- Derniers messages avec badge non-lus
 
 **Dashboard Client :**
 - Onglets : Vue d'ensemble, Mes réservations
 - Stats : en attente, confirmées, total
 - Actions rapides (Prestataires, Packs, Messages, Marketplace)
 - Bouton "Devenir prestataire"
-- **Derniers messages** avec badge non-lus et accès rapide
+- Derniers messages avec badge non-lus
 
 ---
 
