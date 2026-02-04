@@ -193,6 +193,73 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Packages Promo Section */}
+      <section className="py-24 md:py-32 px-6 md:px-12 lg:px-24 bg-gradient-to-br from-secondary/30 to-muted/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <span className="text-xs uppercase tracking-widest font-semibold text-accent mb-4 block">
+                Nouvelle Fonctionnalité
+              </span>
+              <h2 className="text-4xl md:text-5xl font-heading font-medium tracking-tight text-foreground mb-6">
+                Packs Événement
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Économisez jusqu'à 30% en combinant plusieurs prestataires. DJ, photographe, traiteur... Tout inclus dans un seul pack négocié pour vous.
+              </p>
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center space-x-3">
+                  <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center">
+                    <span className="text-accent font-semibold">✓</span>
+                  </div>
+                  <span className="text-foreground">Économies garanties jusqu'à 30%</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center">
+                    <span className="text-accent font-semibold">✓</span>
+                  </div>
+                  <span className="text-foreground">Coordination simplifiée entre prestataires</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center">
+                    <span className="text-accent font-semibold">✓</span>
+                  </div>
+                  <span className="text-foreground">Prestataires sélectionnés qui travaillent ensemble</span>
+                </div>
+              </div>
+              <Button
+                size="lg"
+                onClick={() => navigate('/packages')}
+                className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:scale-105 transition-transform"
+                data-testid="cta-packages-btn"
+              >
+                Découvrir les packs
+              </Button>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?crop=entropy&cs=srgb&fm=jpg&q=85"
+                alt="Événement élégant"
+                className="rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.15)] w-full"
+              />
+              <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-sm shadow-lg border border-border">
+                <div className="text-sm text-muted-foreground mb-1">Économies moyennes</div>
+                <div className="text-3xl font-semibold text-accent">25%</div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 md:py-32 px-6 md:px-12 lg:px-24 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center space-y-8">
