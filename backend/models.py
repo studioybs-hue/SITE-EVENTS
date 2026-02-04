@@ -225,6 +225,7 @@ class MarketplaceItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
     item_id: str
     seller_id: str
+    seller_name: Optional[str] = None
     title: str
     description: str
     category: str  # audio, lighting, decor, furniture, etc.
@@ -234,8 +235,12 @@ class MarketplaceItem(BaseModel):
     images: List[str] = []
     location: str
     condition: str  # new, like_new, good, fair
+    status: str = "available"  # available, reserved, sold, rented
     available: bool = True
+    views_count: int = 0
+    inquiries_count: int = 0
     created_at: datetime
+    updated_at: Optional[datetime] = None
 
 class MarketplaceItemCreate(BaseModel):
     title: str
@@ -255,7 +260,33 @@ class MarketplaceItemUpdate(BaseModel):
     rental_available: Optional[bool] = None
     rental_price_per_day: Optional[float] = None
     images: Optional[List[str]] = None
+    location: Optional[str] = None
+    condition: Optional[str] = None
+    status: Optional[str] = None
     available: Optional[bool] = None
+
+# Marketplace Inquiry Models (messages linked to items)
+class MarketplaceInquiry(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    inquiry_id: str
+    item_id: str
+    item_title: str
+    buyer_id: str
+    buyer_name: str
+    seller_id: str
+    message: str
+    inquiry_type: str = "question"  # question, offer, rental_request
+    offer_amount: Optional[float] = None
+    rental_dates: Optional[dict] = None  # {start: "2025-01-01", end: "2025-01-05"}
+    status: str = "pending"  # pending, replied, accepted, declined
+    created_at: datetime
+
+class MarketplaceInquiryCreate(BaseModel):
+    item_id: str
+    message: str
+    inquiry_type: str = "question"
+    offer_amount: Optional[float] = None
+    rental_dates: Optional[dict] = None
 
 # Service/Prestation Models
 class ServiceOption(BaseModel):
