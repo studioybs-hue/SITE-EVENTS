@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, Query, UploadFile, File
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -12,6 +12,8 @@ import requests
 from typing import Optional, List
 import socketio
 import bcrypt
+import base64
+import aiofiles
 
 from models import (
     User, UserCreate, ProviderProfile, ProviderProfileCreate, ProviderProfileUpdate,
@@ -20,7 +22,8 @@ from models import (
     MarketplaceItemCreate, MarketplaceItemUpdate, UserSession,
     EventPackage, EventPackageCreate, EventPackageUpdate, PackageProvider,
     Service, ServiceCreate, ServiceUpdate, ServiceOption,
-    QuoteRequest, QuoteRequestCreate, QuoteRequestUpdate, QuoteServiceItem
+    QuoteRequest, QuoteRequestCreate, QuoteRequestUpdate, QuoteServiceItem,
+    MessageAttachment, Notification
 )
 
 ROOT_DIR = Path(__file__).parent
