@@ -560,13 +560,26 @@ const ProviderCard = ({ provider }) => {
               <span className="text-sm">Aucune image</span>
             </div>
           )}
-          {provider.verified && (
-            <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 flex gap-2">
+            {provider.verified && (
               <Badge className="bg-accent text-accent-foreground">
                 <BadgeCheck className="h-3 w-3 mr-1" />Vérifié
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
+          {/* Favorite button */}
+          <button
+            onClick={toggleFavorite}
+            disabled={favoriteLoading}
+            className={`absolute top-3 left-3 p-2 rounded-full transition-all ${
+              isFavorite 
+                ? 'bg-white text-red-500 shadow-md' 
+                : 'bg-white/80 text-gray-400 hover:text-red-500 hover:bg-white opacity-0 group-hover:opacity-100'
+            }`}
+            data-testid="favorite-btn"
+          >
+            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+          </button>
         </div>
 
         <div className="p-5">
