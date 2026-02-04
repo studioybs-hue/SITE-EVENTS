@@ -42,8 +42,13 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ### ✅ Tableaux de Bord (Complète - 04/02/2025)
 **Dashboard Prestataire :**
-- Calendrier mensuel avec navigation (mois précédent/suivant)
-- Blocage/déblocage de dates en un clic
+- **Calendrier interactif "Planning & Disponibilités"** :
+  - Vue mensuelle avec navigation
+  - Code couleur : Vert (disponible), Gris (indisponible), Bleu (réservé), Orange (en attente)
+  - Affichage du type d'événement sur les dates réservées
+  - Panneau de détails au clic (infos événement, lieu)
+  - Actions : marquer disponible/indisponible
+  - Stats mensuelles (indisponibles, confirmés, en attente)
 - Stats : demandes en attente, confirmées, note, revenus
 - Section "Demandes en attente" avec actions (accepter/refuser)
 - Résumé du profil professionnel
