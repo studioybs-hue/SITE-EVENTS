@@ -39,20 +39,44 @@ class QuoteRequestUpdate(BaseModel):
     response_amount: Optional[float] = None
 
 # User Models
+class UserPreferences(BaseModel):
+    budget_min: Optional[float] = None
+    budget_max: Optional[float] = None
+    event_types: List[str] = []  # wedding, birthday, corporate, etc.
+    preferred_location: Optional[str] = None
+
+class NotificationSettings(BaseModel):
+    email_new_message: bool = True
+    email_quote_received: bool = True
+    email_booking_update: bool = True
+    email_marketing: bool = False
+    push_enabled: bool = True
+
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     user_id: str
     email: EmailStr
     name: str
     picture: Optional[str] = None
+    phone: Optional[str] = None
     user_type: str  # 'client', 'provider', 'admin'
+    preferences: Optional[UserPreferences] = None
+    notification_settings: Optional[NotificationSettings] = None
     created_at: datetime
 
 class UserCreate(BaseModel):
     email: EmailStr
     name: str
     picture: Optional[str] = None
+    phone: Optional[str] = None
     user_type: str = 'client'
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    picture: Optional[str] = None
+    preferences: Optional[UserPreferences] = None
+    notification_settings: Optional[NotificationSettings] = None
 
 # Provider Profile Models
 class ProviderProfile(BaseModel):
