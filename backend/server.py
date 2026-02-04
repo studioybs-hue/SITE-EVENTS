@@ -1682,6 +1682,138 @@ async def upload_marketplace_image(
     image_url = f"/api/files/{file_id}"
     return {"image_url": image_url}
 
+# ============ FAVORITES ROUTES ============
+
+@api_router.get("/favorites")
+async def get_favorites(current_user: User = Depends(get_current_user)):
+    """Get all favorite providers for current user"""
+    favorites = await db.favorites.find(
+        {"user_id": current_user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    # Enrich with current provider data
+    for fav in favorites:
+        provider = await db.provider_profiles.find_one(
+            {"provider_id": fav['provider_id']},
+            {"_id": 0}
+        )
+        if provider:
+            fav['provider_name'] = provider.get('business_name', fav.get('provider_name'))
+            fav['provider_category'] = provider.get('category', fav.get('provider_category'))
+            fav['provider_picture'] = provider.get('profile_image')
+            fav['provider_rating'] = provider.get('rating', 0.0)
+            fav['provider_location'] = provider.get('location')
+            fav['provider_verified'] = provider.get('verified', False)
+    
+    return favorites
+
+@api_router.post("/favorites")
+async def add_favorite(
+    favorite_data: FavoriteProviderCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Add a provider to favorites"""
+    # Check if already favorited
+    existing = await db.favorites.find_one({
+        "user_id": current_user.user_id,
+        "provider_id": favorite_data.provider_id
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Ce prestataire est déjà dans vos favoris")
+    
+    # Get provider info
+    provider = await db.provider_profiles.find_one(
+        {"provider_id": favorite_data.provider_id},
+        {"_id": 0}
+    )
+    
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    favorite_id = f"fav_{uuid.uuid4().hex[:12]}"
+    favorite_doc = {
+        "favorite_id": favorite_id,
+        "user_id": current_user.user_id,
+        "provider_id": favorite_data.provider_id,
+        "provider_name": provider.get('business_name', ''),
+        "provider_category": provider.get('category', ''),
+        "provider_picture": provider.get('profile_image'),
+        "provider_rating": provider.get('rating', 0.0),
+        "alert_availability": favorite_data.alert_availability,
+        "notes": favorite_data.notes,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.favorites.insert_one(favorite_doc)
+    
+    return {"message": "Ajouté aux favoris", "favorite_id": favorite_id}
+
+@api_router.delete("/favorites/{provider_id}")
+async def remove_favorite(
+    provider_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Remove a provider from favorites"""
+    result = await db.favorites.delete_one({
+        "user_id": current_user.user_id,
+        "provider_id": provider_id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Favori non trouvé")
+    
+    return {"message": "Retiré des favoris"}
+
+@api_router.get("/favorites/check/{provider_id}")
+async def check_favorite(
+    provider_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Check if a provider is in favorites"""
+    favorite = await db.favorites.find_one({
+        "user_id": current_user.user_id,
+        "provider_id": provider_id
+    })
+    
+    return {"is_favorite": favorite is not None}
+
+@api_router.patch("/favorites/{provider_id}")
+async def update_favorite(
+    provider_id: str,
+    alert_availability: Optional[bool] = None,
+    notes: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Update favorite settings (alerts, notes)"""
+    update_dict = {}
+    if alert_availability is not None:
+        update_dict["alert_availability"] = alert_availability
+    if notes is not None:
+        update_dict["notes"] = notes
+    
+    if update_dict:
+        result = await db.favorites.update_one(
+            {"user_id": current_user.user_id, "provider_id": provider_id},
+            {"$set": update_dict}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Favori non trouvé")
+    
+    return {"message": "Favori mis à jour"}
+
+@api_router.get("/favorites/with-alerts")
+async def get_favorites_with_alerts(current_user: User = Depends(get_current_user)):
+    """Get favorites that have availability alerts enabled"""
+    favorites = await db.favorites.find(
+        {"user_id": current_user.user_id, "alert_availability": True},
+        {"_id": 0}
+    ).to_list(100)
+    
+    return favorites
+
 # ============ EVENT PACKAGES ROUTES ============
 
 @api_router.post("/packages", response_model=EventPackage)
