@@ -301,106 +301,147 @@ const DashboardPage = () => {
 
               {/* Main Content - Provider View */}
               {isProvider ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left: Calendar */}
-                  <div className="lg:col-span-2">
-                    <AvailabilityCalendar 
-                      providerId={providerProfile.provider_id} 
-                      bookings={bookings}
-                    />
-                  </div>
+                <Tabs defaultValue="calendar" className="space-y-6">
+                  <TabsList>
+                    <TabsTrigger value="calendar" data-testid="tab-calendar">Planning</TabsTrigger>
+                    <TabsTrigger value="services" data-testid="tab-services">Prestations</TabsTrigger>
+                    <TabsTrigger value="bookings" data-testid="tab-provider-bookings">Réservations</TabsTrigger>
+                  </TabsList>
 
-                  {/* Right: Bookings & Profile */}
-                  <div className="space-y-6">
-                    {/* Pending Bookings */}
-                    <Card className="p-5">
-                      <h3 className="font-semibold mb-4 flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-amber-500" />
-                        Demandes en attente
-                      </h3>
-                      {bookings.filter(b => b.status === 'pending').length === 0 ? (
-                        <p className="text-sm text-muted-foreground">Aucune demande</p>
-                      ) : (
-                        <div className="space-y-3">
-                          {bookings.filter(b => b.status === 'pending').slice(0, 3).map((booking) => (
-                            <div key={booking.booking_id} className="p-3 bg-secondary/30 rounded-lg">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <p className="font-medium text-sm">{booking.event_type}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {new Date(booking.event_date).toLocaleDateString('fr-FR')}
-                                  </p>
+                  {/* Calendar Tab */}
+                  <TabsContent value="calendar">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      {/* Left: Calendar */}
+                      <div className="lg:col-span-2">
+                        <AvailabilityCalendar 
+                          providerId={providerProfile.provider_id} 
+                          bookings={bookings}
+                        />
+                      </div>
+
+                      {/* Right: Bookings & Profile */}
+                      <div className="space-y-6">
+                        {/* Pending Bookings */}
+                        <Card className="p-5">
+                          <h3 className="font-semibold mb-4 flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-amber-500" />
+                            Demandes en attente
+                          </h3>
+                          {bookings.filter(b => b.status === 'pending').length === 0 ? (
+                            <p className="text-sm text-muted-foreground">Aucune demande</p>
+                          ) : (
+                            <div className="space-y-3">
+                              {bookings.filter(b => b.status === 'pending').slice(0, 3).map((booking) => (
+                                <div key={booking.booking_id} className="p-3 bg-secondary/30 rounded-lg">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                      <p className="font-medium text-sm">{booking.event_type}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {new Date(booking.event_date).toLocaleDateString('fr-FR')}
+                                      </p>
+                                    </div>
+                                    <p className="text-sm font-semibold">{booking.total_amount}€</p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button 
+                                      size="sm" 
+                                      className="flex-1 h-8"
+                                      onClick={() => handleUpdateBookingStatus(booking.booking_id, 'confirmed')}
+                                      data-testid={`confirm-booking-${booking.booking_id}`}
+                                    >
+                                      <CheckCircle className="h-3 w-3 mr-1" />
+                                      Accepter
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="flex-1 h-8"
+                                      onClick={() => handleUpdateBookingStatus(booking.booking_id, 'cancelled')}
+                                      data-testid={`reject-booking-${booking.booking_id}`}
+                                    >
+                                      <XCircle className="h-3 w-3 mr-1" />
+                                      Refuser
+                                    </Button>
+                                  </div>
                                 </div>
-                                <p className="text-sm font-semibold">{booking.total_amount}€</p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button 
-                                  size="sm" 
-                                  className="flex-1 h-8"
-                                  onClick={() => handleUpdateBookingStatus(booking.booking_id, 'confirmed')}
-                                  data-testid={`confirm-booking-${booking.booking_id}`}
-                                >
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  Accepter
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  className="flex-1 h-8"
-                                  onClick={() => handleUpdateBookingStatus(booking.booking_id, 'cancelled')}
-                                  data-testid={`reject-booking-${booking.booking_id}`}
-                                >
-                                  <XCircle className="h-3 w-3 mr-1" />
-                                  Refuser
-                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </Card>
+
+                        {/* Recent Messages */}
+                        <RecentMessages />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Services Tab */}
+                  <TabsContent value="services">
+                    <ServiceManager providerId={providerProfile.provider_id} />
+                  </TabsContent>
+
+                  {/* Provider Bookings Tab */}
+                  <TabsContent value="bookings">
+                    <Card className="p-6">
+                      <h2 className="text-2xl font-heading font-semibold mb-6">Toutes mes réservations</h2>
+                      {bookings.length === 0 ? (
+                        <div className="text-center py-12">
+                          <Calendar className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+                          <p className="text-muted-foreground">Aucune réservation pour le moment</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {bookings.map((booking) => (
+                            <div
+                              key={booking.booking_id}
+                              className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-3">
+                                    <h3 className="font-semibold text-lg">{booking.event_type}</h3>
+                                    {getStatusBadge(booking.status)}
+                                  </div>
+                                  <div className="flex items-center text-sm text-muted-foreground space-x-4">
+                                    <span className="flex items-center">
+                                      <Calendar className="h-4 w-4 mr-1" />
+                                      {new Date(booking.event_date).toLocaleDateString('fr-FR')}
+                                    </span>
+                                    <span className="flex items-center">
+                                      <MapPin className="h-4 w-4 mr-1" />
+                                      {booking.event_location}
+                                    </span>
+                                    <span className="flex items-center font-semibold text-primary">
+                                      <Euro className="h-4 w-4 mr-1" />
+                                      {booking.total_amount}€
+                                    </span>
+                                  </div>
+                                </div>
+                                {booking.status === 'pending' && (
+                                  <div className="flex gap-2">
+                                    <Button 
+                                      size="sm"
+                                      onClick={() => handleUpdateBookingStatus(booking.booking_id, 'confirmed')}
+                                    >
+                                      Accepter
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => handleUpdateBookingStatus(booking.booking_id, 'cancelled')}
+                                    >
+                                      Refuser
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
                         </div>
                       )}
                     </Card>
-
-                    {/* Provider Profile Summary */}
-                    <Card className="p-5">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          Mon Profil
-                        </h3>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="space-y-3 text-sm">
-                        <div>
-                          <p className="text-muted-foreground">Entreprise</p>
-                          <p className="font-medium">{providerProfile.business_name}</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Localisation</p>
-                          <p className="font-medium flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {providerProfile.location}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Tarifs</p>
-                          <p className="font-medium flex items-center gap-1">
-                            <Euro className="h-3 w-3" />
-                            {providerProfile.pricing_range}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Avis clients</p>
-                          <p className="font-medium">{providerProfile.total_reviews} avis</p>
-                        </div>
-                      </div>
-                    </Card>
-
-                    {/* Recent Messages */}
-                    <RecentMessages />
-                  </div>
-                </div>
+                  </TabsContent>
+                </Tabs>
               ) : (
                 /* Client View */
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
