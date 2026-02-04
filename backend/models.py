@@ -161,18 +161,40 @@ class ReviewCreate(BaseModel):
     comment: str
 
 # Message Models
+class MessageAttachment(BaseModel):
+    file_id: str
+    file_name: str
+    file_type: str  # image, document, contract
+    file_url: str
+    file_size: int = 0
+
 class Message(BaseModel):
     model_config = ConfigDict(extra="ignore")
     message_id: str
     sender_id: str
     receiver_id: str
     content: str
+    attachments: List[MessageAttachment] = []
     read: bool = False
     created_at: datetime
 
 class MessageCreate(BaseModel):
     receiver_id: str
     content: str
+    attachments: List[MessageAttachment] = []
+
+# Notification Models
+class Notification(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    notification_id: str
+    user_id: str
+    type: str  # message, quote, booking, payment
+    title: str
+    body: str
+    data: dict = {}
+    read: bool = False
+    email_sent: bool = False
+    created_at: datetime
 
 # Marketplace Item Models
 class MarketplaceItem(BaseModel):
