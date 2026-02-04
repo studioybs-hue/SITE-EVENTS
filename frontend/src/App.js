@@ -16,6 +16,7 @@ import MessagesPage from '@/pages/MessagesPage';
 import PackagesPage from '@/pages/PackagesPage';
 import ProfilePage from '@/pages/ProfilePage';
 import SettingsPage from '@/pages/SettingsPage';
+import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
 
 // Components
 import AuthCallback from '@/components/AuthCallback';
@@ -42,6 +43,7 @@ function AppRouter() {
       <Route path="/messages" element={<MessagesPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/payment/success" element={<PaymentSuccessPage />} />
     </Routes>
   );
 }
