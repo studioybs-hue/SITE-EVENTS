@@ -305,6 +305,7 @@ const DashboardPage = () => {
                 <Tabs defaultValue="calendar" className="space-y-6">
                   <TabsList>
                     <TabsTrigger value="calendar" data-testid="tab-calendar">Planning</TabsTrigger>
+                    <TabsTrigger value="quotes" data-testid="tab-quotes">Devis</TabsTrigger>
                     <TabsTrigger value="services" data-testid="tab-services">Prestations</TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-provider-bookings">Réservations</TabsTrigger>
                   </TabsList>
