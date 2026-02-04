@@ -951,6 +951,69 @@ async def respond_to_quote(
         updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
     return QuoteRequest(**updated)
 
+@api_router.post("/quotes/{quote_id}/accept")
+async def client_accept_quote(
+    quote_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Client accepts a quote"""
+    quote = await db.quote_requests.find_one({"quote_id": quote_id}, {"_id": 0})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify ownership (must be the client)
+    if quote['client_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    if quote['status'] != 'responded':
+        raise HTTPException(status_code=400, detail="Can only accept responded quotes")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    await db.quote_requests.update_one(
+        {"quote_id": quote_id},
+        {"$set": {"status": "accepted", "updated_at": now}}
+    )
+    
+    # Notify provider via message
+    provider = await db.provider_profiles.find_one({"provider_id": quote['provider_id']}, {"_id": 0})
+    if provider:
+        message_id = f"msg_{uuid.uuid4().hex[:12]}"
+        await db.messages.insert_one({
+            "message_id": message_id,
+            "sender_id": current_user.user_id,
+            "receiver_id": provider['user_id'],
+            "content": f"✅ Bonne nouvelle ! J'ai accepté votre devis de {quote['response_amount']}€ pour {quote['event_type']} le {quote['event_date']}. Nous pouvons maintenant finaliser les détails !",
+            "read": False,
+            "created_at": now
+        })
+    
+    return {"message": "Quote accepted", "status": "accepted"}
+
+@api_router.post("/quotes/{quote_id}/decline")
+async def client_decline_quote(
+    quote_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Client declines a quote"""
+    quote = await db.quote_requests.find_one({"quote_id": quote_id}, {"_id": 0})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify ownership (must be the client)
+    if quote['client_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    if quote['status'] != 'responded':
+        raise HTTPException(status_code=400, detail="Can only decline responded quotes")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    await db.quote_requests.update_one(
+        {"quote_id": quote_id},
+        {"$set": {"status": "declined", "updated_at": now}}
+    )
+    
+    return {"message": "Quote declined", "status": "declined"}
+
 # ============ REVIEW ROUTES ============
 
 @api_router.post("/reviews", response_model=Review)
