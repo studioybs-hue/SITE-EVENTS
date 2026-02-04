@@ -227,6 +227,7 @@ const DashboardPage = () => {
   }
 
   const isProvider = user?.user_type === 'provider' && providerProfile;
+  const needsProviderProfile = user?.user_type === 'provider' && !providerProfile;
 
   return (
     <ProtectedRoute>
