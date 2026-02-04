@@ -781,6 +781,46 @@ async def get_conversations(current_user: User = Depends(get_current_user)):
     
     return users
 
+@api_router.get("/messages/recent")
+async def get_recent_messages(current_user: User = Depends(get_current_user)):
+    """Get 5 most recent messages with sender info and unread count"""
+    # Get recent messages (received by current user)
+    recent_messages = await db.messages.find(
+        {"receiver_id": current_user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(5).to_list(5)
+    
+    # Get total unread count
+    unread_count = await db.messages.count_documents({
+        "receiver_id": current_user.user_id,
+        "read": False
+    })
+    
+    # Enrich messages with sender info
+    enriched_messages = []
+    for msg in recent_messages:
+        sender = await db.users.find_one({"user_id": msg['sender_id']}, {"_id": 0, "password_hash": 0})
+        if sender:
+            # Check if sender is a provider
+            provider = await db.provider_profiles.find_one({"user_id": msg['sender_id']}, {"_id": 0})
+            enriched_messages.append({
+                "message_id": msg['message_id'],
+                "content": msg['content'][:100] + "..." if len(msg['content']) > 100 else msg['content'],
+                "read": msg['read'],
+                "created_at": msg['created_at'],
+                "sender": {
+                    "user_id": sender['user_id'],
+                    "name": sender['name'],
+                    "picture": sender.get('picture'),
+                    "business_name": provider['business_name'] if provider else None
+                }
+            })
+    
+    return {
+        "messages": enriched_messages,
+        "unread_count": unread_count
+    }
+
 @api_router.get("/messages/{other_user_id}", response_model=List[Message])
 async def get_messages(
     other_user_id: str,
