@@ -178,3 +178,42 @@ class UserSession(BaseModel):
     session_token: str
     expires_at: datetime
     created_at: datetime
+
+# Event Package Models
+class PackageProvider(BaseModel):
+    provider_id: str
+    business_name: str
+    category: str
+    services: List[str]
+
+class EventPackage(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    package_id: str
+    name: str
+    description: str
+    event_type: str  # wedding, birthday, corporate, etc.
+    providers: List[PackageProvider]
+    original_price: float
+    discounted_price: float
+    discount_percentage: int
+    services_included: List[str]
+    image_url: Optional[str] = None
+    is_active: bool = True
+    created_at: datetime
+
+class EventPackageCreate(BaseModel):
+    name: str
+    description: str
+    event_type: str
+    provider_ids: List[str]
+    original_price: float
+    discounted_price: float
+    services_included: List[str]
+    image_url: Optional[str] = None
+
+class EventPackageUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    discounted_price: Optional[float] = None
+    is_active: Optional[bool] = None
+    image_url: Optional[str] = None
