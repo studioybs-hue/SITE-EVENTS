@@ -214,6 +214,98 @@ async def login(request: Request, response: Response):
     
     return User(**user_doc)
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: Request):
+    """Request password reset"""
+    body = await request.json()
+    email = body.get('email')
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required")
+    
+    # Find user
+    user_doc = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user_doc:
+        # Don't reveal if email exists
+        return {"message": "If this email exists, a reset link will be sent"}
+    
+    # Check if user has password (OAuth users can't reset password)
+    if 'password_hash' not in user_doc:
+        return {"message": "If this email exists, a reset link will be sent"}
+    
+    # Generate reset token
+    reset_token = f"reset_{uuid.uuid4().hex}"
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store reset token
+    reset_doc = {
+        "user_id": user_doc['user_id'],
+        "reset_token": reset_token,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "used": False
+    }
+    await db.password_resets.insert_one(reset_doc)
+    
+    # In production, send email with reset link
+    # For now, log the token
+    logger.info(f"Password reset token for {email}: {reset_token}")
+    
+    return {
+        "message": "If this email exists, a reset link will be sent",
+        "reset_token": reset_token,  # Only for development - remove in production
+        "reset_link": f"/reset-password?token={reset_token}"
+    }
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: Request):
+    """Reset password with token"""
+    body = await request.json()
+    token = body.get('token')
+    new_password = body.get('new_password')
+    
+    if not token or not new_password:
+        raise HTTPException(status_code=400, detail="Token and new password required")
+    
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Find reset token
+    reset_doc = await db.password_resets.find_one(
+        {"reset_token": token, "used": False},
+        {"_id": 0}
+    )
+    
+    if not reset_doc:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Check expiration
+    expires_at = reset_doc['expires_at']
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Reset token has expired")
+    
+    # Hash new password
+    password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+    
+    # Update user password
+    await db.users.update_one(
+        {"user_id": reset_doc['user_id']},
+        {"$set": {"password_hash": password_hash.decode('utf-8')}}
+    )
+    
+    # Mark token as used
+    await db.password_resets.update_one(
+        {"reset_token": token},
+        {"$set": {"used": True}}
+    )
+    
+    return {"message": "Password reset successful"}
+
 @api_router.post("/auth/session")
 async def create_session(request: Request, response: Response):
     """Exchange session_id for session_token via Emergent Auth"""
