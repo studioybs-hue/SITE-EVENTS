@@ -1157,12 +1157,17 @@ async def send_message(
     })
     
     await db.messages.insert_one(message_doc)
-    message_doc['created_at'] = datetime.fromisoformat(message_doc['created_at'])
     
-    # Emit socket event
-    await sio.emit('new_message', message_doc, room=message_data.receiver_id)
+    # Prepare response
+    response_doc = message_doc.copy()
+    response_doc['created_at'] = datetime.fromisoformat(message_doc['created_at'])
     
-    return Message(**message_doc)
+    # Emit via Socket.IO if receiver is connected
+    receiver_id = message_data.receiver_id
+    if receiver_id in connected_users:
+        await sio.emit('new_message', message_doc, room=receiver_id)
+    
+    return Message(**response_doc)
 
 @api_router.get("/messages/conversations")
 async def get_conversations(current_user: User = Depends(get_current_user)):
