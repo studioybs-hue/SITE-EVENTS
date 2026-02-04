@@ -79,7 +79,8 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ### Comptes
 - **Client** : `client@test.com` / `password123`
-- **Prestataires** : `photo@eventwiz.com`, `dj@eventwiz.com`, etc.
+- **Prestataire test** : `provider@test.com` / `password123`
+- **Prestataires sample** : `photo@eventwiz.com`, `dj@eventwiz.com`, etc.
 
 ### Base de données
 - 5 prestataires avec profils complets
