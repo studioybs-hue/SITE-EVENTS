@@ -64,7 +64,7 @@ Plateforme web complète pour connecter clients et prestataires événementiels 
 ## 🚀 Démarrage
 
 Les services sont déjà configurés et lancés :
-- Frontend : https://celebratehq-2.preview.emergentagent.com
+- Frontend : https://eventwiz.preview.emergentagent.com
 - Backend : Port 8001 (interne)
 - MongoDB : localhost:27017
 
