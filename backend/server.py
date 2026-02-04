@@ -19,7 +19,8 @@ from models import (
     Review, ReviewCreate, Message, MessageCreate, MarketplaceItem,
     MarketplaceItemCreate, MarketplaceItemUpdate, UserSession,
     EventPackage, EventPackageCreate, EventPackageUpdate, PackageProvider,
-    Service, ServiceCreate, ServiceUpdate, ServiceOption
+    Service, ServiceCreate, ServiceUpdate, ServiceOption,
+    QuoteRequest, QuoteRequestCreate, QuoteRequestUpdate, QuoteServiceItem
 )
 
 ROOT_DIR = Path(__file__).parent
