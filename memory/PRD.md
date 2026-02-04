@@ -47,12 +47,14 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Stats : demandes en attente, confirmées, note, revenus
 - Section "Demandes en attente" avec actions (accepter/refuser)
 - Résumé du profil professionnel
+- **Derniers messages** avec badge non-lus et accès rapide
 
 **Dashboard Client :**
 - Onglets : Vue d'ensemble, Mes réservations
 - Stats : en attente, confirmées, total
 - Actions rapides (Prestataires, Packs, Messages, Marketplace)
 - Bouton "Devenir prestataire"
+- **Derniers messages** avec badge non-lus et accès rapide
 
 ---
 
