@@ -63,13 +63,8 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - [ ] Intégration PayPal comme alternative
 - [ ] Gestion des acomptes et paiements complets
 
-### P2 - Tableaux de Bord
-- [ ] Dashboard Prestataire (réservations, revenus, stats)
-- [ ] Dashboard Client (historique, favoris)
-
-### P3 - Réservations
+### P2 - Réservations
 - [ ] Système de demande de devis
-- [ ] Calendrier de disponibilités
 - [ ] Confirmation et gestion des réservations
 
 ### Future
