@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import uuid
 
 class LumiereEventsAPITester:
-    def __init__(self, base_url="https://eventvendor-1.preview.emergentagent.com"):
+    def __init__(self, base_url="https://eventquest-4.preview.emergentagent.com"):
         self.base_url = base_url
         self.session_token = None
         self.user_id = None
@@ -175,7 +175,7 @@ class LumiereEventsAPITester:
         
         try:
             response = requests.options(f"{self.base_url}/api/providers", 
-                                      headers={'Origin': 'https://eventvendor-1.preview.emergentagent.com'})
+                                      headers={'Origin': 'https://eventquest-4.preview.emergentagent.com'})
             
             cors_headers = [
                 'Access-Control-Allow-Origin',
