@@ -563,7 +563,7 @@ const ProfilePage = () => {
               </Tabs>
 
               {/* Save Button */}
-              <div className="flex justify-end mt-6">
+              <div className="flex justify-end mt-6 mb-20 md:mb-6">
                 <Button
                   onClick={handleSave}
                   disabled={saving}
@@ -585,6 +585,9 @@ const ProfilePage = () => {
               </div>
             </div>
           </div>
+          
+          {/* Mobile Navigation */}
+          <MobileNav user={userData || user} />
         </div>
       )}
     </ProtectedRoute>
