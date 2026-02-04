@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, User, LogOut, Home, Search, MessageSquare, ShoppingBag, LayoutDashboard, Settings, Building, Heart } from 'lucide-react';
+import { User, LogOut, MessageSquare, LayoutDashboard, Settings, Building, Heart, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,16 @@ const Navbar = ({ user, onLogout }) => {
   };
 
   const isProvider = user?.user_type === 'provider';
+  
+  // Get initials for avatar fallback
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   return (
     <nav className="border-b border-border bg-white/80 backdrop-blur-xl sticky top-0 z-50">
@@ -77,45 +88,81 @@ const Navbar = ({ user, onLogout }) => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className={`rounded-full h-10 px-4 ${isProvider ? 'border-slate-700' : 'border-accent'}`}
+                  <button 
+                    className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 border-2 transition-all hover:shadow-md ${
+                      isProvider 
+                        ? 'border-slate-300 hover:border-slate-400' 
+                        : 'border-accent/30 hover:border-accent/50'
+                    }`}
                     data-testid="user-menu-trigger"
                   >
-                    {isProvider ? (
-                      <Building className="h-4 w-4 mr-2 text-slate-700" />
-                    ) : (
-                      <Heart className="h-4 w-4 mr-2 text-accent" />
-                    )}
-                    <span className="max-w-[120px] truncate">{user.name}</span>
-                    <Badge 
-                      variant="secondary" 
-                      className={`ml-2 text-[10px] px-1.5 py-0 ${
+                    {/* Avatar */}
+                    <Avatar className={`h-8 w-8 ring-2 ${isProvider ? 'ring-slate-200' : 'ring-accent/20'}`}>
+                      {user.picture ? (
+                        <AvatarImage src={user.picture} alt={user.name} />
+                      ) : null}
+                      <AvatarFallback className={`text-xs font-semibold ${
                         isProvider 
                           ? 'bg-slate-700 text-white' 
                           : 'bg-accent/10 text-accent'
-                      }`}
-                    >
-                      {isProvider ? 'PRO' : 'Client'}
-                    </Badge>
-                  </Button>
+                      }`}>
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    {/* Name and badge - hidden on mobile */}
+                    <div className="hidden sm:flex items-center gap-2">
+                      <span className="text-sm font-medium max-w-[100px] truncate">
+                        {user.name?.split(' ')[0]}
+                      </span>
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-[10px] px-1.5 py-0 ${
+                          isProvider 
+                            ? 'bg-slate-700 text-white' 
+                            : 'bg-accent/10 text-accent'
+                        }`}
+                      >
+                        {isProvider ? 'PRO' : 'Client'}
+                      </Badge>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  {/* User type indicator at top */}
-                  <div className={`px-3 py-2 mb-1 rounded-md mx-2 ${
-                    isProvider ? 'bg-slate-100' : 'bg-accent/5'
+                <DropdownMenuContent align="end" className="w-64">
+                  {/* User profile header */}
+                  <div className={`p-3 mb-1 rounded-lg mx-2 ${
+                    isProvider ? 'bg-slate-50' : 'bg-accent/5'
                   }`}>
-                    <div className="flex items-center gap-2">
-                      {isProvider ? (
-                        <Building className="h-4 w-4 text-slate-700" />
-                      ) : (
-                        <Heart className="h-4 w-4 text-accent" />
-                      )}
-                      <div>
-                        <p className="text-sm font-medium">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {isProvider ? 'Compte Prestataire' : 'Compte Client'}
-                        </p>
+                    <div className="flex items-center gap-3">
+                      <Avatar className={`h-12 w-12 ring-2 ${isProvider ? 'ring-slate-200' : 'ring-accent/20'}`}>
+                        {user.picture ? (
+                          <AvatarImage src={user.picture} alt={user.name} />
+                        ) : null}
+                        <AvatarFallback className={`text-base font-semibold ${
+                          isProvider 
+                            ? 'bg-slate-700 text-white' 
+                            : 'bg-accent/10 text-accent'
+                        }`}>
+                          {getInitials(user.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        <Badge 
+                          className={`mt-1 text-[10px] ${
+                            isProvider 
+                              ? 'bg-slate-700 text-white' 
+                              : 'bg-accent text-white'
+                          }`}
+                        >
+                          {isProvider ? (
+                            <><Building className="h-3 w-3 mr-1" /> Prestataire</>
+                          ) : (
+                            <><Heart className="h-3 w-3 mr-1" /> Client</>
+                          )}
+                        </Badge>
                       </div>
                     </div>
                   </div>
@@ -137,7 +184,11 @@ const Navbar = ({ user, onLogout }) => {
                     Paramètres
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} data-testid="menu-logout">
+                  <DropdownMenuItem 
+                    onClick={handleLogout} 
+                    data-testid="menu-logout"
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  >
                     <LogOut className="h-4 w-4 mr-2" />
                     Déconnexion
                   </DropdownMenuItem>
