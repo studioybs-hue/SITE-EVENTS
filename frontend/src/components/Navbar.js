@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, User, LogOut, Home, Search, MessageSquare, ShoppingBag, LayoutDashboard, Settings } from 'lucide-react';
+import { Menu, User, LogOut, Home, Search, MessageSquare, ShoppingBag, LayoutDashboard, Settings, Building, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,8 @@ const Navbar = ({ user, onLogout }) => {
       console.error('Logout error:', error);
     }
   };
+
+  const isProvider = user?.user_type === 'provider';
 
   return (
     <nav className="border-b border-border bg-white/80 backdrop-blur-xl sticky top-0 z-50">
@@ -76,17 +79,50 @@ const Navbar = ({ user, onLogout }) => {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="rounded-full h-10 px-4"
+                    className={`rounded-full h-10 px-4 ${isProvider ? 'border-slate-700' : 'border-accent'}`}
                     data-testid="user-menu-trigger"
                   >
-                    <User className="h-4 w-4 mr-2" />
-                    {user.name}
+                    {isProvider ? (
+                      <Building className="h-4 w-4 mr-2 text-slate-700" />
+                    ) : (
+                      <Heart className="h-4 w-4 mr-2 text-accent" />
+                    )}
+                    <span className="max-w-[120px] truncate">{user.name}</span>
+                    <Badge 
+                      variant="secondary" 
+                      className={`ml-2 text-[10px] px-1.5 py-0 ${
+                        isProvider 
+                          ? 'bg-slate-700 text-white' 
+                          : 'bg-accent/10 text-accent'
+                      }`}
+                    >
+                      {isProvider ? 'PRO' : 'Client'}
+                    </Badge>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  {/* User type indicator at top */}
+                  <div className={`px-3 py-2 mb-1 rounded-md mx-2 ${
+                    isProvider ? 'bg-slate-100' : 'bg-accent/5'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      {isProvider ? (
+                        <Building className="h-4 w-4 text-slate-700" />
+                      ) : (
+                        <Heart className="h-4 w-4 text-accent" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium">{user.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {isProvider ? 'Compte Prestataire' : 'Compte Client'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/dashboard')} data-testid="menu-dashboard">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Tableau de bord
+                    {isProvider ? 'Espace Prestataire' : 'Mon Espace'}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/messages')} data-testid="menu-messages">
                     <MessageSquare className="h-4 w-4 mr-2" />
