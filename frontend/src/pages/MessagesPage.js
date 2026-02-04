@@ -292,10 +292,12 @@ const MessagesPage = () => {
                       <div className="p-4 border-b border-border flex items-center space-x-3">
                         <Avatar>
                           <AvatarImage src={selectedUser.picture} />
-                          <AvatarFallback>{selectedUser.name?.[0]}</AvatarFallback>
+                          <AvatarFallback>{selectedUser.name?.[0] || selectedUser.business_name?.[0]}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-semibold" data-testid="selected-user-name">{selectedUser.name}</p>
+                          <p className="font-semibold" data-testid="selected-user-name">
+                            {selectedUser.business_name || selectedUser.name}
+                          </p>
                           <p className="text-xs text-muted-foreground">{selectedUser.email}</p>
                         </div>
                       </div>
@@ -303,9 +305,15 @@ const MessagesPage = () => {
                       {/* Messages */}
                       <div className="flex-1 p-4 overflow-y-auto space-y-4">
                         {messages.length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center" data-testid="no-messages">
-                            Aucun message
-                          </p>
+                          <div className="text-center py-12">
+                            <MessageCircle className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+                            <p className="text-muted-foreground" data-testid="no-messages">
+                              Démarrez la conversation !
+                            </p>
+                            <p className="text-sm text-muted-foreground/70 mt-1">
+                              Envoyez votre premier message à {selectedUser.business_name || selectedUser.name}
+                            </p>
+                          </div>
                         ) : (
                           messages.map((msg) => (
                             <div
