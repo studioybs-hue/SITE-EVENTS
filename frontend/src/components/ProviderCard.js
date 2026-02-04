@@ -104,14 +104,75 @@ const ProviderCard = ({ provider }) => {
               <p className="text-muted-foreground leading-relaxed">{provider.description}</p>
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold mb-3">Services</h3>
-              <div className="flex flex-wrap gap-2">
-                {provider.services.map((s, i) => (
-                  <Badge key={i} variant="secondary">{s}</Badge>
-                ))}
+            {/* Prestations avec prix */}
+            {services.length > 0 ? (
+              <div>
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Prestations & Tarifs
+                </h3>
+                <div className="space-y-3">
+                  {displayedServices.map((service) => (
+                    <div 
+                      key={service.service_id} 
+                      className="border border-border rounded-lg p-4 hover:border-accent/50 transition-colors"
+                      data-testid="provider-service-item"
+                    >
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-lg">{service.title}</h4>
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{service.description}</p>
+                          {service.duration && (
+                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                              <Clock className="h-3 w-3" />
+                              {service.duration === 'journee' ? 'Journée complète' : 
+                               service.duration === 'demi-journee' ? 'Demi-journée' :
+                               service.duration}
+                            </span>
+                          )}
+                          {service.options && service.options.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {service.options.map((opt, i) => (
+                                <Badge key={i} variant="outline" className="text-xs">
+                                  {opt.name} {opt.price > 0 && `+${opt.price}€`}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-2xl font-bold text-primary">{service.price}€</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {services.length > 3 && (
+                  <button 
+                    onClick={() => setShowAllServices(!showAllServices)}
+                    className="mt-3 text-sm text-accent hover:text-accent/80 flex items-center gap-1 mx-auto"
+                  >
+                    {showAllServices ? (
+                      <>Voir moins <ChevronUp className="h-4 w-4" /></>
+                    ) : (
+                      <>Voir les {services.length - 3} autres prestations <ChevronDown className="h-4 w-4" /></>
+                    )}
+                  </button>
+                )}
               </div>
-            </div>
+            ) : (
+              <div>
+                <h3 className="text-xl font-semibold mb-3">Services proposés</h3>
+                <div className="flex flex-wrap gap-2">
+                  {provider.services.map((s, i) => (
+                    <Badge key={i} variant="secondary">{s}</Badge>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mt-3 italic">
+                  Contactez ce prestataire pour obtenir un devis personnalisé
+                </p>
+              </div>
+            )}
 
             <div className="pt-4 border-t">
               <div className="grid grid-cols-2 gap-6 mb-4">
