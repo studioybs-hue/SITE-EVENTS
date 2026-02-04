@@ -1537,6 +1537,220 @@ async def join_room(sid, data):
     sio.enter_room(sid, user_id)
     logger.info(f"Client {sid} joined room {user_id}")
 
+# ============ FILE UPLOAD ROUTES ============
+
+UPLOAD_DIR = ROOT_DIR / 'uploads'
+UPLOAD_DIR.mkdir(exist_ok=True)
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+ALLOWED_EXTENSIONS = {
+    'image': ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+    'document': ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt'],
+    'contract': ['.pdf', '.doc', '.docx']
+}
+
+def get_file_type(filename: str) -> str:
+    """Determine file type from extension"""
+    ext = Path(filename).suffix.lower()
+    for file_type, extensions in ALLOWED_EXTENSIONS.items():
+        if ext in extensions:
+            return file_type
+    return 'document'
+
+@api_router.post("/upload-file")
+async def upload_file(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a file and return its URL"""
+    # Check file size by reading content
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="Le fichier est trop volumineux (max 10MB)")
+    
+    # Validate extension
+    ext = Path(file.filename).suffix.lower()
+    all_extensions = [e for exts in ALLOWED_EXTENSIONS.values() for e in exts]
+    if ext not in all_extensions:
+        raise HTTPException(status_code=400, detail=f"Type de fichier non autorisé: {ext}")
+    
+    # Generate unique filename
+    file_id = f"file_{uuid.uuid4().hex[:12]}"
+    safe_filename = f"{file_id}{ext}"
+    file_path = UPLOAD_DIR / safe_filename
+    
+    # Save file
+    async with aiofiles.open(file_path, 'wb') as f:
+        await f.write(content)
+    
+    # Get file info
+    file_type = get_file_type(file.filename)
+    file_url = f"/api/files/{safe_filename}"
+    
+    return {
+        "file_id": file_id,
+        "file_name": file.filename,
+        "file_type": file_type,
+        "file_url": file_url,
+        "file_size": len(content)
+    }
+
+@api_router.get("/files/{filename}")
+async def get_file(filename: str):
+    """Serve uploaded files"""
+    file_path = UPLOAD_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Fichier non trouvé")
+    
+    # Get mime type
+    mime_type, _ = mimetypes.guess_type(str(file_path))
+    if not mime_type:
+        mime_type = 'application/octet-stream'
+    
+    # Read and return file
+    async with aiofiles.open(file_path, 'rb') as f:
+        content = await f.read()
+    
+    return Response(
+        content=content,
+        media_type=mime_type,
+        headers={
+            "Content-Disposition": f"inline; filename={filename}"
+        }
+    )
+
+# ============ REAL-TIME MESSAGING WITH SOCKET.IO ============
+
+# Track connected users: {user_id: sid}
+connected_users = {}
+
+@sio.event
+async def connect(sid, environ):
+    logger.info(f"Client {sid} connected")
+
+@sio.event
+async def disconnect(sid):
+    # Remove user from connected_users
+    user_to_remove = None
+    for user_id, s in connected_users.items():
+        if s == sid:
+            user_to_remove = user_id
+            break
+    if user_to_remove:
+        del connected_users[user_to_remove]
+    logger.info(f"Client {sid} disconnected")
+
+@sio.event
+async def join_room(sid, data):
+    """User joins their personal room for receiving messages"""
+    user_id = data.get('user_id')
+    if user_id:
+        connected_users[user_id] = sid
+        await sio.enter_room(sid, user_id)
+        logger.info(f"User {user_id} joined room (sid: {sid})")
+
+@sio.event
+async def leave_room(sid, data):
+    """User leaves their room"""
+    user_id = data.get('user_id')
+    if user_id:
+        await sio.leave_room(sid, user_id)
+        if user_id in connected_users:
+            del connected_users[user_id]
+        logger.info(f"User {user_id} left room")
+
+@sio.event
+async def send_message(sid, data):
+    """Handle real-time message sending"""
+    try:
+        sender_id = data.get('sender_id')
+        receiver_id = data.get('receiver_id')
+        content = data.get('content', '')
+        attachments = data.get('attachments', [])
+        
+        if not sender_id or not receiver_id:
+            await sio.emit('error', {'message': 'sender_id and receiver_id required'}, room=sid)
+            return
+        
+        if not content and not attachments:
+            await sio.emit('error', {'message': 'Message content or attachment required'}, room=sid)
+            return
+        
+        # Create message in database
+        message_id = f"msg_{uuid.uuid4().hex[:12]}"
+        now = datetime.now(timezone.utc).isoformat()
+        
+        message_doc = {
+            "message_id": message_id,
+            "sender_id": sender_id,
+            "receiver_id": receiver_id,
+            "content": content,
+            "attachments": attachments,
+            "read": False,
+            "created_at": now
+        }
+        
+        await db.messages.insert_one(message_doc)
+        
+        # Prepare response message
+        response_msg = {
+            "message_id": message_id,
+            "sender_id": sender_id,
+            "receiver_id": receiver_id,
+            "content": content,
+            "attachments": attachments,
+            "read": False,
+            "created_at": now
+        }
+        
+        # Emit to sender (confirmation)
+        await sio.emit('message_sent', response_msg, room=sid)
+        
+        # Emit to receiver (if connected)
+        if receiver_id in connected_users:
+            await sio.emit('new_message', response_msg, room=receiver_id)
+        
+        logger.info(f"Message sent from {sender_id} to {receiver_id}")
+        
+    except Exception as e:
+        logger.error(f"Error sending message: {e}")
+        await sio.emit('error', {'message': str(e)}, room=sid)
+
+@sio.event
+async def mark_read(sid, data):
+    """Mark messages as read"""
+    try:
+        reader_id = data.get('reader_id')
+        sender_id = data.get('sender_id')
+        
+        if reader_id and sender_id:
+            await db.messages.update_many(
+                {"sender_id": sender_id, "receiver_id": reader_id, "read": False},
+                {"$set": {"read": True}}
+            )
+            
+            # Notify sender that messages were read
+            if sender_id in connected_users:
+                await sio.emit('messages_read', {
+                    'reader_id': reader_id,
+                    'sender_id': sender_id
+                }, room=sender_id)
+                
+    except Exception as e:
+        logger.error(f"Error marking messages read: {e}")
+
+@sio.event
+async def typing(sid, data):
+    """Broadcast typing indicator"""
+    sender_id = data.get('sender_id')
+    receiver_id = data.get('receiver_id')
+    is_typing = data.get('is_typing', False)
+    
+    if receiver_id in connected_users:
+        await sio.emit('user_typing', {
+            'user_id': sender_id,
+            'is_typing': is_typing
+        }, room=receiver_id)
+
 # Include router
 app.include_router(api_router)
 
