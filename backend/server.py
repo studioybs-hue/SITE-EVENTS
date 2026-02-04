@@ -16,7 +16,8 @@ from models import (
     User, UserCreate, ProviderProfile, ProviderProfileCreate, ProviderProfileUpdate,
     Availability, AvailabilityCreate, Booking, BookingCreate, BookingUpdate,
     Review, ReviewCreate, Message, MessageCreate, MarketplaceItem,
-    MarketplaceItemCreate, MarketplaceItemUpdate, UserSession
+    MarketplaceItemCreate, MarketplaceItemUpdate, UserSession,
+    EventPackage, EventPackageCreate, EventPackageUpdate, PackageProvider
 )
 
 ROOT_DIR = Path(__file__).parent
