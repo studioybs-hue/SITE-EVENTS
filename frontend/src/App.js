@@ -6,6 +6,7 @@ import { Toaster } from 'sonner';
 // Pages
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
+import LoginProPage from '@/pages/LoginProPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import SearchPage from '@/pages/SearchPage';
