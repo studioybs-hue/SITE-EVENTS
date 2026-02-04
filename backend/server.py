@@ -26,7 +26,7 @@ from models import (
     UserSession, EventPackage, EventPackageCreate, EventPackageUpdate, PackageProvider,
     Service, ServiceCreate, ServiceUpdate, ServiceOption,
     QuoteRequest, QuoteRequestCreate, QuoteRequestUpdate, QuoteServiceItem,
-    MessageAttachment, Notification
+    MessageAttachment, Notification, FavoriteProvider, FavoriteProviderCreate
 )
 
 ROOT_DIR = Path(__file__).parent
