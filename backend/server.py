@@ -18,7 +18,8 @@ import aiofiles
 import mimetypes
 
 from models import (
-    User, UserCreate, ProviderProfile, ProviderProfileCreate, ProviderProfileUpdate,
+    User, UserCreate, UserUpdate, UserPreferences, NotificationSettings,
+    ProviderProfile, ProviderProfileCreate, ProviderProfileUpdate,
     Availability, AvailabilityCreate, Booking, BookingCreate, BookingUpdate,
     Review, ReviewCreate, Message, MessageCreate, MarketplaceItem,
     MarketplaceItemCreate, MarketplaceItemUpdate, UserSession,
