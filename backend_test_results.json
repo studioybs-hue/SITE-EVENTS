@@ -1,0 +1,83 @@
+{
+  "total_tests": 15,
+  "passed_tests": 15,
+  "failed_tests": 0,
+  "success_rate": 100.0,
+  "details": [
+    {
+      "test": "Basic connectivity",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Database connectivity",
+      "success": true,
+      "details": "Retrieved 0 providers"
+    },
+    {
+      "test": "CORS headers present",
+      "success": true,
+      "details": "Headers: ['access-control-allow-credentials', 'access-control-allow-origin', 'allow', 'Content-Length', 'content-type', 'date', 'server', 'via', 'Alt-Svc']"
+    },
+    {
+      "test": "Get providers",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get providers with category filter",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get providers with location filter",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get providers with search",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get marketplace items",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get marketplace with category filter",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get marketplace with location filter",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "test": "Get user info (no auth)",
+      "success": true,
+      "details": "Status: 401"
+    },
+    {
+      "test": "Create session (invalid)",
+      "success": true,
+      "details": "Status: 401"
+    },
+    {
+      "test": "Get bookings (no auth)",
+      "success": true,
+      "details": "Status: 401"
+    },
+    {
+      "test": "Get conversations (no auth)",
+      "success": true,
+      "details": "Status: 401"
+    },
+    {
+      "test": "Create provider profile (no auth)",
+      "success": true,
+      "details": "Status: 401"
+    }
+  ]
+}
