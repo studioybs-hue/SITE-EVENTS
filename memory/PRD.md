@@ -35,6 +35,13 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
   - Formulaire : type d'événement, date, lieu, message
   - Envoi au prestataire avec notification automatique
 
+### ✅ Gestion des Devis - Prestataire (Complète - 04/02/2025)
+- Onglet "Devis" dans le dashboard prestataire
+- Liste des demandes en attente avec détails complets
+- Répondre avec un prix et un message personnalisé
+- Refuser une demande
+- Historique des devis traités avec statuts (Répondu, Accepté, Refusé)
+
 ### ✅ Packs Événementiels (Complète)
 - Affichage des packs avec réductions
 - Détail des services inclus
