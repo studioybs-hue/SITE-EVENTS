@@ -395,6 +395,9 @@ const DashboardPage = () => {
                         </div>
                       </div>
                     </Card>
+
+                    {/* Recent Messages */}
+                    <RecentMessages />
                   </div>
                 </div>
               ) : (
