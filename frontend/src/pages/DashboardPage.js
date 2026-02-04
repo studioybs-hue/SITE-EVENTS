@@ -239,14 +239,30 @@ const DashboardPage = () => {
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-medium text-foreground mb-2" data-testid="dashboard-title">
-                    {isProvider ? 'Espace Prestataire' : 'Mon Espace'}
-                  </h1>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-medium text-foreground" data-testid="dashboard-title">
+                      {isProvider ? 'Espace Prestataire' : 'Mon Espace'}
+                    </h1>
+                    <Badge 
+                      className={`h-7 px-3 text-sm ${
+                        isProvider 
+                          ? 'bg-slate-700 text-white hover:bg-slate-700' 
+                          : 'bg-accent/10 text-accent hover:bg-accent/10'
+                      }`}
+                      data-testid="user-type-badge"
+                    >
+                      {isProvider ? (
+                        <><Building className="h-3.5 w-3.5 mr-1.5" /> PRO</>
+                      ) : (
+                        <><Heart className="h-3.5 w-3.5 mr-1.5" /> Client</>
+                      )}
+                    </Badge>
+                  </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-muted-foreground">
                       Bienvenue, {userData?.name || user?.name}
                     </span>
-                    {isProvider && (
+                    {isProvider && providerProfile && (
                       <Badge variant="secondary">{providerProfile.category}</Badge>
                     )}
                     {/* Status badges */}
