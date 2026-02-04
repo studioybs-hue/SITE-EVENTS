@@ -236,9 +236,23 @@ const ProviderCard = ({ provider }) => {
                 )}
               </div>
             </div>
-            <button onClick={() => setExpanded(false)} className="text-muted-foreground hover:text-foreground">
-              <X className="h-6 w-6" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={toggleFavorite}
+                disabled={favoriteLoading}
+                className={`p-2 rounded-full transition-colors ${
+                  isFavorite 
+                    ? 'bg-red-100 text-red-500 hover:bg-red-200' 
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+                title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              >
+                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+              <button onClick={() => setExpanded(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
           </div>
 
           {!isAuth && (
