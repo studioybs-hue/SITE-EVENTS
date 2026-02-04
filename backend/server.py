@@ -1987,6 +1987,349 @@ async def verify_provider(
     
     return {"message": "Provider verification updated"}
 
+# ============ PAYMENT ROUTES (STRIPE) ============
+
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
+
+@api_router.post("/payments/create-checkout")
+async def create_checkout_session(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create a Stripe checkout session for booking payment.
+    Supports full payment, deposit, or installment payments.
+    """
+    body = await request.json()
+    booking_id = body.get('booking_id')
+    payment_type = body.get('payment_type', 'full')  # full, deposit, installment
+    installment_number = body.get('installment_number', 1)
+    total_installments = body.get('total_installments', 1)
+    origin_url = body.get('origin_url')
+    
+    if not booking_id or not origin_url:
+        raise HTTPException(status_code=400, detail="booking_id and origin_url required")
+    
+    # Fetch booking
+    booking = await db.bookings.find_one({"booking_id": booking_id}, {"_id": 0})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    # Verify user owns this booking
+    if booking['client_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check booking status
+    if booking['status'] not in ['confirmed', 'pending']:
+        raise HTTPException(status_code=400, detail="Cannot pay for this booking status")
+    
+    # Calculate amount based on payment type
+    total_amount = float(booking['total_amount'])
+    deposit_required = float(booking.get('deposit_required', total_amount * 0.3))
+    deposit_paid = float(booking.get('deposit_paid', 0))
+    remaining = total_amount - deposit_paid
+    
+    if payment_type == 'full':
+        # Pay full remaining amount
+        amount = remaining
+    elif payment_type == 'deposit':
+        # Pay deposit (30% of total)
+        amount = min(deposit_required - deposit_paid, remaining)
+    elif payment_type == 'installment':
+        # Calculate installment amount
+        if total_installments == 2:
+            # 2x payment: 50% each
+            amount = remaining / 2
+        elif total_installments == 3:
+            # 3x payment: ~33% each
+            amount = remaining / 3
+        else:
+            amount = remaining
+    else:
+        raise HTTPException(status_code=400, detail="Invalid payment type")
+    
+    # Ensure amount is positive
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="Nothing to pay")
+    
+    # Round to 2 decimals
+    amount = round(amount, 2)
+    
+    # Initialize Stripe
+    api_key = os.environ.get('STRIPE_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Payment not configured")
+    
+    # Build webhook and redirect URLs
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    success_url = f"{origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{origin_url}/dashboard"
+    
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+    
+    # Create transaction record BEFORE creating checkout session
+    transaction_id = f"txn_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Metadata for tracking
+    metadata = {
+        "booking_id": booking_id,
+        "user_id": current_user.user_id,
+        "payment_type": payment_type,
+        "transaction_id": transaction_id
+    }
+    if payment_type == 'installment':
+        metadata["installment_number"] = str(installment_number)
+        metadata["total_installments"] = str(total_installments)
+    
+    try:
+        # Create Stripe checkout session
+        checkout_request = CheckoutSessionRequest(
+            amount=amount,
+            currency="eur",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata=metadata
+        )
+        session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
+        
+        # Store transaction in database
+        transaction_doc = {
+            "transaction_id": transaction_id,
+            "booking_id": booking_id,
+            "user_id": current_user.user_id,
+            "session_id": session.session_id,
+            "amount": amount,
+            "currency": "eur",
+            "payment_type": payment_type,
+            "installment_number": installment_number if payment_type == 'installment' else None,
+            "total_installments": total_installments if payment_type == 'installment' else None,
+            "payment_status": "pending",
+            "metadata": metadata,
+            "created_at": now,
+            "updated_at": now
+        }
+        await db.payment_transactions.insert_one(transaction_doc)
+        
+        return {
+            "checkout_url": session.url,
+            "session_id": session.session_id,
+            "transaction_id": transaction_id,
+            "amount": amount
+        }
+    except Exception as e:
+        logger.error(f"Stripe error: {e}")
+        raise HTTPException(status_code=500, detail=f"Payment error: {str(e)}")
+
+@api_router.get("/payments/status/{session_id}")
+async def get_payment_status(
+    session_id: str,
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Check payment status and update booking if paid"""
+    # Find transaction
+    transaction = await db.payment_transactions.find_one(
+        {"session_id": session_id},
+        {"_id": 0}
+    )
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    # Verify ownership
+    if transaction['user_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # If already processed, return cached status
+    if transaction['payment_status'] in ['paid', 'failed', 'refunded']:
+        return {
+            "status": transaction['payment_status'],
+            "amount": transaction['amount'],
+            "booking_id": transaction['booking_id']
+        }
+    
+    # Poll Stripe for status
+    api_key = os.environ.get('STRIPE_API_KEY')
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+    
+    try:
+        checkout_status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)
+        
+        new_status = "pending"
+        if checkout_status.payment_status == "paid":
+            new_status = "paid"
+        elif checkout_status.status == "expired":
+            new_status = "expired"
+        
+        # Update transaction if status changed
+        if new_status != transaction['payment_status']:
+            await db.payment_transactions.update_one(
+                {"session_id": session_id},
+                {"$set": {
+                    "payment_status": new_status,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            # If paid, update booking
+            if new_status == "paid":
+                booking = await db.bookings.find_one(
+                    {"booking_id": transaction['booking_id']},
+                    {"_id": 0}
+                )
+                if booking:
+                    new_deposit_paid = float(booking.get('deposit_paid', 0)) + transaction['amount']
+                    total_amount = float(booking['total_amount'])
+                    
+                    # Determine new payment status
+                    if new_deposit_paid >= total_amount:
+                        booking_payment_status = "paid"
+                    elif new_deposit_paid >= float(booking.get('deposit_required', total_amount * 0.3)):
+                        booking_payment_status = "partial"
+                    else:
+                        booking_payment_status = "pending"
+                    
+                    await db.bookings.update_one(
+                        {"booking_id": transaction['booking_id']},
+                        {"$set": {
+                            "deposit_paid": new_deposit_paid,
+                            "payment_status": booking_payment_status,
+                            "updated_at": datetime.now(timezone.utc).isoformat()
+                        }}
+                    )
+                    
+                    # Send notification message to provider
+                    provider = await db.provider_profiles.find_one(
+                        {"provider_id": booking['provider_id']},
+                        {"_id": 0}
+                    )
+                    if provider:
+                        message_id = f"msg_{uuid.uuid4().hex[:12]}"
+                        payment_msg = f"💳 Paiement reçu !\n\n{current_user.name} a effectué un paiement de {transaction['amount']}€"
+                        if transaction['payment_type'] == 'installment':
+                            payment_msg += f" (versement {transaction['installment_number']}/{transaction['total_installments']})"
+                        payment_msg += f"\n\nRéférence: {transaction['booking_id']}\nTotal payé: {new_deposit_paid}€ / {total_amount}€"
+                        
+                        await db.messages.insert_one({
+                            "message_id": message_id,
+                            "sender_id": current_user.user_id,
+                            "receiver_id": provider['user_id'],
+                            "content": payment_msg,
+                            "read": False,
+                            "created_at": datetime.now(timezone.utc).isoformat()
+                        })
+        
+        return {
+            "status": new_status,
+            "payment_status": checkout_status.payment_status,
+            "amount": transaction['amount'],
+            "booking_id": transaction['booking_id']
+        }
+    except Exception as e:
+        logger.error(f"Error checking payment status: {e}")
+        return {
+            "status": transaction['payment_status'],
+            "amount": transaction['amount'],
+            "booking_id": transaction['booking_id']
+        }
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """Handle Stripe webhook events"""
+    api_key = os.environ.get('STRIPE_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Payment not configured")
+    
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+    
+    try:
+        body = await request.body()
+        signature = request.headers.get("Stripe-Signature")
+        
+        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        
+        # Process webhook event
+        if webhook_response.payment_status == "paid":
+            session_id = webhook_response.session_id
+            
+            # Find and update transaction
+            transaction = await db.payment_transactions.find_one(
+                {"session_id": session_id},
+                {"_id": 0}
+            )
+            
+            if transaction and transaction['payment_status'] != 'paid':
+                await db.payment_transactions.update_one(
+                    {"session_id": session_id},
+                    {"$set": {
+                        "payment_status": "paid",
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+                
+                # Update booking
+                booking = await db.bookings.find_one(
+                    {"booking_id": transaction['booking_id']},
+                    {"_id": 0}
+                )
+                if booking:
+                    new_deposit_paid = float(booking.get('deposit_paid', 0)) + transaction['amount']
+                    total_amount = float(booking['total_amount'])
+                    
+                    if new_deposit_paid >= total_amount:
+                        booking_payment_status = "paid"
+                    elif new_deposit_paid >= float(booking.get('deposit_required', total_amount * 0.3)):
+                        booking_payment_status = "partial"
+                    else:
+                        booking_payment_status = "pending"
+                    
+                    await db.bookings.update_one(
+                        {"booking_id": transaction['booking_id']},
+                        {"$set": {
+                            "deposit_paid": new_deposit_paid,
+                            "payment_status": booking_payment_status,
+                            "updated_at": datetime.now(timezone.utc).isoformat()
+                        }}
+                    )
+        
+        return {"status": "received"}
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return {"status": "error", "message": str(e)}
+
+@api_router.get("/payments/booking/{booking_id}")
+async def get_booking_payments(
+    booking_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all payment transactions for a booking"""
+    # Verify booking ownership
+    booking = await db.bookings.find_one({"booking_id": booking_id}, {"_id": 0})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    if booking['client_id'] != current_user.user_id:
+        # Check if user is the provider
+        provider = await db.provider_profiles.find_one(
+            {"user_id": current_user.user_id},
+            {"_id": 0}
+        )
+        if not provider or booking['provider_id'] != provider['provider_id']:
+            raise HTTPException(status_code=403, detail="Not authorized")
+    
+    transactions = await db.payment_transactions.find(
+        {"booking_id": booking_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return transactions
+
 # ============ FILE UPLOAD ROUTES ============
 
 UPLOAD_DIR = ROOT_DIR / 'uploads'
