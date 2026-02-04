@@ -624,12 +624,31 @@ async def get_bookings(
         # Get client's bookings
         query = {"client_id": current_user.user_id}
     
-    bookings = await db.bookings.find(query, {"_id": 0}).to_list(100)
+    bookings = await db.bookings.find(query, {"_id": 0}).sort("event_date", 1).to_list(100)
+    
+    # Enrich bookings with names if missing
     for b in bookings:
         if isinstance(b['created_at'], str):
             b['created_at'] = datetime.fromisoformat(b['created_at'])
         if isinstance(b['updated_at'], str):
             b['updated_at'] = datetime.fromisoformat(b['updated_at'])
+        
+        # Add provider name if missing
+        if not b.get('provider_name'):
+            provider_doc = await db.provider_profiles.find_one({"provider_id": b['provider_id']}, {"_id": 0})
+            b['provider_name'] = provider_doc['business_name'] if provider_doc else 'Prestataire'
+        
+        # Add client name if missing
+        if not b.get('client_name'):
+            client_doc = await db.users.find_one({"user_id": b['client_id']}, {"_id": 0})
+            b['client_name'] = client_doc['name'] if client_doc else 'Client'
+        
+        # Ensure services field exists
+        if 'services' not in b:
+            b['services'] = []
+        if 'deposit_required' not in b:
+            b['deposit_required'] = round(b.get('total_amount', 0) * 0.3, 2)
+            
     return [Booking(**b) for b in bookings]
 
 @api_router.get("/bookings/{booking_id}", response_model=Booking)
