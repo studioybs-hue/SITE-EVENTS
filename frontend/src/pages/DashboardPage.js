@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,9 +10,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Euro, MapPin, User, Building, Plus } from 'lucide-react';
+import { 
+  Calendar, Euro, MapPin, User, Building, MessageCircle, 
+  Star, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle,
+  Settings, Edit
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 const DashboardPage = () => {
@@ -21,6 +26,7 @@ const DashboardPage = () => {
   const [providerProfile, setProviderProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [createProfileOpen, setCreateProfileOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const [profileData, setProfileData] = useState({
     business_name: '',
     category: '',
@@ -36,14 +42,14 @@ const DashboardPage = () => {
     'Wedding Planner', 'Fleuriste', 'Animateur', 'Loueur de matériel'
   ];
 
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-      
       // Fetch user
       const userRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
         credentials: 'include',
@@ -51,12 +57,15 @@ const DashboardPage = () => {
       const userData = await userRes.json();
       setUser(userData);
 
-      // Fetch bookings
-      const bookingsRes = await fetch(`${BACKEND_URL}/api/bookings`, {
-        credentials: 'include',
-      });
-      const bookingsData = await bookingsRes.json();
-      setBookings(bookingsData);
+      // Fetch bookings based on user type
+      const bookingsRes = await fetch(
+        `${BACKEND_URL}/api/bookings?role=${userData.user_type === 'provider' ? 'provider' : 'client'}`,
+        { credentials: 'include' }
+      );
+      if (bookingsRes.ok) {
+        const bookingsData = await bookingsRes.json();
+        setBookings(bookingsData);
+      }
 
       // If provider, fetch profile
       if (userData.user_type === 'provider') {
@@ -80,7 +89,6 @@ const DashboardPage = () => {
   const handleCreateProfile = async (e) => {
     e.preventDefault();
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
       const response = await fetch(`${BACKEND_URL}/api/providers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -108,7 +116,6 @@ const DashboardPage = () => {
 
   const handleBecomeProvider = async () => {
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
       await fetch(`${BACKEND_URL}/api/auth/profile?user_type=provider`, {
         method: 'PATCH',
         credentials: 'include',
@@ -119,20 +126,55 @@ const DashboardPage = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed': return 'bg-emerald-100 text-emerald-700';
-      case 'pending': return 'bg-amber-100 text-amber-700';
-      case 'cancelled': return 'bg-rose-100 text-rose-700';
-      case 'completed': return 'bg-blue-100 text-blue-700';
-      default: return 'bg-gray-100 text-gray-700';
+  const handleUpdateBookingStatus = async (bookingId, newStatus) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/bookings/${bookingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        toast.success(`Réservation ${newStatus === 'confirmed' ? 'confirmée' : 'annulée'}`);
+        fetchData();
+      } else {
+        toast.error('Erreur lors de la mise à jour');
+      }
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      toast.error('Erreur lors de la mise à jour');
     }
+  };
+
+  const getStatusBadge = (status) => {
+    const configs = {
+      confirmed: { class: 'bg-emerald-100 text-emerald-700', icon: CheckCircle, label: 'Confirmé' },
+      pending: { class: 'bg-amber-100 text-amber-700', icon: Clock, label: 'En attente' },
+      cancelled: { class: 'bg-rose-100 text-rose-700', icon: XCircle, label: 'Annulé' },
+      completed: { class: 'bg-blue-100 text-blue-700', icon: CheckCircle, label: 'Terminé' },
+    };
+    const config = configs[status] || configs.pending;
+    const Icon = config.icon;
+    return (
+      <Badge className={config.class}>
+        <Icon className="h-3 w-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
   };
 
   const handleLogout = () => {
     setUser(null);
     navigate('/');
   };
+
+  // Stats calculations
+  const pendingBookings = bookings.filter(b => b.status === 'pending').length;
+  const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+  const totalRevenue = bookings
+    .filter(b => b.status === 'completed' || b.status === 'confirmed')
+    .reduce((sum, b) => sum + (b.total_amount || 0), 0);
 
   if (loading) {
     return (
@@ -144,6 +186,8 @@ const DashboardPage = () => {
       </div>
     );
   }
+
+  const isProvider = user?.user_type === 'provider' && providerProfile;
 
   return (
     <ProtectedRoute>
@@ -157,154 +201,342 @@ const DashboardPage = () => {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h1 className="text-4xl md:text-5xl font-heading font-medium text-foreground mb-2" data-testid="dashboard-title">
-                    Tableau de bord
+                    {isProvider ? 'Espace Prestataire' : 'Mon Espace'}
                   </h1>
-                  <p className="text-muted-foreground">Bienvenue, {userData?.name || user?.name}</p>
+                  <p className="text-muted-foreground">
+                    Bienvenue, {userData?.name || user?.name}
+                    {isProvider && (
+                      <Badge variant="secondary" className="ml-2">{providerProfile.category}</Badge>
+                    )}
+                  </p>
                 </div>
-                {userData?.user_type === 'client' && (
+                <div className="flex gap-2">
+                  {!isProvider && userData?.user_type === 'client' && (
+                    <Button
+                      onClick={handleBecomeProvider}
+                      className="rounded-full"
+                      data-testid="become-provider-btn"
+                    >
+                      <Building className="h-4 w-4 mr-2" />
+                      Devenir prestataire
+                    </Button>
+                  )}
                   <Button
-                    onClick={handleBecomeProvider}
+                    variant="outline"
+                    onClick={() => navigate('/messages')}
                     className="rounded-full"
-                    data-testid="become-provider-btn"
                   >
-                    <Building className="h-4 w-4 mr-2" />
-                    Devenir prestataire
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Messages
                   </Button>
-                )}
+                </div>
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <Card className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <Card className="p-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Réservations</p>
-                      <p className="text-3xl font-semibold" data-testid="bookings-count">{bookings.length}</p>
+                      <p className="text-xs text-muted-foreground mb-1">En attente</p>
+                      <p className="text-2xl font-semibold text-amber-600" data-testid="pending-count">
+                        {pendingBookings}
+                      </p>
                     </div>
-                    <Calendar className="h-8 w-8 text-accent" />
+                    <AlertCircle className="h-8 w-8 text-amber-500/30" />
                   </div>
                 </Card>
-                {providerProfile && (
+                <Card className="p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Confirmées</p>
+                      <p className="text-2xl font-semibold text-emerald-600" data-testid="confirmed-count">
+                        {confirmedBookings}
+                      </p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-emerald-500/30" />
+                  </div>
+                </Card>
+                {isProvider && (
                   <>
-                    <Card className="p-6">
+                    <Card className="p-5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-muted-foreground mb-1">Note moyenne</p>
-                          <p className="text-3xl font-semibold" data-testid="rating">{providerProfile.rating.toFixed(1)}</p>
+                          <p className="text-xs text-muted-foreground mb-1">Note</p>
+                          <p className="text-2xl font-semibold" data-testid="rating">
+                            {providerProfile.rating.toFixed(1)} <span className="text-accent">★</span>
+                          </p>
                         </div>
-                        <div className="h-8 w-8 bg-accent/20 rounded-full flex items-center justify-center text-accent font-semibold">
-                          ★
-                        </div>
+                        <Star className="h-8 w-8 text-accent/30" />
                       </div>
                     </Card>
-                    <Card className="p-6">
+                    <Card className="p-5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-muted-foreground mb-1">Avis</p>
-                          <p className="text-3xl font-semibold" data-testid="reviews-count">{providerProfile.total_reviews}</p>
+                          <p className="text-xs text-muted-foreground mb-1">Revenus</p>
+                          <p className="text-2xl font-semibold text-primary" data-testid="revenue">
+                            {totalRevenue}€
+                          </p>
                         </div>
-                        <User className="h-8 w-8 text-accent" />
+                        <TrendingUp className="h-8 w-8 text-primary/30" />
                       </div>
                     </Card>
                   </>
                 )}
+                {!isProvider && (
+                  <Card className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Total</p>
+                        <p className="text-2xl font-semibold" data-testid="total-bookings">
+                          {bookings.length}
+                        </p>
+                      </div>
+                      <Calendar className="h-8 w-8 text-accent/30" />
+                    </div>
+                  </Card>
+                )}
               </div>
 
-              {/* Tabs */}
-              <Tabs defaultValue="bookings" className="space-y-6">
-                <TabsList>
-                  <TabsTrigger value="bookings" data-testid="tab-bookings">Mes réservations</TabsTrigger>
-                  {providerProfile && (
-                    <TabsTrigger value="profile" data-testid="tab-profile">Mon profil</TabsTrigger>
-                  )}
-                </TabsList>
+              {/* Main Content - Provider View */}
+              {isProvider ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left: Calendar */}
+                  <div className="lg:col-span-2">
+                    <AvailabilityCalendar 
+                      providerId={providerProfile.provider_id} 
+                      bookings={bookings}
+                    />
+                  </div>
 
-                <TabsContent value="bookings">
-                  <Card className="p-6">
-                    <h2 className="text-2xl font-heading font-semibold mb-6">Réservations</h2>
-                    {bookings.length === 0 ? (
-                      <p className="text-muted-foreground" data-testid="no-bookings">Aucune réservation</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {bookings.map((booking) => (
-                          <div
-                            key={booking.booking_id}
-                            className="border border-border rounded-sm p-4 hover:shadow-sm transition-shadow"
-                            data-testid="booking-item"
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-2">
-                                <div className="flex items-center space-x-3">
-                                  <h3 className="font-semibold text-lg">{booking.event_type}</h3>
-                                  <Badge className={getStatusColor(booking.status)}>
-                                    {booking.status}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center text-sm text-muted-foreground space-x-4">
-                                  <div className="flex items-center">
-                                    <Calendar className="h-4 w-4 mr-1" />
+                  {/* Right: Bookings & Profile */}
+                  <div className="space-y-6">
+                    {/* Pending Bookings */}
+                    <Card className="p-5">
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-amber-500" />
+                        Demandes en attente
+                      </h3>
+                      {bookings.filter(b => b.status === 'pending').length === 0 ? (
+                        <p className="text-sm text-muted-foreground">Aucune demande</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {bookings.filter(b => b.status === 'pending').slice(0, 3).map((booking) => (
+                            <div key={booking.booking_id} className="p-3 bg-secondary/30 rounded-lg">
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <p className="font-medium text-sm">{booking.event_type}</p>
+                                  <p className="text-xs text-muted-foreground">
                                     {new Date(booking.event_date).toLocaleDateString('fr-FR')}
-                                  </div>
-                                  <div className="flex items-center">
-                                    <MapPin className="h-4 w-4 mr-1" />
-                                    {booking.event_location}
-                                  </div>
-                                  <div className="flex items-center">
-                                    <Euro className="h-4 w-4 mr-1" />
-                                    {booking.total_amount}€
-                                  </div>
+                                  </p>
                                 </div>
-                                {booking.notes && (
-                                  <p className="text-sm text-muted-foreground">Notes: {booking.notes}</p>
-                                )}
+                                <p className="text-sm font-semibold">{booking.total_amount}€</p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button 
+                                  size="sm" 
+                                  className="flex-1 h-8"
+                                  onClick={() => handleUpdateBookingStatus(booking.booking_id, 'confirmed')}
+                                  data-testid={`confirm-booking-${booking.booking_id}`}
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Accepter
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="flex-1 h-8"
+                                  onClick={() => handleUpdateBookingStatus(booking.booking_id, 'cancelled')}
+                                  data-testid={`reject-booking-${booking.booking_id}`}
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Refuser
+                                </Button>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </Card>
-                </TabsContent>
+                          ))}
+                        </div>
+                      )}
+                    </Card>
 
-                {providerProfile && (
-                  <TabsContent value="profile">
-                    <Card className="p-6">
-                      <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-heading font-semibold">Mon profil prestataire</h2>
-                        <Button
-                          onClick={() => navigate(`/providers/${providerProfile.provider_id}`)}
-                          variant="outline"
-                          data-testid="view-public-profile-btn"
-                        >
-                          Voir le profil public
+                    {/* Provider Profile Summary */}
+                    <Card className="p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Mon Profil
+                        </h3>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
                         </Button>
                       </div>
-                      <div className="space-y-4">
+                      <div className="space-y-3 text-sm">
                         <div>
-                          <Label>Nom commercial</Label>
-                          <p className="text-foreground font-medium">{providerProfile.business_name}</p>
+                          <p className="text-muted-foreground">Entreprise</p>
+                          <p className="font-medium">{providerProfile.business_name}</p>
                         </div>
                         <div>
-                          <Label>Catégorie</Label>
-                          <p className="text-foreground font-medium">{providerProfile.category}</p>
+                          <p className="text-muted-foreground">Localisation</p>
+                          <p className="font-medium flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {providerProfile.location}
+                          </p>
                         </div>
                         <div>
-                          <Label>Description</Label>
-                          <p className="text-muted-foreground">{providerProfile.description}</p>
+                          <p className="text-muted-foreground">Tarifs</p>
+                          <p className="font-medium flex items-center gap-1">
+                            <Euro className="h-3 w-3" />
+                            {providerProfile.pricing_range}
+                          </p>
                         </div>
                         <div>
-                          <Label>Localisation</Label>
-                          <p className="text-foreground font-medium">{providerProfile.location}</p>
-                        </div>
-                        <div>
-                          <Label>Tarifs</Label>
-                          <p className="text-foreground font-medium">{providerProfile.pricing_range}</p>
+                          <p className="text-muted-foreground">Avis clients</p>
+                          <p className="font-medium">{providerProfile.total_reviews} avis</p>
                         </div>
                       </div>
                     </Card>
+                  </div>
+                </div>
+              ) : (
+                /* Client View */
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                  <TabsList>
+                    <TabsTrigger value="overview" data-testid="tab-overview">Vue d'ensemble</TabsTrigger>
+                    <TabsTrigger value="bookings" data-testid="tab-bookings">Mes réservations</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="overview">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Recent Bookings */}
+                      <Card className="p-6">
+                        <h2 className="text-xl font-heading font-semibold mb-4">Réservations récentes</h2>
+                        {bookings.length === 0 ? (
+                          <div className="text-center py-8">
+                            <Calendar className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
+                            <p className="text-muted-foreground mb-4">Aucune réservation</p>
+                            <Button onClick={() => navigate('/search')} variant="outline">
+                              Trouver un prestataire
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {bookings.slice(0, 4).map((booking) => (
+                              <div
+                                key={booking.booking_id}
+                                className="p-3 border border-border rounded-lg hover:shadow-sm transition-shadow"
+                                data-testid="booking-item"
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-medium">{booking.event_type}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      {new Date(booking.event_date).toLocaleDateString('fr-FR')}
+                                    </p>
+                                  </div>
+                                  {getStatusBadge(booking.status)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </Card>
+
+                      {/* Quick Actions */}
+                      <Card className="p-6">
+                        <h2 className="text-xl font-heading font-semibold mb-4">Actions rapides</h2>
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button 
+                            variant="outline" 
+                            className="h-auto py-4 flex-col"
+                            onClick={() => navigate('/search')}
+                          >
+                            <User className="h-6 w-6 mb-2" />
+                            <span>Prestataires</span>
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="h-auto py-4 flex-col"
+                            onClick={() => navigate('/packages')}
+                          >
+                            <Star className="h-6 w-6 mb-2" />
+                            <span>Packs</span>
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="h-auto py-4 flex-col"
+                            onClick={() => navigate('/messages')}
+                          >
+                            <MessageCircle className="h-6 w-6 mb-2" />
+                            <span>Messages</span>
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="h-auto py-4 flex-col"
+                            onClick={() => navigate('/marketplace')}
+                          >
+                            <Building className="h-6 w-6 mb-2" />
+                            <span>Marketplace</span>
+                          </Button>
+                        </div>
+                      </Card>
+                    </div>
                   </TabsContent>
-                )}
-              </Tabs>
+
+                  <TabsContent value="bookings">
+                    <Card className="p-6">
+                      <h2 className="text-2xl font-heading font-semibold mb-6">Toutes mes réservations</h2>
+                      {bookings.length === 0 ? (
+                        <div className="text-center py-12">
+                          <Calendar className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+                          <p className="text-muted-foreground mb-4" data-testid="no-bookings">
+                            Vous n'avez pas encore de réservation
+                          </p>
+                          <Button onClick={() => navigate('/search')}>
+                            Trouver un prestataire
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {bookings.map((booking) => (
+                            <div
+                              key={booking.booking_id}
+                              className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                              data-testid="booking-item"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-3">
+                                    <h3 className="font-semibold text-lg">{booking.event_type}</h3>
+                                    {getStatusBadge(booking.status)}
+                                  </div>
+                                  <div className="flex items-center text-sm text-muted-foreground space-x-4">
+                                    <span className="flex items-center">
+                                      <Calendar className="h-4 w-4 mr-1" />
+                                      {new Date(booking.event_date).toLocaleDateString('fr-FR')}
+                                    </span>
+                                    <span className="flex items-center">
+                                      <MapPin className="h-4 w-4 mr-1" />
+                                      {booking.event_location}
+                                    </span>
+                                    <span className="flex items-center">
+                                      <Euro className="h-4 w-4 mr-1" />
+                                      {booking.total_amount}€
+                                    </span>
+                                  </div>
+                                  {booking.notes && (
+                                    <p className="text-sm text-muted-foreground">
+                                      Notes: {booking.notes}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              )}
 
               {/* Create Provider Profile Dialog */}
               <Dialog open={createProfileOpen} onOpenChange={setCreateProfileOpen}>
