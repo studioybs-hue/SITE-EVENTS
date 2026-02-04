@@ -740,7 +740,6 @@ const DashboardPage = () => {
             pendingActions={pendingBookings + pendingQuotes}
           />
         </div>
-        </>
       )}
     </ProtectedRoute>
   );
