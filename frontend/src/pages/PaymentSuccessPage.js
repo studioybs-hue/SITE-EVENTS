@@ -11,17 +11,38 @@ const PaymentSuccessPage = () => {
   const [status, setStatus] = useState('checking'); // checking, success, failed, expired
   const [paymentData, setPaymentData] = useState(null);
   const [pollCount, setPollCount] = useState(0);
+  const [user, setUser] = useState(null);
   
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
+    checkAuth();
     if (sessionId) {
       pollPaymentStatus();
     } else {
       setStatus('failed');
     }
   }, [sessionId]);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      }
+    } catch (error) {
+      // Not authenticated
+    }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    navigate('/');
+  };
 
   const pollPaymentStatus = async () => {
     if (pollCount >= 10) {
