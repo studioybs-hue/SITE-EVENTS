@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Star, Euro, BadgeCheck, Lock, X } from 'lucide-react';
+import { MapPin, Star, Euro, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -8,11 +8,13 @@ const ProviderCard = ({ provider }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [expanded, setExpanded] = useState(false);
+  const [services, setServices] = useState([]);
+  const [showAllServices, setShowAllServices] = useState(false);
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
         const res = await fetch(`${BACKEND_URL}/api/auth/me`, { credentials: 'include' });
         if (res.ok) setUser(await res.json());
       } catch (e) {}
@@ -20,7 +22,27 @@ const ProviderCard = ({ provider }) => {
     checkAuth();
   }, []);
 
+  // Fetch provider services when modal is expanded
+  useEffect(() => {
+    if (expanded && provider.provider_id) {
+      fetchServices();
+    }
+  }, [expanded, provider.provider_id]);
+
+  const fetchServices = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/services/provider/${provider.provider_id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setServices(data);
+      }
+    } catch (e) {
+      console.error('Error fetching services:', e);
+    }
+  };
+
   const isAuth = !!user;
+  const displayedServices = showAllServices ? services : services.slice(0, 3);
 
   if (expanded) {
     return (
