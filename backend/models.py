@@ -370,3 +370,24 @@ class EventPackageUpdate(BaseModel):
     discounted_price: Optional[float] = None
     is_active: Optional[bool] = None
     image_url: Optional[str] = None
+
+
+# Favorite Provider Models
+class FavoriteProvider(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    favorite_id: str
+    user_id: str
+    provider_id: str
+    provider_name: str
+    provider_category: str
+    provider_picture: Optional[str] = None
+    provider_rating: float = 0.0
+    alert_availability: bool = False  # Alert when provider becomes available
+    notes: Optional[str] = None  # Personal notes about this provider
+    created_at: datetime
+
+class FavoriteProviderCreate(BaseModel):
+    provider_id: str
+    alert_availability: bool = False
+    notes: Optional[str] = None
+
