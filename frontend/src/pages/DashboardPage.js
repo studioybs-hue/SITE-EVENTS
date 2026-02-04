@@ -229,7 +229,8 @@ const DashboardPage = () => {
   return (
     <ProtectedRoute>
       {(userData) => (
-        <div className="min-h-screen bg-background">
+        <Fragment>
+        <div className="min-h-screen bg-background pb-20 md:pb-0">
           <Navbar user={userData || user} onLogout={handleLogout} />
 
           <div className="px-6 md:px-12 lg:px-24 py-12">
