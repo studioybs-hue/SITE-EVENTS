@@ -548,56 +548,8 @@ const DashboardPage = () => {
                   </TabsContent>
 
                   <TabsContent value="bookings">
-                    <Card className="p-6">
-                      <h2 className="text-2xl font-heading font-semibold mb-6">Toutes mes réservations</h2>
-                      {bookings.length === 0 ? (
-                        <div className="text-center py-12">
-                          <Calendar className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
-                          <p className="text-muted-foreground mb-4" data-testid="no-bookings">
-                            Vous n'avez pas encore de réservation
-                          </p>
-                          <Button onClick={() => navigate('/search')}>
-                            Trouver un prestataire
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {bookings.map((booking) => (
-                            <div
-                              key={booking.booking_id}
-                              className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow"
-                              data-testid="booking-item"
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-3">
-                                    <h3 className="font-semibold text-lg">{booking.event_type}</h3>
-                                    {getStatusBadge(booking.status)}
-                                  </div>
-                                  <div className="flex items-center text-sm text-muted-foreground space-x-4">
-                                    <span className="flex items-center">
-                                      <Calendar className="h-4 w-4 mr-1" />
-                                      {new Date(booking.event_date).toLocaleDateString('fr-FR')}
-                                    </span>
-                                    <span className="flex items-center">
-                                      <MapPin className="h-4 w-4 mr-1" />
-                                      {booking.event_location}
-                                    </span>
-                                    <span className="flex items-center">
-                                      <Euro className="h-4 w-4 mr-1" />
-                                      {booking.total_amount}€
-                                    </span>
-                                  </div>
-                                  {booking.notes && (
-                                    <p className="text-sm text-muted-foreground">
-                                      Notes: {booking.notes}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                    <ClientBookings />
+                  </TabsContent>
                       )}
                     </Card>
                   </TabsContent>
