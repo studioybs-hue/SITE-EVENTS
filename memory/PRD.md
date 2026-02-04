@@ -42,6 +42,15 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Refuser une demande
 - Historique des devis traités avec statuts (Répondu, Accepté, Refusé)
 
+### ✅ Gestion des Devis - Client (Complète - 04/02/2025)
+- Onglet "Mes devis" dans le dashboard client
+- **Devis reçus** : voir les réponses des prestataires avec prix
+- Message du prestataire affiché
+- **Accepter** un devis (modale de confirmation avec montant)
+- **Refuser** un devis
+- Notification automatique au prestataire lors de l'acceptation
+- Historique des demandes envoyées
+
 ### ✅ Packs Événementiels (Complète)
 - Affichage des packs avec réductions
 - Détail des services inclus
