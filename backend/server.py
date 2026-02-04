@@ -1522,21 +1522,6 @@ async def verify_provider(
     
     return {"message": "Provider verification updated"}
 
-# Socket.IO events
-@sio.event
-async def connect(sid, environ):
-    logger.info(f"Client {sid} connected")
-
-@sio.event
-async def disconnect(sid):
-    logger.info(f"Client {sid} disconnected")
-
-@sio.event
-async def join_room(sid, data):
-    user_id = data.get('user_id')
-    sio.enter_room(sid, user_id)
-    logger.info(f"Client {sid} joined room {user_id}")
-
 # ============ FILE UPLOAD ROUTES ============
 
 UPLOAD_DIR = ROOT_DIR / 'uploads'
