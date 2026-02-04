@@ -11,6 +11,7 @@ import uuid
 import requests
 from typing import Optional, List
 import socketio
+import bcrypt
 
 from models import (
     User, UserCreate, ProviderProfile, ProviderProfileCreate, ProviderProfileUpdate,
