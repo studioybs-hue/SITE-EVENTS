@@ -835,6 +835,122 @@ async def reorder_services(
     
     return {"message": "Services reordered"}
 
+# ============ QUOTE REQUEST ROUTES ============
+
+@api_router.post("/quotes", response_model=QuoteRequest)
+async def create_quote_request(
+    quote_data: QuoteRequestCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new quote request from client to provider"""
+    # Verify provider exists
+    provider = await db.provider_profiles.find_one({"provider_id": quote_data.provider_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    
+    quote_id = f"quote_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
+    
+    quote_doc = quote_data.model_dump()
+    quote_doc.update({
+        "quote_id": quote_id,
+        "client_id": current_user.user_id,
+        "status": "pending",
+        "response_message": None,
+        "response_amount": None,
+        "created_at": now,
+        "updated_at": now
+    })
+    
+    await db.quote_requests.insert_one(quote_doc)
+    
+    # Send notification message to provider
+    message_id = f"msg_{uuid.uuid4().hex[:12]}"
+    services_list = ", ".join([s['title'] for s in quote_data.services])
+    notification_content = f"📋 Nouvelle demande de devis !\n\nType: {quote_data.event_type}\nDate: {quote_data.event_date}\nLieu: {quote_data.event_location}\n\nPrestations demandées:\n• {services_list}"
+    if quote_data.message:
+        notification_content += f"\n\nMessage: {quote_data.message}"
+    
+    await db.messages.insert_one({
+        "message_id": message_id,
+        "sender_id": current_user.user_id,
+        "receiver_id": provider['user_id'],
+        "content": notification_content,
+        "read": False,
+        "created_at": now
+    })
+    
+    quote_doc['created_at'] = datetime.fromisoformat(quote_doc['created_at'])
+    quote_doc['updated_at'] = datetime.fromisoformat(quote_doc['updated_at'])
+    return QuoteRequest(**quote_doc)
+
+@api_router.get("/quotes/received", response_model=List[QuoteRequest])
+async def get_received_quotes(current_user: User = Depends(get_current_user)):
+    """Get all quote requests received by a provider"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Provider profile required")
+    
+    quotes = await db.quote_requests.find(
+        {"provider_id": provider['provider_id']},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    for q in quotes:
+        if isinstance(q['created_at'], str):
+            q['created_at'] = datetime.fromisoformat(q['created_at'])
+        if isinstance(q['updated_at'], str):
+            q['updated_at'] = datetime.fromisoformat(q['updated_at'])
+    
+    return [QuoteRequest(**q) for q in quotes]
+
+@api_router.get("/quotes/sent", response_model=List[QuoteRequest])
+async def get_sent_quotes(current_user: User = Depends(get_current_user)):
+    """Get all quote requests sent by a client"""
+    quotes = await db.quote_requests.find(
+        {"client_id": current_user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    for q in quotes:
+        if isinstance(q['created_at'], str):
+            q['created_at'] = datetime.fromisoformat(q['created_at'])
+        if isinstance(q['updated_at'], str):
+            q['updated_at'] = datetime.fromisoformat(q['updated_at'])
+    
+    return [QuoteRequest(**q) for q in quotes]
+
+@api_router.patch("/quotes/{quote_id}", response_model=QuoteRequest)
+async def respond_to_quote(
+    quote_id: str,
+    update_data: QuoteRequestUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Provider responds to a quote request with price"""
+    quote = await db.quote_requests.find_one({"quote_id": quote_id}, {"_id": 0})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify ownership (must be the provider)
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider or quote['provider_id'] != provider['provider_id']:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.quote_requests.update_one(
+            {"quote_id": quote_id},
+            {"$set": update_dict}
+        )
+    
+    updated = await db.quote_requests.find_one({"quote_id": quote_id}, {"_id": 0})
+    if isinstance(updated['created_at'], str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated['updated_at'], str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    return QuoteRequest(**updated)
+
 # ============ REVIEW ROUTES ============
 
 @api_router.post("/reviews", response_model=Review)
