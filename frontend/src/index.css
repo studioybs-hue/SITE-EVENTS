@@ -80,3 +80,53 @@ code {
         border-bottom-color: inherit;
     }
 }
+
+/* Mobile-first utilities */
+@layer utilities {
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    
+    .safe-area-top {
+        padding-top: env(safe-area-inset-top, 0px);
+    }
+    
+    /* Touch-friendly hit areas */
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Hide scrollbar but allow scrolling */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Smooth momentum scrolling for iOS */
+    .scroll-smooth-ios {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Animation utilities */
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.badge-pulse {
+    animation: badge-pulse 1.5s ease-in-out infinite;
+}
+
+/* Chat bubbles */
+.chat-bubble-sent {
+    @apply max-w-[80%] bg-accent text-white px-4 py-2.5 rounded-2xl rounded-br-sm;
+}
+
+.chat-bubble-received {
+    @apply max-w-[80%] bg-secondary text-secondary-foreground px-4 py-2.5 rounded-2xl rounded-bl-sm;
+}
