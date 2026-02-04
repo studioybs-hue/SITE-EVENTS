@@ -38,6 +38,7 @@ function AppRouter() {
       <Route path="/packages" element={<PackagesPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/marketplace" element={<MarketplacePage />} />
+      <Route path="/marketplace/:itemId" element={<MarketplaceItemPage />} />
       <Route path="/messages" element={<MessagesPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/settings" element={<SettingsPage />} />
