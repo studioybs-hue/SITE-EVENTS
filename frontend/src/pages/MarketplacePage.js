@@ -66,7 +66,7 @@ const MarketplacePage = () => {
       setLoading(true);
       const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
       const params = new URLSearchParams();
-      if (filters.category) params.append('category', filters.category);
+      if (filters.category && filters.category !== 'all') params.append('category', filters.category);
       if (filters.location) params.append('location', filters.location);
 
       const response = await fetch(`${BACKEND_URL}/api/marketplace?${params}`);
