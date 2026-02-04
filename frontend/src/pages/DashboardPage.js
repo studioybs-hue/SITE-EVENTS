@@ -550,9 +550,6 @@ const DashboardPage = () => {
                   <TabsContent value="bookings">
                     <ClientBookings />
                   </TabsContent>
-                      )}
-                    </Card>
-                  </TabsContent>
                 </Tabs>
               )}
 
