@@ -414,8 +414,120 @@ const DashboardPage = () => {
                 </Button>
               </div>
 
+              {/* Provider Profile Creation Form */}
+              {needsProviderProfile && (
+                <Card className="p-8 max-w-2xl mx-auto">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 mx-auto bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                      <Building className="h-8 w-8 text-accent" />
+                    </div>
+                    <h2 className="text-2xl font-heading font-semibold mb-2">
+                      Créez votre profil professionnel
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Complétez ces informations pour commencer à recevoir des demandes
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleCreateProfile} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <Label htmlFor="business_name">Nom de votre entreprise *</Label>
+                        <Input
+                          id="business_name"
+                          placeholder="Ex: Studio Photo Martin"
+                          value={profileData.business_name}
+                          onChange={(e) => setProfileData({ ...profileData, business_name: e.target.value })}
+                          required
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="category">Catégorie *</Label>
+                        <Select
+                          value={profileData.category}
+                          onValueChange={(value) => setProfileData({ ...profileData, category: value })}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue placeholder="Sélectionnez votre métier" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((cat) => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="location">Localisation *</Label>
+                        <Input
+                          id="location"
+                          placeholder="Ex: Paris, Île-de-France"
+                          value={profileData.location}
+                          onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                          required
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <Label htmlFor="description">Description de votre activité *</Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Décrivez votre expérience, votre style, vos spécialités..."
+                          value={profileData.description}
+                          onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
+                          required
+                          className="mt-1 min-h-[100px]"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="pricing_range">Fourchette de prix</Label>
+                        <Input
+                          id="pricing_range"
+                          placeholder="Ex: 500€ - 2000€"
+                          value={profileData.pricing_range}
+                          onChange={(e) => setProfileData({ ...profileData, pricing_range: e.target.value })}
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="phone">Téléphone professionnel</Label>
+                        <Input
+                          id="phone"
+                          placeholder="Ex: 06 12 34 56 78"
+                          value={profileData.phone}
+                          onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <Label htmlFor="services">Vos prestations (séparées par des virgules)</Label>
+                        <Input
+                          id="services"
+                          placeholder="Ex: Mariage, Portrait, Événement corporate"
+                          value={profileData.services}
+                          onChange={(e) => setProfileData({ ...profileData, services: e.target.value })}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+
+                    <Button type="submit" className="w-full h-12 text-base">
+                      <Building className="h-5 w-5 mr-2" />
+                      Créer mon profil prestataire
+                    </Button>
+                  </form>
+                </Card>
+              )}
+
               {/* Main Content - Provider View */}
-              {isProvider ? (
+              {isProvider && (
                 <Tabs defaultValue="calendar" className="space-y-6">
                   <TabsList className="flex-wrap h-auto gap-1">
                     <TabsTrigger value="calendar" data-testid="tab-calendar">Planning</TabsTrigger>
