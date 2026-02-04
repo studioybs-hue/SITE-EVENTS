@@ -156,6 +156,10 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - `GET /api/providers` - Liste prestataires
 - `GET /api/providers/{id}` - Détail prestataire
 - `GET /api/users/{id}` - Info utilisateur (auth required)
-- `POST /api/messages` - Envoyer message
+- `POST /api/messages` - Envoyer message (avec attachments)
 - `GET /api/messages/conversations` - Liste conversations
 - `GET /api/messages/{user_id}` - Messages avec un utilisateur
+- `GET /api/messages/recent` - 5 derniers messages + compteur non-lus
+- `POST /api/upload-file` - Upload fichier (retourne file_id, file_url)
+- `GET /api/files/{filename}` - Récupérer fichier uploadé
+- **WebSocket** : `wss://[host]/socket.io` - Chat temps réel (events: join_room, send_message, typing, mark_read)
