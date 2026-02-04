@@ -34,6 +34,8 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [createProfileOpen, setCreateProfileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [pendingQuotes, setPendingQuotes] = useState(0);
   const [profileData, setProfileData] = useState({
     business_name: '',
     category: '',
