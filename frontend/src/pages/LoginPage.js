@@ -159,6 +159,16 @@ const LoginPage = () => {
                     required
                     data-testid="login-password-input"
                   />
+                  <div className="text-right mt-1">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/forgot-password')}
+                      className="text-xs text-accent hover:underline"
+                      data-testid="forgot-password-link"
+                    >
+                      Mot de passe oublié ?
+                    </button>
+                  </div>
                 </div>
                 <Button
                   type="submit"
