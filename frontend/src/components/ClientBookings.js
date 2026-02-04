@@ -4,17 +4,25 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { 
   Calendar, MapPin, Euro, User, Clock, 
   CheckCircle, XCircle, CreditCard, MessageCircle,
-  ChevronDown, ChevronUp, FileText, AlertCircle
+  ChevronDown, ChevronUp, AlertCircle, Loader2
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ClientBookings = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedBooking, setExpandedBooking] = useState(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [paymentOption, setPaymentOption] = useState('full');
+  const [processingPayment, setProcessingPayment] = useState(false);
   
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -97,6 +105,86 @@ const ClientBookings = () => {
     return diffDays;
   };
 
+  const openPaymentDialog = (booking) => {
+    setSelectedBooking(booking);
+    setPaymentOption('full');
+    setPaymentDialogOpen(true);
+  };
+
+  const handlePayment = async () => {
+    if (!selectedBooking) return;
+    
+    setProcessingPayment(true);
+    
+    const remaining = selectedBooking.total_amount - (selectedBooking.deposit_paid || 0);
+    
+    // Determine payment type and amounts
+    let paymentType = 'full';
+    let totalInstallments = 1;
+    let installmentNumber = 1;
+    
+    if (paymentOption === '2x') {
+      paymentType = 'installment';
+      totalInstallments = 2;
+      // Check how many payments already made
+      const paidInstallments = Math.floor((selectedBooking.deposit_paid || 0) / (selectedBooking.total_amount / 2));
+      installmentNumber = paidInstallments + 1;
+    } else if (paymentOption === '3x') {
+      paymentType = 'installment';
+      totalInstallments = 3;
+      const paidInstallments = Math.floor((selectedBooking.deposit_paid || 0) / (selectedBooking.total_amount / 3));
+      installmentNumber = paidInstallments + 1;
+    } else if (paymentOption === 'deposit') {
+      paymentType = 'deposit';
+    }
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/payments/create-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          booking_id: selectedBooking.booking_id,
+          payment_type: paymentType,
+          installment_number: installmentNumber,
+          total_installments: totalInstallments,
+          origin_url: window.location.origin
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Redirect to Stripe checkout
+        window.location.href = data.checkout_url;
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.detail || 'Erreur lors de la création du paiement');
+        setProcessingPayment(false);
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Erreur lors de la création du paiement');
+      setProcessingPayment(false);
+    }
+  };
+
+  const calculatePaymentAmount = (booking, option) => {
+    const remaining = booking.total_amount - (booking.deposit_paid || 0);
+    
+    switch (option) {
+      case 'full':
+        return remaining;
+      case 'deposit':
+        return Math.min(booking.deposit_required - (booking.deposit_paid || 0), remaining);
+      case '2x':
+        return remaining / 2;
+      case '3x':
+        return remaining / 3;
+      default:
+        return remaining;
+    }
+  };
+
   // Separate bookings
   const upcomingBookings = bookings.filter(b => 
     ['confirmed', 'pending'].includes(b.status) && getDaysUntilEvent(b.event_date) >= 0
@@ -130,6 +218,10 @@ const ClientBookings = () => {
     const depositProgress = booking.deposit_required > 0 
       ? (booking.deposit_paid / booking.deposit_required) * 100 
       : 0;
+    const totalProgress = booking.total_amount > 0
+      ? ((booking.deposit_paid || 0) / booking.total_amount) * 100
+      : 0;
+    const remaining = booking.total_amount - (booking.deposit_paid || 0);
 
     return (
       <div
@@ -192,7 +284,7 @@ const ClientBookings = () => {
           </div>
 
           {/* Payment status for confirmed bookings */}
-          {booking.status === 'confirmed' && booking.deposit_required > 0 && (
+          {booking.status === 'confirmed' && remaining > 0 && (
             <div className="p-4 bg-secondary/30 rounded-lg mb-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -201,21 +293,32 @@ const ClientBookings = () => {
                     {paymentConfig.label}
                   </Badge>
                 </div>
-                <span className="text-sm">
-                  {booking.deposit_paid}€ / {booking.deposit_required}€
+                <span className="text-sm font-medium">
+                  {booking.deposit_paid || 0}€ / {booking.total_amount}€
                 </span>
               </div>
-              <Progress value={depositProgress} className="h-2" />
-              {booking.deposit_paid < booking.deposit_required && (
-                <Button 
-                  className="w-full mt-3"
-                  onClick={() => {/* Navigate to payment */}}
-                  data-testid={`pay-deposit-${booking.booking_id}`}
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Payer l'acompte ({booking.deposit_required - booking.deposit_paid}€)
-                </Button>
-              )}
+              <Progress value={totalProgress} className="h-2 mb-3" />
+              <p className="text-xs text-muted-foreground mb-3">
+                Reste à payer : <span className="font-semibold text-foreground">{remaining.toFixed(2)}€</span>
+              </p>
+              <Button 
+                className="w-full"
+                onClick={() => openPaymentDialog(booking)}
+                data-testid={`pay-btn-${booking.booking_id}`}
+              >
+                <CreditCard className="h-4 w-4 mr-2" />
+                Payer maintenant
+              </Button>
+            </div>
+          )}
+
+          {/* Payment complete */}
+          {booking.status === 'confirmed' && remaining <= 0 && (
+            <div className="p-4 bg-emerald-50 rounded-lg mb-4 border border-emerald-200">
+              <div className="flex items-center gap-2 text-emerald-700">
+                <CheckCircle className="h-5 w-5" />
+                <span className="font-medium">Paiement complet</span>
+              </div>
             </div>
           )}
 
@@ -353,6 +456,145 @@ const ClientBookings = () => {
           </Button>
         </Card>
       )}
+
+      {/* Payment Dialog */}
+      <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-accent" />
+              Choisir le mode de paiement
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedBooking && (
+            <div className="space-y-6">
+              {/* Booking summary */}
+              <div className="p-4 bg-secondary/30 rounded-lg">
+                <p className="font-medium">{selectedBooking.provider_name}</p>
+                <p className="text-sm text-muted-foreground">{selectedBooking.event_type}</p>
+                <div className="mt-2 pt-2 border-t border-border">
+                  <div className="flex justify-between text-sm">
+                    <span>Total</span>
+                    <span className="font-semibold">{selectedBooking.total_amount}€</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Déjà payé</span>
+                    <span>{selectedBooking.deposit_paid || 0}€</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-semibold text-primary mt-1">
+                    <span>Reste à payer</span>
+                    <span>{(selectedBooking.total_amount - (selectedBooking.deposit_paid || 0)).toFixed(2)}€</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment options */}
+              <RadioGroup value={paymentOption} onValueChange={setPaymentOption}>
+                <div className="space-y-3">
+                  {/* Full payment */}
+                  <div className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    paymentOption === 'full' ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50'
+                  }`} onClick={() => setPaymentOption('full')}>
+                    <RadioGroupItem value="full" id="full" />
+                    <Label htmlFor="full" className="flex-1 cursor-pointer">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">Payer en 1 fois</p>
+                          <p className="text-xs text-muted-foreground">Paiement intégral</p>
+                        </div>
+                        <span className="font-semibold text-lg">
+                          {calculatePaymentAmount(selectedBooking, 'full').toFixed(2)}€
+                        </span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  {/* 2x payment */}
+                  <div className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    paymentOption === '2x' ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50'
+                  }`} onClick={() => setPaymentOption('2x')}>
+                    <RadioGroupItem value="2x" id="2x" />
+                    <Label htmlFor="2x" className="flex-1 cursor-pointer">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">Payer en 2 fois</p>
+                          <p className="text-xs text-muted-foreground">50% maintenant, 50% plus tard</p>
+                        </div>
+                        <span className="font-semibold text-lg">
+                          {calculatePaymentAmount(selectedBooking, '2x').toFixed(2)}€
+                        </span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  {/* 3x payment */}
+                  <div className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    paymentOption === '3x' ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50'
+                  }`} onClick={() => setPaymentOption('3x')}>
+                    <RadioGroupItem value="3x" id="3x" />
+                    <Label htmlFor="3x" className="flex-1 cursor-pointer">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">Payer en 3 fois</p>
+                          <p className="text-xs text-muted-foreground">~33% par versement</p>
+                        </div>
+                        <span className="font-semibold text-lg">
+                          {calculatePaymentAmount(selectedBooking, '3x').toFixed(2)}€
+                        </span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  {/* Deposit only (if not fully paid) */}
+                  {(selectedBooking.deposit_paid || 0) < selectedBooking.deposit_required && (
+                    <div className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      paymentOption === 'deposit' ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50'
+                    }`} onClick={() => setPaymentOption('deposit')}>
+                      <RadioGroupItem value="deposit" id="deposit" />
+                      <Label htmlFor="deposit" className="flex-1 cursor-pointer">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">Acompte uniquement</p>
+                            <p className="text-xs text-muted-foreground">30% pour confirmer</p>
+                          </div>
+                          <span className="font-semibold text-lg">
+                            {calculatePaymentAmount(selectedBooking, 'deposit').toFixed(2)}€
+                          </span>
+                        </div>
+                      </Label>
+                    </div>
+                  )}
+                </div>
+              </RadioGroup>
+
+              {/* Pay button */}
+              <Button 
+                className="w-full h-12 text-base"
+                onClick={handlePayment}
+                disabled={processingPayment}
+                data-testid="confirm-payment-btn"
+              >
+                {processingPayment ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Redirection vers le paiement...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Payer {calculatePaymentAmount(selectedBooking, paymentOption).toFixed(2)}€
+                  </>
+                )}
+              </Button>
+
+              <p className="text-xs text-center text-muted-foreground">
+                Paiement sécurisé par Stripe. Vous serez redirigé vers une page de paiement sécurisée.
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
