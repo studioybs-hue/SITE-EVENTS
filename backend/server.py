@@ -866,7 +866,7 @@ async def create_quote_request(
     
     # Send notification message to provider
     message_id = f"msg_{uuid.uuid4().hex[:12]}"
-    services_list = ", ".join([s['title'] for s in quote_data.services])
+    services_list = "\n• ".join([s.title for s in quote_data.services])
     notification_content = f"📋 Nouvelle demande de devis !\n\nType: {quote_data.event_type}\nDate: {quote_data.event_date}\nLieu: {quote_data.event_location}\n\nPrestations demandées:\n• {services_list}"
     if quote_data.message:
         notification_content += f"\n\nMessage: {quote_data.message}"
