@@ -51,6 +51,21 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Notification automatique au prestataire lors de l'acceptation
 - Historique des demandes envoyées
 
+### ✅ Système de Réservation Confirmée (Complète - 04/02/2025)
+- **Création automatique** : quand un devis est accepté → réservation créée
+- **Calcul automatique** de l'acompte (30% du total)
+- **Blocage de la date** dans le calendrier du prestataire
+- **Vue "Mes réservations"** avec :
+  - Compte à rebours ("Dans X jours")
+  - Nom du prestataire et type d'événement
+  - Date, lieu, montant total
+  - Barre de progression du paiement (0€ / 750€)
+  - Bouton "Payer l'acompte"
+  - Détails expandables (référence, notes, prestations)
+  - Bouton "Contacter"
+- **Statuts** : En attente, Confirmée, Annulée, Terminée
+- **Notification** au prestataire avec message détaillé
+
 ### ✅ Packs Événementiels (Complète)
 - Affichage des packs avec réductions
 - Détail des services inclus
