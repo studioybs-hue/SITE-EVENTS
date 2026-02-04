@@ -28,7 +28,6 @@ function AppRouter() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/search" element={<SearchPage />} />
-      <Route path="/provider-detail" element={<ProviderDetailView />} />
       <Route path="/packages" element={<PackagesPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/marketplace" element={<MarketplacePage />} />
