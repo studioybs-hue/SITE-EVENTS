@@ -12,6 +12,7 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - **Frontend** : React + TailwindCSS + Shadcn/UI
 - **Backend** : FastAPI + MongoDB
 - **Auth** : JWT (email/password) + Google OAuth
+- **Paiements** : Stripe via emergentintegrations
 
 ---
 
@@ -29,109 +30,74 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Modale de détail avec services, portfolio, contact
 - Badge "Vérifié" pour prestataires certifiés
 - **Affichage des prestations** (noms uniquement, sans prix)
-- **Système de demande de devis** :
-  - Sélection des prestations via cases à cocher
-  - Sélection des options (Album, Drone, etc.)
-  - Formulaire : type d'événement, date, lieu, message
-  - Envoi au prestataire avec notification automatique
+- **Système de demande de devis**
 
-### ✅ Gestion des Devis - Prestataire (Complète - 04/02/2025)
-- Onglet "Devis" dans le dashboard prestataire
-- Liste des demandes en attente avec détails complets
-- Répondre avec un prix et un message personnalisé
-- Refuser une demande
-- Historique des devis traités avec statuts (Répondu, Accepté, Refusé)
+### ✅ Gestion des Devis (Complète)
+- Onglet "Devis" pour prestataires avec actions (répondre/refuser)
+- Onglet "Mes devis" pour clients avec actions (accepter/refuser)
+- Création automatique de réservation à l'acceptation
 
-### ✅ Gestion des Devis - Client (Complète - 04/02/2025)
-- Onglet "Mes devis" dans le dashboard client
-- **Devis reçus** : voir les réponses des prestataires avec prix
-- Message du prestataire affiché
-- **Accepter** un devis (modale de confirmation avec montant)
-- **Refuser** un devis
-- Notification automatique au prestataire lors de l'acceptation
-- Historique des demandes envoyées
+### ✅ Système de Réservation (Complète)
+- Création automatique quand un devis est accepté
+- Calcul automatique de l'acompte (30% du total)
+- Blocage de la date dans le calendrier du prestataire
+- Vue "Mes réservations" avec statuts et progression
 
-### ✅ Système de Réservation Confirmée (Complète - 04/02/2025)
-- **Création automatique** : quand un devis est accepté → réservation créée
-- **Calcul automatique** de l'acompte (30% du total)
-- **Blocage de la date** dans le calendrier du prestataire
-- **Vue "Mes réservations"** avec :
-  - Compte à rebours ("Dans X jours")
-  - Nom du prestataire et type d'événement
-  - Date, lieu, montant total
-  - Barre de progression du paiement (0€ / 750€)
-  - Bouton "Payer l'acompte"
-  - Détails expandables (référence, notes, prestations)
-  - Bouton "Contacter"
-- **Statuts** : En attente, Confirmée, Annulée, Terminée
-- **Notification** au prestataire avec message détaillé
+### ✅ Messagerie Temps Réel avec Fichiers (Complète)
+- Chat temps réel via Socket.IO
+- Envoi de fichiers (images, documents)
+- Indicateurs de saisie et lecture
 
-### ✅ Packs Événementiels (Complète)
-- Affichage des packs avec réductions
-- Détail des services inclus
-- Liste des prestataires associés
+### ✅ Marketplace de Matériel (Complète)
+- Prestataires peuvent lister du matériel à vendre/louer
+- Page publique avec fiches détaillées
+- Système d'inquiries (questions, offres)
 
-### ✅ Messagerie Temps Réel avec Fichiers (Complète - 04/02/2025)
-- **Chat temps réel via Socket.IO** :
-  - Connexion WebSocket automatique
-  - Envoi/réception instantané des messages
-  - Indicateur de saisie ("Est en train d'écrire...")
-  - Indicateur de lecture (✓ envoyé, ✓✓ lu)
-- **Envoi de fichiers** :
-  - Upload de fichiers via POST /api/upload-file
-  - Types supportés : images (jpg, png, gif, webp), documents (pdf, doc, docx, xls, xlsx, txt)
-  - Limite de taille : 10MB par fichier
-  - Prévisualisation des images dans le chat
-  - Téléchargement des documents avec icône
-- Liste des conversations avec aperçu
-- Bouton "Contacter" depuis la fiche prestataire
+### ✅ Prestataires Favoris (Complète)
+- Ajouter/supprimer des favoris
+- Notes personnelles par prestataire
+- Alertes de disponibilité
 
-### ✅ Tableaux de Bord (Complète - 04/02/2025)
-**Dashboard Prestataire (avec onglets: Planning | Prestations | Réservations):**
-- **Calendrier interactif "Planning & Disponibilités"** :
-  - Vue mensuelle avec navigation
-  - Code couleur : Vert (disponible), Gris (indisponible), Bleu (réservé), Orange (en attente)
-  - Affichage du type d'événement sur les dates réservées
-  - Panneau de détails au clic (infos événement, lieu)
-  - Actions : marquer disponible/indisponible
-  - Stats mensuelles (indisponibles, confirmés, en attente)
-- **Gestion des prestations** :
-  - Liste des prestations avec CRUD complet
-  - Champs : titre, description, durée, prix, options
-  - Activer/désactiver une prestation (toggle)
-  - Réordonnancement par glisser (flèches haut/bas)
-  - Options supplémentaires avec prix additionnel
-- Stats : demandes en attente, confirmées, note, revenus
-- Derniers messages avec badge non-lus
+### ✅ Page de Profil Client (Complète)
+- Onglets : Informations, Préférences, Notifications
+- Upload de photo de profil
+- Paramètres personnalisables
 
-**Dashboard Client :**
-- Onglets : Vue d'ensemble, Mes réservations
-- Stats : en attente, confirmées, total
-- Actions rapides (Prestataires, Packs, Messages, Marketplace)
-- Bouton "Devenir prestataire"
-- Derniers messages avec badge non-lus
+### ✅ Page de Paramètres (Complète)
+- Gestion du mot de passe
+- Paramètres de notification
+- Maquettes pour facturation et abonnements
+
+### ✅ Système de Paiement Stripe (Complète - 04/02/2025)
+- **Intégration Stripe complète** via emergentintegrations
+- **Options de paiement flexibles** :
+  - Payer en 1 fois (montant total)
+  - Payer en 2 fois (50% maintenant, 50% plus tard)
+  - Payer en 3 fois (~33% par versement)
+  - Acompte uniquement (30% pour confirmer)
+- **Dialogue de sélection** avec calcul automatique des montants
+- **Page de succès** avec polling du statut de paiement
+- **Mise à jour automatique** du statut de réservation après paiement
+- **Notification au prestataire** lors d'un paiement reçu
+- **Collection payment_transactions** pour l'historique des paiements
 
 ---
 
 ## Prochaines Fonctionnalités (Backlog)
 
-### P1 - Paiements (Priorité haute)
-- [ ] Intégration Stripe pour les paiements
-- [ ] Intégration PayPal comme alternative
-- [ ] Gestion des acomptes et paiements complets
-- [ ] Bouton "Payer l'acompte" fonctionnel
-
-### P2 - Notifications
-- [ ] Notifications email (nouveaux messages, devis, réservations)
+### P1 - Notifications (Priorité haute)
+- [ ] Notifications email (nouveaux messages, devis, réservations, paiements)
 - [ ] Notifications push (optionnel)
 
+### P2 - Abonnements et Commission
+- [ ] Finaliser les abonnements prestataires/clients (interface déjà prête)
+- [ ] Système de commission sur les réservations
+
 ### Future
-- [ ] Marketplace B2B (location/vente matériel)
 - [ ] Synchronisation Google Calendar
-- [ ] Panneau d'administration
+- [ ] Panneau d'administration complet
 - [ ] Système d'avis et notes
-- [ ] Système d'abonnement pour prestataires
-- [ ] Commission sur les réservations
+- [ ] Intégration PayPal comme alternative
 
 ---
 
@@ -140,7 +106,6 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 ### Comptes
 - **Client** : `client@test.com` / `password123`
 - **Prestataire test** : `provider@test.com` / `password123`
-- **Prestataires sample** : `photo@eventwiz.com`, `dj@eventwiz.com`, etc.
 
 ### Base de données
 - 5 prestataires avec profils complets
@@ -154,15 +119,50 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 ⚠️ **NE PAS réactiver `babel-metadata-plugin`** dans `craco.config.js` - cause un bug `Maximum call stack size exceeded`.
 
 ## API Endpoints Clés
+
+### Authentification
 - `POST /api/auth/register` - Inscription
 - `POST /api/auth/login` - Connexion
+- `POST /api/auth/change-password` - Changement mot de passe
+
+### Prestataires
 - `GET /api/providers` - Liste prestataires
 - `GET /api/providers/{id}` - Détail prestataire
-- `GET /api/users/{id}` - Info utilisateur (auth required)
-- `POST /api/messages` - Envoyer message (avec attachments)
+
+### Messagerie
+- `POST /api/messages` - Envoyer message
 - `GET /api/messages/conversations` - Liste conversations
-- `GET /api/messages/{user_id}` - Messages avec un utilisateur
-- `GET /api/messages/recent` - 5 derniers messages + compteur non-lus
-- `POST /api/upload-file` - Upload fichier (retourne file_id, file_url)
-- `GET /api/files/{filename}` - Récupérer fichier uploadé
-- **WebSocket** : `wss://[host]/socket.io` - Chat temps réel (events: join_room, send_message, typing, mark_read)
+- `POST /api/upload-file` - Upload fichier
+- **WebSocket** : `wss://[host]/socket.io`
+
+### Marketplace
+- `GET /api/marketplace` - Liste articles
+- `GET /api/marketplace/{item_id}` - Détail article
+- `POST /api/marketplace` - Créer article
+
+### Favoris
+- `GET /api/favorites` - Liste favoris
+- `POST /api/favorites` - Ajouter favori
+- `DELETE /api/favorites/{provider_id}` - Retirer favori
+
+### Paiements (Nouveau)
+- `POST /api/payments/create-checkout` - Créer session Stripe
+- `GET /api/payments/status/{session_id}` - Statut paiement
+- `GET /api/payments/booking/{booking_id}` - Historique paiements
+- `POST /api/webhook/stripe` - Webhook Stripe
+
+---
+
+## Historique des versions
+
+### 04/02/2025 - v2.0
+- ✅ Intégration complète du système de paiement Stripe
+- ✅ Options de paiement en plusieurs fois (1x, 2x, 3x)
+- ✅ Page de succès de paiement avec polling
+
+### Sessions précédentes
+- Messagerie temps réel avec Socket.IO
+- Marketplace de matériel B2B
+- Système de favoris
+- Page de profil et paramètres
+- Améliorations UX mobile
