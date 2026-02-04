@@ -734,15 +734,11 @@ const DashboardPage = () => {
               </Dialog>
             </div>
           </div>
-          
-          {/* Mobile Navigation */}
           <MobileNav 
             user={userData || user} 
             unreadMessages={unreadMessages}
             pendingActions={pendingBookings + pendingQuotes}
           />
-          
-          {/* Spacer for mobile nav */}
           <div className="h-16 md:hidden"></div>
         </div>
       )}
