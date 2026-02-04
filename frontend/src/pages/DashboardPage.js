@@ -658,6 +658,10 @@ const DashboardPage = () => {
                   <TabsContent value="bookings">
                     <ClientBookings />
                   </TabsContent>
+
+                  <TabsContent value="favorites">
+                    <FavoritesManager />
+                  </TabsContent>
                 </Tabs>
               )}
 
