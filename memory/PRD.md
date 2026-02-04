@@ -115,20 +115,23 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ## Prochaines Fonctionnalités (Backlog)
 
-### P1 - Paiements
+### P1 - Paiements (Priorité haute)
 - [ ] Intégration Stripe pour les paiements
 - [ ] Intégration PayPal comme alternative
 - [ ] Gestion des acomptes et paiements complets
+- [ ] Bouton "Payer l'acompte" fonctionnel
 
-### P2 - Réservations
-- [ ] Système de demande de devis
-- [ ] Confirmation et gestion des réservations
+### P2 - Notifications
+- [ ] Notifications email (nouveaux messages, devis, réservations)
+- [ ] Notifications push (optionnel)
 
 ### Future
 - [ ] Marketplace B2B (location/vente matériel)
 - [ ] Synchronisation Google Calendar
 - [ ] Panneau d'administration
 - [ ] Système d'avis et notes
+- [ ] Système d'abonnement pour prestataires
+- [ ] Commission sur les réservations
 
 ---
 
