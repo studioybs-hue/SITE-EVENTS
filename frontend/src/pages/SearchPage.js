@@ -74,7 +74,7 @@ const SearchPage = () => {
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (filters.category) params.set('category', filters.category);
+    if (filters.category && filters.category !== 'all') params.set('category', filters.category);
     if (filters.location) params.set('location', filters.location);
     if (filters.search) params.set('search', filters.search);
     setSearchParams(params);
