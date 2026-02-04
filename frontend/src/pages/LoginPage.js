@@ -116,16 +116,35 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-background to-amber-50 px-6">
       <div className="w-full max-w-md">
-        <Card className="p-8 space-y-6 border-border/60 shadow-lg">
+        <Card className="p-8 space-y-6 border-border/60 shadow-lg bg-white/95 backdrop-blur">
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-heading font-semibold text-foreground">
-              Bienvenue
+            <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
+              <Heart className="h-7 w-7 text-accent" />
+            </div>
+            <h1 className="text-2xl font-heading font-semibold text-foreground">
+              Espace Client
             </h1>
-            <p className="text-muted-foreground">
-              Connectez-vous ou créez votre compte
+            <p className="text-muted-foreground text-sm">
+              Trouvez les meilleurs prestataires pour vos événements
             </p>
+          </div>
+
+          {/* Quick benefits */}
+          <div className="grid grid-cols-3 gap-2 py-2">
+            <div className="text-center">
+              <Calendar className="h-5 w-5 mx-auto text-accent mb-1" />
+              <p className="text-[10px] text-muted-foreground">Réservez facilement</p>
+            </div>
+            <div className="text-center">
+              <Star className="h-5 w-5 mx-auto text-accent mb-1" />
+              <p className="text-[10px] text-muted-foreground">Avis vérifiés</p>
+            </div>
+            <div className="text-center">
+              <MessageCircle className="h-5 w-5 mx-auto text-accent mb-1" />
+              <p className="text-[10px] text-muted-foreground">Chat direct</p>
+            </div>
           </div>
 
           <Tabs defaultValue="login" className="w-full">
