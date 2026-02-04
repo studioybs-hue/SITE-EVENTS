@@ -13,6 +13,7 @@ import DashboardPage from '@/pages/DashboardPage';
 import MarketplacePage from '@/pages/MarketplacePage';
 import MessagesPage from '@/pages/MessagesPage';
 import PackagesPage from '@/pages/PackagesPage';
+import ProfilePage from '@/pages/ProfilePage';
 
 // Components
 import AuthCallback from '@/components/AuthCallback';
@@ -36,6 +37,7 @@ function AppRouter() {
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/marketplace" element={<MarketplacePage />} />
       <Route path="/messages" element={<MessagesPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
     </Routes>
   );
 }
