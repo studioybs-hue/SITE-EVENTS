@@ -28,7 +28,12 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Cartes prestataires avec images, notes, tarifs
 - Modale de détail avec services, portfolio, contact
 - Badge "Vérifié" pour prestataires certifiés
-- **Affichage des prestations & tarifs** visibles par les clients avec options et durées
+- **Affichage des prestations** (noms uniquement, sans prix)
+- **Système de demande de devis** :
+  - Sélection des prestations via cases à cocher
+  - Sélection des options (Album, Drone, etc.)
+  - Formulaire : type d'événement, date, lieu, message
+  - Envoi au prestataire avec notification automatique
 
 ### ✅ Packs Événementiels (Complète)
 - Affichage des packs avec réductions
