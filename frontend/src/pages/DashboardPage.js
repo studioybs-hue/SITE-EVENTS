@@ -237,17 +237,35 @@ const DashboardPage = () => {
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h1 className="text-4xl md:text-5xl font-heading font-medium text-foreground mb-2" data-testid="dashboard-title">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-medium text-foreground mb-2" data-testid="dashboard-title">
                     {isProvider ? 'Espace Prestataire' : 'Mon Espace'}
                   </h1>
-                  <p className="text-muted-foreground">
-                    Bienvenue, {userData?.name || user?.name}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-muted-foreground">
+                      Bienvenue, {userData?.name || user?.name}
+                    </span>
                     {isProvider && (
-                      <Badge variant="secondary" className="ml-2">{providerProfile.category}</Badge>
+                      <Badge variant="secondary">{providerProfile.category}</Badge>
                     )}
-                  </p>
+                    {/* Status badges */}
+                    {unreadMessages > 0 && (
+                      <StatusBadge 
+                        type="new_message" 
+                        count={unreadMessages} 
+                        size="small"
+                        onClick={() => navigate('/messages')}
+                      />
+                    )}
+                    {pendingQuotes > 0 && isProvider && (
+                      <StatusBadge 
+                        type="action_required" 
+                        count={pendingQuotes}
+                        size="small"
+                      />
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="hidden md:flex gap-2">
                   {!isProvider && userData?.user_type === 'client' && (
                     <Button
                       onClick={handleBecomeProvider}
@@ -261,77 +279,121 @@ const DashboardPage = () => {
                   <Button
                     variant="outline"
                     onClick={() => navigate('/messages')}
-                    className="rounded-full"
+                    className="rounded-full relative"
                   >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Messages
+                    {unreadMessages > 0 && (
+                      <NotificationDot count={unreadMessages} />
+                    )}
                   </Button>
                 </div>
               </div>
 
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <Card className="p-5">
+              {/* Stats Cards - Mobile optimized */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+                <Card className="p-4 md:p-5 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab(isProvider ? 'quotes' : 'quotes')}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">En attente</p>
-                      <p className="text-2xl font-semibold text-amber-600" data-testid="pending-count">
+                      <p className="text-[10px] md:text-xs text-muted-foreground mb-1">En attente</p>
+                      <p className="text-xl md:text-2xl font-semibold text-amber-600" data-testid="pending-count">
                         {pendingBookings}
                       </p>
                     </div>
-                    <AlertCircle className="h-8 w-8 text-amber-500/30" />
+                    <div className="relative">
+                      <AlertCircle className="h-6 w-6 md:h-8 md:w-8 text-amber-500/30" />
+                      {pendingBookings > 0 && <NotificationDot />}
+                    </div>
                   </div>
+                  {pendingBookings > 0 && (
+                    <p className="text-[10px] text-amber-600 mt-2 font-medium">Action requise →</p>
+                  )}
                 </Card>
-                <Card className="p-5">
+                <Card className="p-4 md:p-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Confirmées</p>
-                      <p className="text-2xl font-semibold text-emerald-600" data-testid="confirmed-count">
+                      <p className="text-[10px] md:text-xs text-muted-foreground mb-1">Confirmées</p>
+                      <p className="text-xl md:text-2xl font-semibold text-emerald-600" data-testid="confirmed-count">
                         {confirmedBookings}
                       </p>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-emerald-500/30" />
+                    <CheckCircle className="h-6 w-6 md:h-8 md:w-8 text-emerald-500/30" />
                   </div>
                 </Card>
                 {isProvider && (
                   <>
-                    <Card className="p-5">
+                    <Card className="p-4 md:p-5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1">Note</p>
-                          <p className="text-2xl font-semibold" data-testid="rating">
+                          <p className="text-[10px] md:text-xs text-muted-foreground mb-1">Note</p>
+                          <p className="text-xl md:text-2xl font-semibold" data-testid="rating">
                             {providerProfile.rating.toFixed(1)} <span className="text-accent">★</span>
                           </p>
                         </div>
-                        <Star className="h-8 w-8 text-accent/30" />
+                        <Star className="h-6 w-6 md:h-8 md:w-8 text-accent/30" />
                       </div>
                     </Card>
-                    <Card className="p-5">
+                    <Card className="p-4 md:p-5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1">Revenus</p>
-                          <p className="text-2xl font-semibold text-primary" data-testid="revenue">
+                          <p className="text-[10px] md:text-xs text-muted-foreground mb-1">Revenus</p>
+                          <p className="text-xl md:text-2xl font-semibold text-primary" data-testid="revenue">
                             {totalRevenue}€
                           </p>
                         </div>
-                        <TrendingUp className="h-8 w-8 text-primary/30" />
+                        <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-primary/30" />
                       </div>
                     </Card>
                   </>
                 )}
                 {!isProvider && (
-                  <Card className="p-5">
+                  <Card className="p-4 md:p-5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Total</p>
-                        <p className="text-2xl font-semibold" data-testid="total-bookings">
+                        <p className="text-[10px] md:text-xs text-muted-foreground mb-1">Total</p>
+                        <p className="text-xl md:text-2xl font-semibold" data-testid="total-bookings">
                           {bookings.length}
                         </p>
                       </div>
-                      <Calendar className="h-8 w-8 text-accent/30" />
+                      <Calendar className="h-6 w-6 md:h-8 md:w-8 text-accent/30" />
                     </div>
                   </Card>
                 )}
+              </div>
+
+              {/* Quick Actions - Mobile only */}
+              <div className="md:hidden flex gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="whitespace-nowrap rounded-full"
+                  onClick={() => navigate('/messages')}
+                >
+                  <MessageCircle className="h-4 w-4 mr-1.5" />
+                  Chat
+                  {unreadMessages > 0 && (
+                    <Badge className="ml-1.5 bg-red-500 text-white h-5 px-1.5">{unreadMessages}</Badge>
+                  )}
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="whitespace-nowrap rounded-full"
+                  onClick={() => navigate('/search')}
+                >
+                  <Search className="h-4 w-4 mr-1.5" />
+                  Prestataires
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="whitespace-nowrap rounded-full"
+                  onClick={() => navigate('/packages')}
+                >
+                  <Package className="h-4 w-4 mr-1.5" />
+                  Packs
+                </Button>
+              </div>
               </div>
 
               {/* Main Content - Provider View */}
