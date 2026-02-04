@@ -222,20 +222,45 @@ const MessagesPage = () => {
                 {/* Conversations List */}
                 <Card className="p-4 overflow-y-auto">
                   <h2 className="font-semibold mb-4">Conversations</h2>
-                  {loading ? (
+                  {loading || initializing ? (
                     <div className="text-center py-8">
                       <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto"></div>
+                      {initializing && <p className="text-sm text-muted-foreground mt-2">Chargement...</p>}
                     </div>
-                  ) : conversations.length === 0 ? (
-                    <p className="text-sm text-muted-foreground" data-testid="no-conversations">
-                      Aucune conversation
-                    </p>
+                  ) : conversations.length === 0 && !selectedUser ? (
+                    <div className="text-center py-8">
+                      <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+                      <p className="text-sm text-muted-foreground" data-testid="no-conversations">
+                        Aucune conversation
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Contactez un prestataire pour démarrer
+                      </p>
+                    </div>
                   ) : (
                     <div className="space-y-2">
+                      {/* Show selected user first if it's a new conversation */}
+                      {selectedUser && !conversations.find(c => c.user_id === selectedUser.user_id) && (
+                        <div
+                          className="p-3 rounded-sm bg-secondary"
+                          data-testid="new-conversation-item"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Avatar>
+                              <AvatarImage src={selectedUser.picture} />
+                              <AvatarFallback>{selectedUser.name?.[0] || selectedUser.business_name?.[0]}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium text-sm">{selectedUser.business_name || selectedUser.name}</p>
+                              <p className="text-xs text-accent">Nouvelle conversation</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {conversations.map((conv) => (
                         <div
                           key={conv.user_id}
-                          onClick={() => setSelectedUser(conv)}
+                          onClick={() => handleSelectConversation(conv)}
                           className={`p-3 rounded-sm cursor-pointer transition-colors ${
                             selectedUser?.user_id === conv.user_id
                               ? 'bg-secondary'
