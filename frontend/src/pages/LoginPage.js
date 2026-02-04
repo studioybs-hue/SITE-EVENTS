@@ -101,10 +101,14 @@ const LoginPage = () => {
         navigate('/dashboard');
       } else {
         const error = await response.json();
-        toast.error(error.detail || 'Erreur lors de la création du compte');
+        if (error.detail === 'Email already registered') {
+          toast.error('Cet email est déjà utilisé. Essayez de vous connecter.');
+        } else {
+          toast.error(error.detail || 'Erreur lors de la création du compte');
+        }
       }
     } catch (error) {
-      toast.error('Erreur lors de la création du compte');
+      toast.error('Erreur de connexion au serveur');
     } finally {
       setLoading(false);
     }
