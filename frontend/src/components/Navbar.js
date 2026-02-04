@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, User, LogOut, Home, Search, MessageSquare, ShoppingBag, LayoutDashboard } from 'lucide-react';
+import { Menu, User, LogOut, Home, Search, MessageSquare, ShoppingBag, LayoutDashboard, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -91,6 +92,11 @@ const Navbar = ({ user, onLogout }) => {
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Messages
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/profile')} data-testid="menu-profile">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Mon profil
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} data-testid="menu-logout">
                     <LogOut className="h-4 w-4 mr-2" />
                     Déconnexion
