@@ -137,10 +137,25 @@ const MessagesPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (selectedUser) {
+      fetchMessages();
+      const interval = setInterval(fetchMessages, 3000); // Poll every 3 seconds
+      return () => clearInterval(interval);
+    }
+  }, [selectedUser]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const fetchMessages = async () => {
     if (!selectedUser) return;
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
       const response = await fetch(`${BACKEND_URL}/api/messages/${selectedUser.user_id}`, {
         credentials: 'include',
       });
@@ -156,7 +171,6 @@ const MessagesPage = () => {
     if (!newMessage.trim() || !selectedUser) return;
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
       const response = await fetch(`${BACKEND_URL}/api/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -170,6 +184,11 @@ const MessagesPage = () => {
       if (response.ok) {
         setNewMessage('');
         fetchMessages();
+        
+        // Add to conversations if not already there
+        if (!conversations.find(c => c.user_id === selectedUser.user_id)) {
+          setConversations(prev => [selectedUser, ...prev]);
+        }
       } else {
         toast.error('Échec de l\'envoi du message');
       }
@@ -177,6 +196,10 @@ const MessagesPage = () => {
       console.error('Error sending message:', error);
       toast.error('Erreur lors de l\'envoi');
     }
+  };
+
+  const handleSelectConversation = (conv) => {
+    setSelectedUser(conv);
   };
 
   const handleLogout = () => {
