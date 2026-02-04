@@ -81,7 +81,7 @@ const MarketplacePage = () => {
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (filters.category) params.set('category', filters.category);
+    if (filters.category && filters.category !== 'all') params.set('category', filters.category);
     if (filters.location) params.set('location', filters.location);
     setSearchParams(params);
   };
