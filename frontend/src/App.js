@@ -11,6 +11,7 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import SearchPage from '@/pages/SearchPage';
 import DashboardPage from '@/pages/DashboardPage';
 import MarketplacePage from '@/pages/MarketplacePage';
+import MarketplaceItemPage from '@/pages/MarketplaceItemPage';
 import MessagesPage from '@/pages/MessagesPage';
 import PackagesPage from '@/pages/PackagesPage';
 import ProfilePage from '@/pages/ProfilePage';
