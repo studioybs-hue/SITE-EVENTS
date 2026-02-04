@@ -89,12 +89,12 @@ const HomePage = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/login/pro')}
                   className="rounded-full h-12 px-8 border-primary hover:bg-primary hover:text-primary-foreground transition-colors"
                   data-testid="hero-provider-btn"
                 >
                   <Users className="h-5 w-5 mr-2" />
-                  Devenir prestataire
+                  Espace Prestataire
                 </Button>
               </div>
             </motion.div>
