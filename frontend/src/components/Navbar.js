@@ -93,8 +93,12 @@ const Navbar = ({ user, onLogout }) => {
                     Messages
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/profile')} data-testid="menu-profile">
-                    <Settings className="h-4 w-4 mr-2" />
+                    <User className="h-4 w-4 mr-2" />
                     Mon profil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/settings')} data-testid="menu-settings">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Paramètres
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} data-testid="menu-logout">
