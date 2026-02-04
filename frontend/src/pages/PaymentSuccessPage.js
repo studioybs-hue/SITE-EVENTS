@@ -153,7 +153,7 @@ const PaymentSuccessPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar user={user} onLogout={handleLogout} />
       <div className="px-6 md:px-12 lg:px-24 py-12">
         <div className="max-w-2xl mx-auto">
           <Card className="p-8">
