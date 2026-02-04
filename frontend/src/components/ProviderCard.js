@@ -104,12 +104,12 @@ const ProviderCard = ({ provider }) => {
               <p className="text-muted-foreground leading-relaxed">{provider.description}</p>
             </div>
 
-            {/* Prestations avec prix */}
+            {/* Prestations (noms uniquement, sans prix pour les clients) */}
             {services.length > 0 ? (
               <div>
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Package className="h-5 w-5" />
-                  Prestations & Tarifs
+                  Prestations proposées
                 </h3>
                 <div className="space-y-3">
                   {displayedServices.map((service) => (
@@ -118,31 +118,26 @@ const ProviderCard = ({ provider }) => {
                       className="border border-border rounded-lg p-4 hover:border-accent/50 transition-colors"
                       data-testid="provider-service-item"
                     >
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-lg">{service.title}</h4>
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{service.description}</p>
-                          {service.duration && (
-                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground mt-2">
-                              <Clock className="h-3 w-3" />
-                              {service.duration === 'journee' ? 'Journée complète' : 
-                               service.duration === 'demi-journee' ? 'Demi-journée' :
-                               service.duration}
-                            </span>
-                          )}
-                          {service.options && service.options.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-1">
-                              {service.options.map((opt, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">
-                                  {opt.name} {opt.price > 0 && `+${opt.price}€`}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-2xl font-bold text-primary">{service.price}€</p>
-                        </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-lg">{service.title}</h4>
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{service.description}</p>
+                        {service.duration && (
+                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                            <Clock className="h-3 w-3" />
+                            {service.duration === 'journee' ? 'Journée complète' : 
+                             service.duration === 'demi-journee' ? 'Demi-journée' :
+                             service.duration}
+                          </span>
+                        )}
+                        {service.options && service.options.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {service.options.map((opt, i) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                {opt.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -159,6 +154,9 @@ const ProviderCard = ({ provider }) => {
                     )}
                   </button>
                 )}
+                <p className="text-sm text-muted-foreground mt-4 text-center italic">
+                  Contactez ce prestataire pour obtenir un devis personnalisé
+                </p>
               </div>
             ) : (
               <div>
