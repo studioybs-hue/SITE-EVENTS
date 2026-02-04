@@ -1,10 +1,36 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Search, Users, Calendar, MessageSquare, ShoppingBag, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Navbar from '@/components/Navbar';
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+  useEffect(() => {
+    // Check if user is logged in
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        }
+      } catch (error) {
+        // Not logged in
+      }
+    };
+    checkAuth();
+  }, [BACKEND_URL]);
+
+  const handleLogout = () => {
+    setUser(null);
+  };
 
   const categories = [
     {
