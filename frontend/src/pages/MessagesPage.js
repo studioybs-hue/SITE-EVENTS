@@ -669,6 +669,12 @@ const MessagesPage = () => {
               </div>
             </div>
           </div>
+          
+          {/* Mobile Navigation */}
+          <MobileNav user={userData || user} />
+          
+          {/* Spacer for mobile nav */}
+          <div className="h-16 md:hidden" />
         </div>
       )}
     </ProtectedRoute>
