@@ -1,0 +1,180 @@
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import Optional, List
+from datetime import datetime
+import uuid
+
+# User Models
+class User(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    user_id: str
+    email: EmailStr
+    name: str
+    picture: Optional[str] = None
+    user_type: str  # 'client', 'provider', 'admin'
+    created_at: datetime
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    name: str
+    picture: Optional[str] = None
+    user_type: str = 'client'
+
+# Provider Profile Models
+class ProviderProfile(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    provider_id: str
+    user_id: str
+    business_name: str
+    category: str  # DJ, Photographer, Caterer, etc.
+    description: str
+    location: str
+    services: List[str]
+    pricing_range: str  # e.g., "€500-€2000"
+    portfolio_images: List[str] = []
+    portfolio_videos: List[str] = []
+    phone: Optional[str] = None
+    verified: bool = False
+    rating: float = 0.0
+    total_reviews: int = 0
+    created_at: datetime
+
+class ProviderProfileCreate(BaseModel):
+    business_name: str
+    category: str
+    description: str
+    location: str
+    services: List[str]
+    pricing_range: str
+    portfolio_images: List[str] = []
+    portfolio_videos: List[str] = []
+    phone: Optional[str] = None
+
+class ProviderProfileUpdate(BaseModel):
+    business_name: Optional[str] = None
+    description: Optional[str] = None
+    location: Optional[str] = None
+    services: Optional[List[str]] = None
+    pricing_range: Optional[str] = None
+    portfolio_images: Optional[List[str]] = None
+    portfolio_videos: Optional[List[str]] = None
+    phone: Optional[str] = None
+
+# Availability Models
+class Availability(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    availability_id: str
+    provider_id: str
+    date: str  # ISO date format
+    is_available: bool
+    notes: Optional[str] = None
+
+class AvailabilityCreate(BaseModel):
+    date: str
+    is_available: bool
+    notes: Optional[str] = None
+
+# Booking Models
+class Booking(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    booking_id: str
+    client_id: str
+    provider_id: str
+    event_type: str  # wedding, birthday, corporate, etc.
+    event_date: str
+    event_location: str
+    status: str  # pending, confirmed, cancelled, completed
+    total_amount: float
+    deposit_paid: float = 0.0
+    payment_status: str  # pending, partial, paid
+    notes: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+class BookingCreate(BaseModel):
+    provider_id: str
+    event_type: str
+    event_date: str
+    event_location: str
+    total_amount: float
+    notes: Optional[str] = None
+
+class BookingUpdate(BaseModel):
+    status: Optional[str] = None
+    payment_status: Optional[str] = None
+    deposit_paid: Optional[float] = None
+
+# Review Models
+class Review(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    review_id: str
+    booking_id: str
+    client_id: str
+    provider_id: str
+    rating: int  # 1-5
+    comment: str
+    created_at: datetime
+
+class ReviewCreate(BaseModel):
+    booking_id: str
+    provider_id: str
+    rating: int
+    comment: str
+
+# Message Models
+class Message(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    message_id: str
+    sender_id: str
+    receiver_id: str
+    content: str
+    read: bool = False
+    created_at: datetime
+
+class MessageCreate(BaseModel):
+    receiver_id: str
+    content: str
+
+# Marketplace Item Models
+class MarketplaceItem(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    item_id: str
+    seller_id: str
+    title: str
+    description: str
+    category: str  # audio, lighting, decor, furniture, etc.
+    price: float
+    rental_available: bool = False
+    rental_price_per_day: Optional[float] = None
+    images: List[str] = []
+    location: str
+    condition: str  # new, like_new, good, fair
+    available: bool = True
+    created_at: datetime
+
+class MarketplaceItemCreate(BaseModel):
+    title: str
+    description: str
+    category: str
+    price: float
+    rental_available: bool = False
+    rental_price_per_day: Optional[float] = None
+    images: List[str] = []
+    location: str
+    condition: str
+
+class MarketplaceItemUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    rental_available: Optional[bool] = None
+    rental_price_per_day: Optional[float] = None
+    images: Optional[List[str]] = None
+    available: Optional[bool] = None
+
+# Session Model
+class UserSession(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    user_id: str
+    session_token: str
+    expires_at: datetime
+    created_at: datetime
