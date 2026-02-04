@@ -487,6 +487,11 @@ const DashboardPage = () => {
                     <ServiceManager providerId={providerProfile.provider_id} />
                   </TabsContent>
 
+                  {/* Equipment Tab */}
+                  <TabsContent value="equipment">
+                    <MyEquipmentManager />
+                  </TabsContent>
+
                   {/* Provider Bookings Tab */}
                   <TabsContent value="bookings">
                     <Card className="p-6">
