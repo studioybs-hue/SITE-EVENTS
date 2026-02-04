@@ -455,6 +455,7 @@ const DashboardPage = () => {
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                   <TabsList>
                     <TabsTrigger value="overview" data-testid="tab-overview">Vue d'ensemble</TabsTrigger>
+                    <TabsTrigger value="quotes" data-testid="tab-client-quotes">Mes devis</TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-bookings">Mes réservations</TabsTrigger>
                   </TabsList>
 
