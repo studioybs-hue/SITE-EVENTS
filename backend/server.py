@@ -1404,28 +1404,40 @@ async def create_marketplace_item(
 ):
     # Verify user is a provider
     if current_user.user_type != 'provider':
-        raise HTTPException(status_code=403, detail="Only providers can sell items")
+        raise HTTPException(status_code=403, detail="Seuls les prestataires peuvent vendre des articles")
     
     item_id = f"item_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
     item_doc = item_data.model_dump()
     item_doc.update({
         "item_id": item_id,
         "seller_id": current_user.user_id,
+        "seller_name": current_user.name,
+        "status": "available",
         "available": True,
-        "created_at": datetime.now(timezone.utc).isoformat()
+        "views_count": 0,
+        "inquiries_count": 0,
+        "created_at": now,
+        "updated_at": now
     })
     
     await db.marketplace_items.insert_one(item_doc)
     item_doc['created_at'] = datetime.fromisoformat(item_doc['created_at'])
+    item_doc['updated_at'] = datetime.fromisoformat(item_doc['updated_at'])
     return MarketplaceItem(**item_doc)
 
 @api_router.get("/marketplace", response_model=List[MarketplaceItem])
 async def get_marketplace_items(
     category: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
-    rental: Optional[bool] = Query(None)
+    rental: Optional[bool] = Query(None),
+    status: Optional[str] = Query(None)
 ):
-    query = {"available": True}
+    query = {}
+    if status:
+        query["status"] = status
+    else:
+        query["status"] = {"$in": ["available", "reserved"]}  # Hide sold items by default
     if category:
         query["category"] = category
     if location:
@@ -1433,19 +1445,47 @@ async def get_marketplace_items(
     if rental is not None:
         query["rental_available"] = rental
     
-    items = await db.marketplace_items.find(query, {"_id": 0}).to_list(100)
+    items = await db.marketplace_items.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
     for item in items:
-        if isinstance(item['created_at'], str):
+        if isinstance(item.get('created_at'), str):
             item['created_at'] = datetime.fromisoformat(item['created_at'])
+        if isinstance(item.get('updated_at'), str):
+            item['updated_at'] = datetime.fromisoformat(item['updated_at'])
+    return [MarketplaceItem(**item) for item in items]
+
+@api_router.get("/marketplace/my-items", response_model=List[MarketplaceItem])
+async def get_my_marketplace_items(
+    current_user: User = Depends(get_current_user)
+):
+    """Get all items for the current seller (including sold items)"""
+    items = await db.marketplace_items.find(
+        {"seller_id": current_user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    for item in items:
+        if isinstance(item.get('created_at'), str):
+            item['created_at'] = datetime.fromisoformat(item['created_at'])
+        if isinstance(item.get('updated_at'), str):
+            item['updated_at'] = datetime.fromisoformat(item['updated_at'])
     return [MarketplaceItem(**item) for item in items]
 
 @api_router.get("/marketplace/{item_id}", response_model=MarketplaceItem)
 async def get_marketplace_item(item_id: str):
     item = await db.marketplace_items.find_one({"item_id": item_id}, {"_id": 0})
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    if isinstance(item['created_at'], str):
+        raise HTTPException(status_code=404, detail="Article non trouvé")
+    
+    # Increment view count
+    await db.marketplace_items.update_one(
+        {"item_id": item_id},
+        {"$inc": {"views_count": 1}}
+    )
+    
+    if isinstance(item.get('created_at'), str):
         item['created_at'] = datetime.fromisoformat(item['created_at'])
+    if isinstance(item.get('updated_at'), str):
+        item['updated_at'] = datetime.fromisoformat(item['updated_at'])
     return MarketplaceItem(**item)
 
 @api_router.patch("/marketplace/{item_id}", response_model=MarketplaceItem)
@@ -1456,11 +1496,20 @@ async def update_marketplace_item(
 ):
     item = await db.marketplace_items.find_one({"item_id": item_id}, {"_id": 0})
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Article non trouvé")
     if item['seller_id'] != current_user.user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Non autorisé")
     
     update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Handle status changes
+    if 'status' in update_dict:
+        if update_dict['status'] == 'sold':
+            update_dict['available'] = False
+        elif update_dict['status'] == 'available':
+            update_dict['available'] = True
+    
     if update_dict:
         await db.marketplace_items.update_one(
             {"item_id": item_id},
@@ -1468,8 +1517,10 @@ async def update_marketplace_item(
         )
     
     updated = await db.marketplace_items.find_one({"item_id": item_id}, {"_id": 0})
-    if isinstance(updated['created_at'], str):
+    if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated.get('updated_at'), str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
     return MarketplaceItem(**updated)
 
 @api_router.delete("/marketplace/{item_id}")
@@ -1479,12 +1530,157 @@ async def delete_marketplace_item(
 ):
     item = await db.marketplace_items.find_one({"item_id": item_id}, {"_id": 0})
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Article non trouvé")
     if item['seller_id'] != current_user.user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Non autorisé")
     
     await db.marketplace_items.delete_one({"item_id": item_id})
-    return {"message": "Item deleted"}
+    # Also delete related inquiries
+    await db.marketplace_inquiries.delete_many({"item_id": item_id})
+    return {"message": "Article supprimé"}
+
+# ============ MARKETPLACE INQUIRIES ROUTES ============
+
+@api_router.post("/marketplace/{item_id}/inquiries")
+async def create_inquiry(
+    item_id: str,
+    inquiry_data: MarketplaceInquiryCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Send an inquiry about a marketplace item"""
+    item = await db.marketplace_items.find_one({"item_id": item_id}, {"_id": 0})
+    if not item:
+        raise HTTPException(status_code=404, detail="Article non trouvé")
+    
+    if item['seller_id'] == current_user.user_id:
+        raise HTTPException(status_code=400, detail="Vous ne pouvez pas contacter votre propre annonce")
+    
+    inquiry_id = f"inq_{uuid.uuid4().hex[:12]}"
+    inquiry_doc = {
+        "inquiry_id": inquiry_id,
+        "item_id": item_id,
+        "item_title": item['title'],
+        "buyer_id": current_user.user_id,
+        "buyer_name": current_user.name,
+        "seller_id": item['seller_id'],
+        "message": inquiry_data.message,
+        "inquiry_type": inquiry_data.inquiry_type,
+        "offer_amount": inquiry_data.offer_amount,
+        "rental_dates": inquiry_data.rental_dates,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.marketplace_inquiries.insert_one(inquiry_doc)
+    
+    # Increment inquiry count
+    await db.marketplace_items.update_one(
+        {"item_id": item_id},
+        {"$inc": {"inquiries_count": 1}}
+    )
+    
+    return {"message": "Message envoyé", "inquiry_id": inquiry_id}
+
+@api_router.get("/marketplace/{item_id}/inquiries")
+async def get_item_inquiries(
+    item_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get inquiries for an item (seller only)"""
+    item = await db.marketplace_items.find_one({"item_id": item_id}, {"_id": 0})
+    if not item:
+        raise HTTPException(status_code=404, detail="Article non trouvé")
+    
+    if item['seller_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    inquiries = await db.marketplace_inquiries.find(
+        {"item_id": item_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return inquiries
+
+@api_router.get("/marketplace-inquiries/received")
+async def get_received_inquiries(
+    current_user: User = Depends(get_current_user)
+):
+    """Get all inquiries received by the current user (seller)"""
+    inquiries = await db.marketplace_inquiries.find(
+        {"seller_id": current_user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return inquiries
+
+@api_router.get("/marketplace-inquiries/sent")
+async def get_sent_inquiries(
+    current_user: User = Depends(get_current_user)
+):
+    """Get all inquiries sent by the current user (buyer)"""
+    inquiries = await db.marketplace_inquiries.find(
+        {"buyer_id": current_user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return inquiries
+
+@api_router.patch("/marketplace-inquiries/{inquiry_id}")
+async def update_inquiry_status(
+    inquiry_id: str,
+    status: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Update inquiry status (seller only)"""
+    inquiry = await db.marketplace_inquiries.find_one({"inquiry_id": inquiry_id}, {"_id": 0})
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Message non trouvé")
+    
+    if inquiry['seller_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    if status not in ['pending', 'replied', 'accepted', 'declined']:
+        raise HTTPException(status_code=400, detail="Statut invalide")
+    
+    await db.marketplace_inquiries.update_one(
+        {"inquiry_id": inquiry_id},
+        {"$set": {"status": status}}
+    )
+    
+    # If accepted, update item status to reserved
+    if status == 'accepted':
+        await db.marketplace_items.update_one(
+            {"item_id": inquiry['item_id']},
+            {"$set": {"status": "reserved"}}
+        )
+    
+    return {"message": "Statut mis à jour"}
+
+# ============ MARKETPLACE IMAGE UPLOAD ============
+
+@api_router.post("/marketplace/upload-image")
+async def upload_marketplace_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload an image for a marketplace item"""
+    content = await file.read()
+    
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image trop volumineuse (max 5MB)")
+    
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+        raise HTTPException(status_code=400, detail="Format d'image non supporté")
+    
+    file_id = f"marketplace_{current_user.user_id}_{uuid.uuid4().hex[:8]}{ext}"
+    file_path = UPLOAD_DIR / file_id
+    
+    async with aiofiles.open(file_path, 'wb') as f:
+        await f.write(content)
+    
+    image_url = f"/api/files/{file_id}"
+    return {"image_url": image_url}
 
 # ============ EVENT PACKAGES ROUTES ============
 
