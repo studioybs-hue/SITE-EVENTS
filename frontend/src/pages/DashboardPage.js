@@ -684,8 +684,10 @@ const DashboardPage = () => {
                     </Card>
                   </TabsContent>
                 </Tabs>
-              ) : (
-                /* Client View */
+              )}
+
+              {/* Client View - only show if not provider and not needing profile */}
+              {!isProvider && !needsProviderProfile && (
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                   <TabsList className="flex-wrap h-auto gap-1">
                     <TabsTrigger value="overview" data-testid="tab-overview">Vue d'ensemble</TabsTrigger>
