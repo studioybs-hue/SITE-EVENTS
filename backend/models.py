@@ -171,6 +171,42 @@ class MarketplaceItemUpdate(BaseModel):
     images: Optional[List[str]] = None
     available: Optional[bool] = None
 
+# Service/Prestation Models
+class ServiceOption(BaseModel):
+    name: str
+    price: float = 0.0
+    description: Optional[str] = None
+
+class Service(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    service_id: str
+    provider_id: str
+    title: str
+    description: str
+    duration: Optional[str] = None  # e.g., "2h", "4h", "Journée"
+    price: float
+    options: List[ServiceOption] = []
+    is_active: bool = True
+    display_order: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+class ServiceCreate(BaseModel):
+    title: str
+    description: str
+    duration: Optional[str] = None
+    price: float
+    options: List[ServiceOption] = []
+
+class ServiceUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    duration: Optional[str] = None
+    price: Optional[float] = None
+    options: Optional[List[ServiceOption]] = None
+    is_active: Optional[bool] = None
+    display_order: Optional[int] = None
+
 # Session Model
 class UserSession(BaseModel):
     model_config = ConfigDict(extra="ignore")
