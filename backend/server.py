@@ -676,6 +676,142 @@ async def delete_marketplace_item(
     await db.marketplace_items.delete_one({"item_id": item_id})
     return {"message": "Item deleted"}
 
+# ============ EVENT PACKAGES ROUTES ============
+
+@api_router.post("/packages", response_model=EventPackage)
+async def create_package(
+    package_data: EventPackageCreate,
+    current_user: User = Depends(get_current_user)
+):
+    # Only admins or verified providers can create packages
+    if current_user.user_type not in ['admin', 'provider']:
+        raise HTTPException(status_code=403, detail="Only providers can create packages")
+    
+    # Fetch provider details
+    providers = []
+    for provider_id in package_data.provider_ids:
+        provider = await db.provider_profiles.find_one({"provider_id": provider_id}, {"_id": 0})
+        if provider:
+            providers.append(PackageProvider(
+                provider_id=provider['provider_id'],
+                business_name=provider['business_name'],
+                category=provider['category'],
+                services=provider['services']
+            ))
+    
+    if len(providers) == 0:
+        raise HTTPException(status_code=400, detail="No valid providers found")
+    
+    # Calculate discount percentage
+    discount_pct = int(((package_data.original_price - package_data.discounted_price) / package_data.original_price) * 100)
+    
+    package_id = f"pkg_{uuid.uuid4().hex[:12]}"
+    package_doc = {
+        "package_id": package_id,
+        "name": package_data.name,
+        "description": package_data.description,
+        "event_type": package_data.event_type,
+        "providers": [p.model_dump() for p in providers],
+        "original_price": package_data.original_price,
+        "discounted_price": package_data.discounted_price,
+        "discount_percentage": discount_pct,
+        "services_included": package_data.services_included,
+        "image_url": package_data.image_url,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.event_packages.insert_one(package_doc)
+    package_doc['created_at'] = datetime.fromisoformat(package_doc['created_at'])
+    return EventPackage(**package_doc)
+
+@api_router.get("/packages", response_model=List[EventPackage])
+async def get_packages(event_type: Optional[str] = Query(None)):
+    query = {"is_active": True}
+    if event_type:
+        query["event_type"] = event_type
+    
+    packages = await db.event_packages.find(query, {"_id": 0}).to_list(100)
+    for p in packages:
+        if isinstance(p['created_at'], str):
+            p['created_at'] = datetime.fromisoformat(p['created_at'])
+    return [EventPackage(**p) for p in packages]
+
+@api_router.get("/packages/{package_id}", response_model=EventPackage)
+async def get_package(package_id: str):
+    package = await db.event_packages.find_one({"package_id": package_id}, {"_id": 0})
+    if not package:
+        raise HTTPException(status_code=404, detail="Package not found")
+    if isinstance(package['created_at'], str):
+        package['created_at'] = datetime.fromisoformat(package['created_at'])
+    return EventPackage(**package)
+
+@api_router.patch("/packages/{package_id}", response_model=EventPackage)
+async def update_package(
+    package_id: str,
+    update_data: EventPackageUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.user_type not in ['admin', 'provider']:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    package = await db.event_packages.find_one({"package_id": package_id}, {"_id": 0})
+    if not package:
+        raise HTTPException(status_code=404, detail="Package not found")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        await db.event_packages.update_one(
+            {"package_id": package_id},
+            {"$set": update_dict}
+        )
+    
+    updated = await db.event_packages.find_one({"package_id": package_id}, {"_id": 0})
+    if isinstance(updated['created_at'], str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return EventPackage(**updated)
+
+@api_router.post("/packages/{package_id}/book", response_model=Booking)
+async def book_package(
+    package_id: str,
+    booking_data: BookingCreate,
+    current_user: User = Depends(get_current_user)
+):
+    # Get package
+    package = await db.event_packages.find_one({"package_id": package_id}, {"_id": 0})
+    if not package:
+        raise HTTPException(status_code=404, detail="Package not found")
+    
+    # Create a booking for each provider in the package
+    now = datetime.now(timezone.utc)
+    booking_ids = []
+    
+    for provider in package['providers']:
+        booking_id = f"booking_{uuid.uuid4().hex[:12]}"
+        booking_doc = {
+            "booking_id": booking_id,
+            "client_id": current_user.user_id,
+            "provider_id": provider['provider_id'],
+            "event_type": booking_data.event_type,
+            "event_date": booking_data.event_date,
+            "event_location": booking_data.event_location,
+            "status": "pending",
+            "total_amount": booking_data.total_amount / len(package['providers']),  # Split amount
+            "deposit_paid": 0.0,
+            "payment_status": "pending",
+            "notes": f"Pack: {package['name']} - {booking_data.notes or ''}",
+            "created_at": now.isoformat(),
+            "updated_at": now.isoformat()
+        }
+        await db.bookings.insert_one(booking_doc)
+        booking_ids.append(booking_id)
+    
+    # Return first booking as reference
+    first_booking = await db.bookings.find_one({"booking_id": booking_ids[0]}, {"_id": 0})
+    first_booking['created_at'] = now
+    first_booking['updated_at'] = now
+    return Booking(**first_booking)
+
 # ============ ADMIN ROUTES ============
 
 @api_router.get("/admin/stats")
