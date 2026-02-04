@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Star, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package, Check, Send, Calendar, FileText } from 'lucide-react';
+import { MapPin, Star, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package, Check, Send, Calendar, FileText, Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,8 @@ const ProviderCard = ({ provider }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [quoteForm, setQuoteForm] = useState({
     event_date: '',
     event_location: '',
@@ -33,11 +35,68 @@ const ProviderCard = ({ provider }) => {
     const checkAuth = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/auth/me`, { credentials: 'include' });
-        if (res.ok) setUser(await res.json());
+        if (res.ok) {
+          const userData = await res.json();
+          setUser(userData);
+          // Check if provider is in favorites
+          checkFavorite();
+        }
       } catch (e) {}
     };
     checkAuth();
   }, []);
+
+  const checkFavorite = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/favorites/check/${provider.provider_id}`, {
+        credentials: 'include'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsFavorite(data.is_favorite);
+      }
+    } catch (e) {}
+  };
+
+  const toggleFavorite = async (e) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error('Connectez-vous pour ajouter aux favoris');
+      navigate('/login');
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        const res = await fetch(`${BACKEND_URL}/api/favorites/${provider.provider_id}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        if (res.ok) {
+          setIsFavorite(false);
+          toast.success('Retiré des favoris');
+        }
+      } else {
+        // Add to favorites
+        const res = await fetch(`${BACKEND_URL}/api/favorites`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ provider_id: provider.provider_id })
+        });
+        if (res.ok) {
+          setIsFavorite(true);
+          toast.success('Ajouté aux favoris ❤️');
+        }
+      }
+    } catch (error) {
+      toast.error('Erreur');
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (expanded && provider.provider_id) {
