@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -14,12 +14,12 @@ import { toast } from 'sonner';
 const ProviderDetailPage = () => {
   const { providerId } = useParams();
   const navigate = useNavigate();
-  const [provider, setProvider] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const [bookingData, setBookingData] = useState({
+  const [provider, setProvider] = React.useState(null);
+  const [reviews, setReviews] = React.useState([]);
+  const [user, setUser] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [bookingOpen, setBookingOpen] = React.useState(false);
+  const [bookingData, setBookingData] = React.useState({
     event_type: '',
     event_date: '',
     event_location: '',
@@ -27,7 +27,7 @@ const ProviderDetailPage = () => {
     notes: '',
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     checkAuth();
     fetchProvider();
     fetchReviews();
