@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, Query, UploadFile, File
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -14,6 +15,7 @@ import socketio
 import bcrypt
 import base64
 import aiofiles
+import mimetypes
 
 from models import (
     User, UserCreate, ProviderProfile, ProviderProfileCreate, ProviderProfileUpdate,
