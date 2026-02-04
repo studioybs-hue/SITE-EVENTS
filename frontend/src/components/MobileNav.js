@@ -1,10 +1,12 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Search, MessageCircle, Calendar, User } from 'lucide-react';
+import { Home, Search, MessageCircle, Calendar, User, Building } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const MobileNav = ({ user, unreadMessages = 0, pendingActions = 0 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isProvider = user?.user_type === 'provider';
 
   const navItems = [
     { 
@@ -28,8 +30,8 @@ const MobileNav = ({ user, unreadMessages = 0, pendingActions = 0 }) => {
     },
     { 
       path: '/dashboard', 
-      icon: Calendar, 
-      label: 'Tableau',
+      icon: isProvider ? Building : Calendar, 
+      label: isProvider ? 'Pro' : 'Tableau',
       badge: pendingActions,
       showWhen: 'authenticated'
     },
@@ -49,6 +51,10 @@ const MobileNav = ({ user, unreadMessages = 0, pendingActions = 0 }) => {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-border z-50 safe-area-bottom">
+      {/* User type indicator strip */}
+      {user && (
+        <div className={`h-0.5 ${isProvider ? 'bg-slate-700' : 'bg-accent'}`} />
+      )}
       <div className="flex justify-around items-center h-16 px-2">
         {filteredItems.map((item) => {
           const Icon = item.icon;
@@ -60,7 +66,7 @@ const MobileNav = ({ user, unreadMessages = 0, pendingActions = 0 }) => {
               onClick={() => navigate(item.path)}
               className={`flex flex-col items-center justify-center flex-1 py-2 relative transition-colors ${
                 isActive 
-                  ? 'text-accent' 
+                  ? isProvider ? 'text-slate-700' : 'text-accent'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
               data-testid={`mobile-nav-${item.label.toLowerCase()}`}
@@ -77,7 +83,9 @@ const MobileNav = ({ user, unreadMessages = 0, pendingActions = 0 }) => {
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-accent rounded-full" />
+                <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full ${
+                  isProvider ? 'bg-slate-700' : 'bg-accent'
+                }`} />
               )}
             </button>
           );
