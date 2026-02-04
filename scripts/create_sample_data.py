@@ -137,6 +137,23 @@ async def create_sample_data():
             "rating": 4.9,
             "total_reviews": 52,
             "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "provider_id": "prov_005_video",
+            "user_id": "user_sample_005",
+            "business_name": "CinéWedding Productions",
+            "category": "Vidéaste",
+            "description": "Vidéaste professionnel spécialisé dans le cinéma de mariage. Films émotionnels et modernes en 4K.",
+            "location": "Lyon",
+            "services": ["Film de mariage", "Teaser", "Drone", "Same-day edit"],
+            "pricing_range": "€2000-€4000",
+            "portfolio_images": ["https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=800"],
+            "portfolio_videos": [],
+            "phone": "+33 6 56 78 90 12",
+            "verified": True,
+            "rating": 4.8,
+            "total_reviews": 29,
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
     ]
     
