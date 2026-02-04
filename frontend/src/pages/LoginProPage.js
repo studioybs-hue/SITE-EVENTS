@@ -111,13 +111,32 @@ const LoginProPage = () => {
 
       if (response.ok) {
         // Upgrade to provider
-        await fetch(`${BACKEND_URL}/api/auth/profile?user_type=provider`, {
+        const upgradeResponse = await fetch(`${BACKEND_URL}/api/auth/profile?user_type=provider`, {
           method: 'PATCH',
           credentials: 'include',
         });
         
-        toast.success('Compte prestataire créé ! Complétez votre profil professionnel.');
-        navigate('/dashboard');
+        if (upgradeResponse.ok) {
+          toast.success('Compte prestataire créé ! Complétez votre profil professionnel.');
+          navigate('/dashboard');
+        } else {
+          toast.error('Erreur lors de la mise à jour du compte');
+        }
+      } else {
+        const error = await response.json();
+        if (error.detail === 'Email already registered') {
+          toast.error('Cet email est déjà utilisé. Essayez de vous connecter.');
+        } else {
+          toast.error(error.detail || 'Erreur lors de la création du compte');
+        }
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error('Erreur de connexion au serveur');
+    } finally {
+      setLoading(false);
+    }
+  };
       } else {
         const error = await response.json();
         toast.error(error.detail || 'Erreur lors de la création du compte');
