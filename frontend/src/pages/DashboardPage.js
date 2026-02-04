@@ -743,7 +743,7 @@ const DashboardPage = () => {
           />
           
           {/* Spacer for mobile nav */}
-          <div className="h-16 md:hidden" />
+          <div className="h-16 md:hidden"></div>
         </div>
       )}
     </ProtectedRoute>
