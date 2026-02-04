@@ -14,6 +14,7 @@ import MarketplacePage from '@/pages/MarketplacePage';
 import MessagesPage from '@/pages/MessagesPage';
 import PackagesPage from '@/pages/PackagesPage';
 import ProfilePage from '@/pages/ProfilePage';
+import SettingsPage from '@/pages/SettingsPage';
 
 // Components
 import AuthCallback from '@/components/AuthCallback';
@@ -38,6 +39,7 @@ function AppRouter() {
       <Route path="/marketplace" element={<MarketplacePage />} />
       <Route path="/messages" element={<MessagesPage />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/settings" element={<SettingsPage />} />
     </Routes>
   );
 }
