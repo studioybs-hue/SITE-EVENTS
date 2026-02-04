@@ -1,0 +1,143 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "Lumière Events",
+      "archetype": "Ethereal Luxury",
+      "vibe": "Sophisticated, Romantic, Trustworthy, Efficient",
+      "theme_strategy": "Light Mode Dominant with Jewel Tone Accents"
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Playfair Display, serif",
+        "body": "Manrope, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "scale": {
+        "h1": "text-5xl md:text-7xl font-medium tracking-tight leading-tight",
+        "h2": "text-4xl md:text-5xl font-medium tracking-tight",
+        "h3": "text-2xl md:text-3xl font-medium",
+        "body_lg": "text-lg leading-relaxed",
+        "body_base": "text-base leading-relaxed text-muted-foreground",
+        "caption": "text-xs uppercase tracking-widest font-semibold text-muted-foreground"
+      },
+      "imports": [
+        "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');"
+      ]
+    },
+    "colors": {
+      "palette": {
+        "primary": {
+          "DEFAULT": "#1C1917",
+          "foreground": "#FAFAF9"
+        },
+        "secondary": {
+          "DEFAULT": "#F5E6D3",
+          "foreground": "#1C1917"
+        },
+        "accent": {
+          "DEFAULT": "#D4AF37",
+          "foreground": "#FFFFFF"
+        },
+        "background": "#FAFAF9",
+        "foreground": "#1C1917",
+        "muted": {
+          "DEFAULT": "#F5F5F4",
+          "foreground": "#78716C"
+        },
+        "card": {
+          "DEFAULT": "#FFFFFF",
+          "foreground": "#1C1917"
+        },
+        "border": "#E7E5E4"
+      },
+      "usage": {
+        "background": "bg-[#FAFAF9]",
+        "surface": "bg-white border border-[#E7E5E4]",
+        "primary_action": "bg-[#1C1917] text-[#FAFAF9] hover:bg-[#292524]",
+        "secondary_action": "bg-[#F5E6D3] text-[#1C1917] hover:bg-[#E6D5C0]",
+        "accent_text": "text-[#D4AF37]",
+        "success": "text-emerald-700 bg-emerald-50 border-emerald-200",
+        "error": "text-rose-700 bg-rose-50 border-rose-200"
+      }
+    },
+    "layout": {
+      "spacing": {
+        "container_padding": "px-6 md:px-12 lg:px-24",
+        "section_gap": "py-24 md:py-32",
+        "element_gap": "gap-6 md:gap-8"
+      },
+      "border_radius": {
+        "default": "rounded-sm",
+        "button": "rounded-full",
+        "card": "rounded-sm"
+      },
+      "grids": {
+        "marketing": "grid grid-cols-1 md:grid-cols-12 gap-8",
+        "dashboard": "grid grid-cols-1 md:grid-cols-4 gap-6",
+        "listing": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      }
+    },
+    "visual_enhancers": {
+      "glassmorphism": "bg-white/80 backdrop-blur-xl border border-white/20 shadow-sm",
+      "shadows": {
+        "soft": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+        "hover": "shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
+      },
+      "texture": "bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 fixed inset-0 pointer-events-none z-50 mix-blend-overlay"
+    },
+    "components": {
+      "buttons": {
+        "primary": "h-12 px-8 rounded-full bg-[#1C1917] text-white font-medium hover:scale-[1.02] transition-transform duration-200",
+        "secondary": "h-12 px-8 rounded-full bg-[#F5E6D3] text-[#1C1917] font-medium hover:bg-[#E6D5C0] transition-colors",
+        "outline": "h-12 px-8 rounded-full border border-[#1C1917] text-[#1C1917] hover:bg-[#1C1917] hover:text-white transition-colors"
+      },
+      "cards": {
+        "listing": "group relative overflow-hidden bg-white border border-border/50 hover:shadow-lg transition-all duration-300",
+        "dashboard": "bg-white p-6 border border-border/60 shadow-sm"
+      },
+      "inputs": {
+        "default": "h-12 bg-transparent border-b border-border focus:border-[#1C1917] rounded-none px-0 transition-colors focus:ring-0"
+      }
+    }
+  },
+  "assets": {
+    "images": {
+      "hero": {
+        "main": "https://images.unsplash.com/photo-1745573672923-6cf4c5979dd2?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Elegant wedding reception dining setup with chandeliers"
+      },
+      "categories": {
+        "photographer": "https://images.unsplash.com/photo-1761435728013-a2169d043924?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "florist": "https://images.unsplash.com/photo-1561459821-7b58693c171a?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "dj": "https://images.unsplash.com/photo-1524680319993-fe837ad4bf2d?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "catering": "https://images.unsplash.com/photo-1745573674360-644c2edec427?crop=entropy&cs=srgb&fm=jpg&q=85"
+      },
+      "b2b_marketplace": {
+        "audio_gear": "https://images.unsplash.com/photo-1524680319993-fe837ad4bf2d?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "decor_rentals": "https://images.unsplash.com/photo-1745573673786-d462f0ac2690?crop=entropy&cs=srgb&fm=jpg&q=85"
+      }
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-width={1.5}"
+    }
+  },
+  "implementation_guide": {
+    "instructions_to_main_agent": [
+      "1. SETUP: Install 'lucide-react' and 'framer-motion' immediately.",
+      "2. FONTS: Add the Google Fonts import to 'index.css' at the very top.",
+      "3. TAILWIND: Update 'tailwind.config.js' with the colors and font families defined above.",
+      "4. LAYOUT: Use the 'container_padding' class for all main page wrappers to ensure consistent margins.",
+      "5. COMPONENTS: When using Shadcn components, override the default 'rounded-md' with 'rounded-sm' or 'rounded-none' to match the 'Ethereal Luxury' aesthetic.",
+      "6. DASHBOARD: For the provider dashboard, use the 'High Density Grid' strategy but keep the visual style light and airy using white cards with subtle borders.",
+      "7. IMAGES: Use the provided Unsplash URLs. DO NOT use placeholders.",
+      "8. TESTING: Add 'data-testid' to all interactive elements (buttons, inputs, cards)."
+    ],
+    "universal_guidelines": [
+      "Avoid 'AI Slop': Do not use generic centered layouts. Use asymmetry.",
+      "Micro-interactions: Add hover states to every button and card.",
+      "Whitespace: If you think there is enough whitespace, double it.",
+      "Contrast: Ensure text is legible against the light background. Use #1C1917 for main text, not #000000."
+    ]
+  }
+}
