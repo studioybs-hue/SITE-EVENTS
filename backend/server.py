@@ -431,6 +431,73 @@ async def get_user_by_id(user_id: str, current_user: User = Depends(get_current_
     
     return User(**user_doc)
 
+@api_router.patch("/users/me", response_model=User)
+async def update_current_user(
+    update_data: UserUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update current user's profile"""
+    update_dict = {}
+    
+    if update_data.name is not None:
+        update_dict["name"] = update_data.name
+    if update_data.phone is not None:
+        update_dict["phone"] = update_data.phone
+    if update_data.picture is not None:
+        update_dict["picture"] = update_data.picture
+    if update_data.preferences is not None:
+        update_dict["preferences"] = update_data.preferences.model_dump()
+    if update_data.notification_settings is not None:
+        update_dict["notification_settings"] = update_data.notification_settings.model_dump()
+    
+    if update_dict:
+        await db.users.update_one(
+            {"user_id": current_user.user_id},
+            {"$set": update_dict}
+        )
+    
+    updated_user = await db.users.find_one(
+        {"user_id": current_user.user_id},
+        {"_id": 0, "password_hash": 0}
+    )
+    
+    if isinstance(updated_user['created_at'], str):
+        updated_user['created_at'] = datetime.fromisoformat(updated_user['created_at'])
+    
+    return User(**updated_user)
+
+@api_router.post("/users/me/avatar")
+async def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload user avatar/profile picture"""
+    content = await file.read()
+    
+    if len(content) > 5 * 1024 * 1024:  # 5MB limit for avatars
+        raise HTTPException(status_code=400, detail="Image trop volumineuse (max 5MB)")
+    
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+        raise HTTPException(status_code=400, detail="Format d'image non supporté")
+    
+    # Generate unique filename
+    file_id = f"avatar_{current_user.user_id}_{uuid.uuid4().hex[:8]}{ext}"
+    file_path = UPLOAD_DIR / file_id
+    
+    # Save file
+    async with aiofiles.open(file_path, 'wb') as f:
+        await f.write(content)
+    
+    # Update user with new avatar URL
+    avatar_url = f"/api/files/{file_id}"
+    await db.users.update_one(
+        {"user_id": current_user.user_id},
+        {"$set": {"picture": avatar_url}}
+    )
+    
+    return {"picture": avatar_url}
+
 # ============ PROVIDER ROUTES ============
 
 @api_router.post("/providers", response_model=ProviderProfile)
