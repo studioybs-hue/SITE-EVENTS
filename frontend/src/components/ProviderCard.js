@@ -112,11 +112,15 @@ const ProviderCard = ({ provider }) => {
 
               {isAuth ? (
                 <div className="flex gap-3">
-                  <button onClick={() => navigate('/dashboard')} className="flex-1 py-3 bg-primary text-primary-foreground rounded-full">
+                  <button onClick={() => navigate('/dashboard')} className="flex-1 py-3 bg-primary text-primary-foreground rounded-full" data-testid="request-quote-btn">
                     Demander un devis
                   </button>
-                  <button onClick={() => navigate('/messages')} className="flex-1 py-3 border-2 border-primary text-primary rounded-full">
-                    Message
+                  <button 
+                    onClick={() => navigate(`/messages?provider=${provider.provider_id}`)} 
+                    className="flex-1 py-3 border-2 border-primary text-primary rounded-full"
+                    data-testid="contact-provider-btn"
+                  >
+                    Contacter
                   </button>
                 </div>
               ) : (

@@ -411,6 +411,18 @@ async def update_user_type(user_type: str, current_user: User = Depends(get_curr
     
     return {"message": "User type updated", "user_type": user_type}
 
+@api_router.get("/users/{user_id}", response_model=User)
+async def get_user_by_id(user_id: str, current_user: User = Depends(get_current_user)):
+    """Get user details by user_id (requires authentication)"""
+    user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password_hash": 0})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if isinstance(user_doc['created_at'], str):
+        user_doc['created_at'] = datetime.fromisoformat(user_doc['created_at'])
+    
+    return User(**user_doc)
+
 # ============ PROVIDER ROUTES ============
 
 @api_router.post("/providers", response_model=ProviderProfile)
