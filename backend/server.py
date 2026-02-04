@@ -678,6 +678,162 @@ async def update_booking(
         updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
     return Booking(**updated)
 
+# ============ SERVICE/PRESTATION ROUTES ============
+
+@api_router.post("/services", response_model=Service)
+async def create_service(
+    service_data: ServiceCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new service/prestation for a provider"""
+    # Get provider profile
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Provider profile required")
+    
+    # Get max display order
+    max_order = await db.services.find_one(
+        {"provider_id": provider['provider_id']},
+        sort=[("display_order", -1)]
+    )
+    next_order = (max_order['display_order'] + 1) if max_order else 0
+    
+    service_id = f"svc_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
+    
+    service_doc = service_data.model_dump()
+    service_doc.update({
+        "service_id": service_id,
+        "provider_id": provider['provider_id'],
+        "is_active": True,
+        "display_order": next_order,
+        "created_at": now,
+        "updated_at": now
+    })
+    
+    await db.services.insert_one(service_doc)
+    
+    service_doc['created_at'] = datetime.fromisoformat(service_doc['created_at'])
+    service_doc['updated_at'] = datetime.fromisoformat(service_doc['updated_at'])
+    return Service(**service_doc)
+
+@api_router.get("/services/provider/{provider_id}", response_model=List[Service])
+async def get_provider_services(provider_id: str, include_inactive: bool = False):
+    """Get all services for a provider"""
+    query = {"provider_id": provider_id}
+    if not include_inactive:
+        query["is_active"] = True
+    
+    services = await db.services.find(query, {"_id": 0}).sort("display_order", 1).to_list(100)
+    for s in services:
+        if isinstance(s['created_at'], str):
+            s['created_at'] = datetime.fromisoformat(s['created_at'])
+        if isinstance(s['updated_at'], str):
+            s['updated_at'] = datetime.fromisoformat(s['updated_at'])
+    return [Service(**s) for s in services]
+
+@api_router.get("/services/me", response_model=List[Service])
+async def get_my_services(
+    include_inactive: bool = True,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all services for the current provider"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Provider profile required")
+    
+    query = {"provider_id": provider['provider_id']}
+    if not include_inactive:
+        query["is_active"] = True
+    
+    services = await db.services.find(query, {"_id": 0}).sort("display_order", 1).to_list(100)
+    for s in services:
+        if isinstance(s['created_at'], str):
+            s['created_at'] = datetime.fromisoformat(s['created_at'])
+        if isinstance(s['updated_at'], str):
+            s['updated_at'] = datetime.fromisoformat(s['updated_at'])
+    return [Service(**s) for s in services]
+
+@api_router.get("/services/{service_id}", response_model=Service)
+async def get_service(service_id: str):
+    """Get a specific service"""
+    service = await db.services.find_one({"service_id": service_id}, {"_id": 0})
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    
+    if isinstance(service['created_at'], str):
+        service['created_at'] = datetime.fromisoformat(service['created_at'])
+    if isinstance(service['updated_at'], str):
+        service['updated_at'] = datetime.fromisoformat(service['updated_at'])
+    return Service(**service)
+
+@api_router.patch("/services/{service_id}", response_model=Service)
+async def update_service(
+    service_id: str,
+    update_data: ServiceUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a service"""
+    service = await db.services.find_one({"service_id": service_id}, {"_id": 0})
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    
+    # Verify ownership
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider or service['provider_id'] != provider['provider_id']:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.services.update_one(
+            {"service_id": service_id},
+            {"$set": update_dict}
+        )
+    
+    updated = await db.services.find_one({"service_id": service_id}, {"_id": 0})
+    if isinstance(updated['created_at'], str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated['updated_at'], str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    return Service(**updated)
+
+@api_router.delete("/services/{service_id}")
+async def delete_service(
+    service_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a service"""
+    service = await db.services.find_one({"service_id": service_id}, {"_id": 0})
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    
+    # Verify ownership
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider or service['provider_id'] != provider['provider_id']:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.services.delete_one({"service_id": service_id})
+    return {"message": "Service deleted"}
+
+@api_router.post("/services/reorder")
+async def reorder_services(
+    service_orders: List[dict],  # [{"service_id": "xxx", "display_order": 0}, ...]
+    current_user: User = Depends(get_current_user)
+):
+    """Reorder services by updating display_order"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Provider profile required")
+    
+    for item in service_orders:
+        await db.services.update_one(
+            {"service_id": item['service_id'], "provider_id": provider['provider_id']},
+            {"$set": {"display_order": item['display_order'], "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    
+    return {"message": "Services reordered"}
+
 # ============ REVIEW ROUTES ============
 
 @api_router.post("/reviews", response_model=Review)
