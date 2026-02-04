@@ -7,6 +7,7 @@ import RecentMessages from '@/components/RecentMessages';
 import ServiceManager from '@/components/ServiceManager';
 import QuoteManager from '@/components/QuoteManager';
 import ClientQuotes from '@/components/ClientQuotes';
+import ClientBookings from '@/components/ClientBookings';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
