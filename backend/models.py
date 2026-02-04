@@ -3,6 +3,41 @@ from typing import Optional, List
 from datetime import datetime
 import uuid
 
+# Quote Request Models
+class QuoteServiceItem(BaseModel):
+    service_id: str
+    title: str
+    options: List[str] = []
+
+class QuoteRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    quote_id: str
+    client_id: str
+    provider_id: str
+    services: List[QuoteServiceItem]
+    event_type: str
+    event_date: str
+    event_location: str
+    message: Optional[str] = None
+    status: str = "pending"  # pending, responded, accepted, declined
+    response_message: Optional[str] = None
+    response_amount: Optional[float] = None
+    created_at: datetime
+    updated_at: datetime
+
+class QuoteRequestCreate(BaseModel):
+    provider_id: str
+    services: List[QuoteServiceItem]
+    event_type: str
+    event_date: str
+    event_location: str
+    message: Optional[str] = None
+
+class QuoteRequestUpdate(BaseModel):
+    status: Optional[str] = None
+    response_message: Optional[str] = None
+    response_amount: Optional[float] = None
+
 # User Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
