@@ -22,8 +22,8 @@ from models import (
     ProviderProfile, ProviderProfileCreate, ProviderProfileUpdate,
     Availability, AvailabilityCreate, Booking, BookingCreate, BookingUpdate,
     Review, ReviewCreate, Message, MessageCreate, MarketplaceItem,
-    MarketplaceItemCreate, MarketplaceItemUpdate, UserSession,
-    EventPackage, EventPackageCreate, EventPackageUpdate, PackageProvider,
+    MarketplaceItemCreate, MarketplaceItemUpdate, MarketplaceInquiry, MarketplaceInquiryCreate,
+    UserSession, EventPackage, EventPackageCreate, EventPackageUpdate, PackageProvider,
     Service, ServiceCreate, ServiceUpdate, ServiceOption,
     QuoteRequest, QuoteRequestCreate, QuoteRequestUpdate, QuoteServiceItem,
     MessageAttachment, Notification
