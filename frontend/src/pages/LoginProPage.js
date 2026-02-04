@@ -137,16 +137,6 @@ const LoginProPage = () => {
       setLoading(false);
     }
   };
-      } else {
-        const error = await response.json();
-        toast.error(error.detail || 'Erreur lors de la création du compte');
-      }
-    } catch (error) {
-      toast.error('Erreur lors de la création du compte');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleLogin = () => {
     // Store intent to become provider
