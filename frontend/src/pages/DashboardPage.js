@@ -88,6 +88,34 @@ const DashboardPage = () => {
           // No provider profile yet
         }
       }
+      
+      // Fetch unread messages count
+      try {
+        const messagesRes = await fetch(`${BACKEND_URL}/api/messages/recent`, {
+          credentials: 'include',
+        });
+        if (messagesRes.ok) {
+          const messagesData = await messagesRes.json();
+          setUnreadMessages(messagesData.unread_count || 0);
+        }
+      } catch (error) {
+        // Ignore error
+      }
+      
+      // Fetch pending quotes count for provider
+      if (userData.user_type === 'provider') {
+        try {
+          const quotesRes = await fetch(`${BACKEND_URL}/api/quotes/received`, {
+            credentials: 'include',
+          });
+          if (quotesRes.ok) {
+            const quotesData = await quotesRes.json();
+            setPendingQuotes(quotesData.filter(q => q.status === 'pending').length);
+          }
+        } catch (error) {
+          // Ignore error
+        }
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
