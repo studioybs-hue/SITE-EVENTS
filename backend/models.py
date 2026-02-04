@@ -114,14 +114,19 @@ class Booking(BaseModel):
     booking_id: str
     client_id: str
     provider_id: str
+    quote_id: Optional[str] = None  # Link to original quote
     event_type: str  # wedding, birthday, corporate, etc.
     event_date: str
     event_location: str
     status: str  # pending, confirmed, cancelled, completed
     total_amount: float
     deposit_paid: float = 0.0
+    deposit_required: float = 0.0  # Usually 30% of total
     payment_status: str  # pending, partial, paid
+    services: List[dict] = []  # Services from the quote
     notes: Optional[str] = None
+    provider_name: Optional[str] = None
+    client_name: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
