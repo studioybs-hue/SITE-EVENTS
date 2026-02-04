@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
+import MobileNav from '@/components/MobileNav';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 import RecentMessages from '@/components/RecentMessages';
@@ -8,6 +9,7 @@ import ServiceManager from '@/components/ServiceManager';
 import QuoteManager from '@/components/QuoteManager';
 import ClientQuotes from '@/components/ClientQuotes';
 import ClientBookings from '@/components/ClientBookings';
+import { StatusBadge, ActionCard, NotificationDot } from '@/components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Calendar, Euro, MapPin, User, Building, MessageCircle, 
   Star, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle,
-  Settings, Edit
+  Settings, Edit, Reply, CalendarCheck, Lock, Search, Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 
