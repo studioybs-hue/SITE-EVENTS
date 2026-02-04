@@ -44,6 +44,13 @@ const Navbar = ({ user, onLogout }) => {
               Rechercher
             </Link>
             <Link 
+              to="/packages" 
+              className="text-foreground hover:text-accent transition-colors font-medium"
+              data-testid="nav-packages-link"
+            >
+              Packs Événement
+            </Link>
+            <Link 
               to="/marketplace" 
               className="text-foreground hover:text-accent transition-colors font-medium"
               data-testid="nav-marketplace-link"
