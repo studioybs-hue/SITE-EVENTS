@@ -735,12 +735,12 @@ const DashboardPage = () => {
               </Dialog>
             </div>
           </div>
-          </div>
           <MobileNav 
             user={userData || user} 
             unreadMessages={unreadMessages}
             pendingActions={pendingBookings + pendingQuotes}
           />
+        </div>
         </>
       )}
     </ProtectedRoute>
