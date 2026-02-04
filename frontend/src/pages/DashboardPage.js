@@ -377,6 +377,11 @@ const DashboardPage = () => {
                     </div>
                   </TabsContent>
 
+                  {/* Quotes Tab */}
+                  <TabsContent value="quotes">
+                    <QuoteManager />
+                  </TabsContent>
+
                   {/* Services Tab */}
                   <TabsContent value="services">
                     <ServiceManager providerId={providerProfile.provider_id} />
