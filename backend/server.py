@@ -956,7 +956,7 @@ async def client_accept_quote(
     quote_id: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Client accepts a quote"""
+    """Client accepts a quote - creates a confirmed booking"""
     quote = await db.quote_requests.find_one({"quote_id": quote_id}, {"_id": 0})
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
@@ -969,25 +969,77 @@ async def client_accept_quote(
         raise HTTPException(status_code=400, detail="Can only accept responded quotes")
     
     now = datetime.now(timezone.utc).isoformat()
+    
+    # Update quote status
     await db.quote_requests.update_one(
         {"quote_id": quote_id},
         {"$set": {"status": "accepted", "updated_at": now}}
     )
     
-    # Notify provider via message
+    # Get provider info
     provider = await db.provider_profiles.find_one({"provider_id": quote['provider_id']}, {"_id": 0})
+    provider_name = provider['business_name'] if provider else 'Prestataire'
+    
+    # Create a confirmed booking from the quote
+    booking_id = f"booking_{uuid.uuid4().hex[:12]}"
+    total_amount = quote.get('response_amount', 0)
+    deposit_required = round(total_amount * 0.3, 2)  # 30% deposit
+    
+    booking_doc = {
+        "booking_id": booking_id,
+        "client_id": quote['client_id'],
+        "provider_id": quote['provider_id'],
+        "quote_id": quote_id,
+        "event_type": quote['event_type'],
+        "event_date": quote['event_date'],
+        "event_location": quote['event_location'],
+        "status": "confirmed",
+        "total_amount": total_amount,
+        "deposit_required": deposit_required,
+        "deposit_paid": 0.0,
+        "payment_status": "pending",
+        "services": quote.get('services', []),
+        "notes": quote.get('message', ''),
+        "provider_name": provider_name,
+        "client_name": current_user.name,
+        "created_at": now,
+        "updated_at": now
+    }
+    
+    await db.bookings.insert_one(booking_doc)
+    
+    # Block the date for the provider
+    await db.availability.update_one(
+        {"provider_id": quote['provider_id'], "date": quote['event_date']},
+        {"$set": {
+            "availability_id": f"avail_{uuid.uuid4().hex[:12]}",
+            "provider_id": quote['provider_id'],
+            "date": quote['event_date'],
+            "is_available": False,
+            "notes": f"Réservé: {quote['event_type']}"
+        }},
+        upsert=True
+    )
+    
+    # Notify provider via message
     if provider:
         message_id = f"msg_{uuid.uuid4().hex[:12]}"
         await db.messages.insert_one({
             "message_id": message_id,
             "sender_id": current_user.user_id,
             "receiver_id": provider['user_id'],
-            "content": f"✅ Bonne nouvelle ! J'ai accepté votre devis de {quote['response_amount']}€ pour {quote['event_type']} le {quote['event_date']}. Nous pouvons maintenant finaliser les détails !",
+            "content": f"🎉 Réservation confirmée !\n\n{current_user.name} a accepté votre devis de {total_amount}€ pour {quote['event_type']} le {quote['event_date']} à {quote['event_location']}.\n\nUn acompte de {deposit_required}€ (30%) est demandé pour finaliser la réservation.\n\nRéférence: {booking_id}",
             "read": False,
             "created_at": now
         })
     
-    return {"message": "Quote accepted", "status": "accepted"}
+    return {
+        "message": "Quote accepted and booking created",
+        "status": "accepted",
+        "booking_id": booking_id,
+        "total_amount": total_amount,
+        "deposit_required": deposit_required
+    }
 
 @api_router.post("/quotes/{quote_id}/decline")
 async def client_decline_quote(
