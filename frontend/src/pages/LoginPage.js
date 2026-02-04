@@ -302,16 +302,16 @@ const LoginPage = () => {
             </TabsContent>
           </Tabs>
 
-          <div className="text-center pt-4">
+          <div className="text-center pt-4 border-t border-border">
             <p className="text-sm text-muted-foreground">
-              Nouveau prestataire ?{' '}
-              <button
-                onClick={() => navigate('/search')}
+              Vous êtes prestataire ?{' '}
+              <Link
+                to="/login/pro"
                 className="text-accent hover:underline font-medium"
-                data-testid="explore-link"
+                data-testid="pro-login-link"
               >
-                Découvrir la plateforme
-              </button>
+                Espace Pro
+              </Link>
             </p>
           </div>
         </Card>
