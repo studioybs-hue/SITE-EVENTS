@@ -5,6 +5,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 import RecentMessages from '@/components/RecentMessages';
 import ServiceManager from '@/components/ServiceManager';
+import QuoteManager from '@/components/QuoteManager';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
