@@ -9,6 +9,7 @@ import ServiceManager from '@/components/ServiceManager';
 import QuoteManager from '@/components/QuoteManager';
 import ClientQuotes from '@/components/ClientQuotes';
 import ClientBookings from '@/components/ClientBookings';
+import MyEquipmentManager from '@/components/MyEquipmentManager';
 import { StatusBadge, ActionCard, NotificationDot } from '@/components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Calendar, Euro, MapPin, User, Building, MessageCircle, 
   Star, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle,
-  Settings, Edit, Reply, CalendarCheck, Lock, Search, Package
+  Settings, Edit, Reply, CalendarCheck, Lock, Search, Package, ShoppingBag
 } from 'lucide-react';
 import { toast } from 'sonner';
 
