@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Navbar from '@/components/Navbar';
+import MobileNav from '@/components/MobileNav';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
