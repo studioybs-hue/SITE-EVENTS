@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Send } from 'lucide-react';
+import { Send, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const MessagesPage = () => {
@@ -17,66 +17,121 @@ const MessagesPage = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [initializing, setInitializing] = useState(false);
   const messagesEndRef = useRef(null);
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
-    fetchConversations();
-    // Check if there's a user parameter in URL
-    const userId = searchParams.get('user');
-    if (userId) {
-      fetchUserAndSelect(userId);
-    }
+    initializePage();
   }, []);
 
-  useEffect(() => {
-    if (selectedUser) {
-      fetchMessages();
-      const interval = setInterval(fetchMessages, 3000); // Poll every 3 seconds
-      return () => clearInterval(interval);
-    }
-  }, [selectedUser]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const fetchConversations = async () => {
+  const initializePage = async () => {
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+      // Get current user
       const userRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
         credentials: 'include',
       });
       const userData = await userRes.json();
       setUser(userData);
 
+      // Fetch conversations
       const convRes = await fetch(`${BACKEND_URL}/api/messages/conversations`, {
         credentials: 'include',
       });
       const convData = await convRes.json();
       setConversations(convData);
+
+      // Check for provider parameter (from ProviderCard contact button)
+      const providerId = searchParams.get('provider');
+      if (providerId) {
+        setInitializing(true);
+        await initializeProviderConversation(providerId, convData);
+        setInitializing(false);
+      }
+      
+      // Check for direct user parameter
+      const userId = searchParams.get('user');
+      if (userId && !providerId) {
+        await fetchUserAndSelect(userId, convData);
+      }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      console.error('Error initializing page:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchUserAndSelect = async (userId) => {
+  const initializeProviderConversation = async (providerId, existingConversations) => {
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+      // Get provider profile to find user_id
+      const providerRes = await fetch(`${BACKEND_URL}/api/providers/${providerId}`, {
         credentials: 'include',
       });
-      const currentUser = await response.json();
-      setUser(currentUser);
+      
+      if (!providerRes.ok) {
+        toast.error('Prestataire non trouvé');
+        return;
+      }
+      
+      const provider = await providerRes.json();
+      const targetUserId = provider.user_id;
+      
+      // Check if conversation already exists
+      const existingConv = existingConversations.find(c => c.user_id === targetUserId);
+      
+      if (existingConv) {
+        setSelectedUser(existingConv);
+      } else {
+        // Fetch user details for new conversation
+        const userRes = await fetch(`${BACKEND_URL}/api/users/${targetUserId}`, {
+          credentials: 'include',
+        });
+        
+        if (userRes.ok) {
+          const targetUser = await userRes.json();
+          setSelectedUser({
+            user_id: targetUser.user_id,
+            name: targetUser.name,
+            email: targetUser.email,
+            picture: targetUser.picture,
+            business_name: provider.business_name
+          });
+        } else {
+          // Fallback with provider info
+          setSelectedUser({
+            user_id: targetUserId,
+            name: provider.business_name,
+            email: '',
+            picture: null
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing provider conversation:', error);
+      toast.error('Erreur lors de l\'initialisation');
+    }
+  };
 
-      // For now, we'll need to fetch the user details differently
-      // Since we don't have a direct user endpoint, we'll set a placeholder
-      setSelectedUser({ user_id: userId, name: 'Utilisateur', email: '' });
+  const fetchUserAndSelect = async (userId, existingConversations) => {
+    try {
+      // Check if already in conversations
+      const existingConv = existingConversations.find(c => c.user_id === userId);
+      
+      if (existingConv) {
+        setSelectedUser(existingConv);
+      } else {
+        // Fetch user details
+        const userRes = await fetch(`${BACKEND_URL}/api/users/${userId}`, {
+          credentials: 'include',
+        });
+        
+        if (userRes.ok) {
+          const targetUser = await userRes.json();
+          setSelectedUser(targetUser);
+        } else {
+          setSelectedUser({ user_id: userId, name: 'Utilisateur', email: '' });
+        }
+      }
     } catch (error) {
       console.error('Error fetching user:', error);
     }
