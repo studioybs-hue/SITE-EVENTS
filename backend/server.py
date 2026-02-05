@@ -612,12 +612,29 @@ async def get_providers(
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
     if country:
-        query["country"] = country
+        # Include providers with this country OR providers without country field (default to FR)
+        if country == "FR":
+            query["$or"] = [
+                {"country": country},
+                {"country": {"$exists": False}}
+            ]
+        else:
+            query["country"] = country
     if search:
-        query["$or"] = [
-            {"business_name": {"$regex": search, "$options": "i"}},
-            {"description": {"$regex": search, "$options": "i"}}
-        ]
+        if "$or" in query:
+            # Need to use $and to combine with existing $or
+            query = {"$and": [
+                {"$or": query["$or"]},
+                {"$or": [
+                    {"business_name": {"$regex": search, "$options": "i"}},
+                    {"description": {"$regex": search, "$options": "i"}}
+                ]}
+            ]}
+        else:
+            query["$or"] = [
+                {"business_name": {"$regex": search, "$options": "i"}},
+                {"description": {"$regex": search, "$options": "i"}}
+            ]
     
     providers = await db.provider_profiles.find(query, {"_id": 0}).to_list(100)
     for p in providers:
