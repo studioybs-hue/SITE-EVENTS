@@ -817,7 +817,7 @@ async def update_my_provider_profile(
     """Update the current user's provider profile"""
     provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
     if not provider:
-        raise HTTPException(status_code=404, detail="Provider profile not found")
+        raise HTTPException(status_code=404, detail="Veuillez d'abord créer votre profil prestataire")
     
     body = await request.json()
     update_dict = {k: v for k, v in body.items() if k in [
