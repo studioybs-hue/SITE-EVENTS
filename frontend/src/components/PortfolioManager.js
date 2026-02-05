@@ -96,38 +96,80 @@ const PortfolioManager = () => {
     }
 
     setUploading(true);
+    setUploadProgress(0);
+    
     const uploadFormData = new FormData();
     uploadFormData.append('file', file);
 
-    try {
-      const endpoint = isVideo 
-        ? `${BACKEND_URL}/api/portfolio/upload-video`
-        : `${BACKEND_URL}/api/marketplace/upload-image`;
-      
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        credentials: 'include',
-        body: uploadFormData,
-      });
+    const endpoint = isVideo 
+      ? `${BACKEND_URL}/api/portfolio/upload-video`
+      : `${BACKEND_URL}/api/marketplace/upload-image`;
 
-      if (response.ok) {
-        const data = await response.json();
-        const url = isVideo ? data.video_url : data.image_url;
-        setFormData(prev => ({
-          ...prev,
-          media_url: url,
-          media_type: isVideo ? 'video' : 'photo'
-        }));
-        setMediaType(isVideo ? 'video' : 'photo');
-        toast.success('Fichier uploadé !');
+    // Use XMLHttpRequest for progress tracking
+    const xhr = new XMLHttpRequest();
+    xhrRef.current = xhr;
+
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percent);
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          const url = isVideo ? data.video_url : data.image_url;
+          setFormData(prev => ({
+            ...prev,
+            media_url: url,
+            media_type: isVideo ? 'video' : 'photo'
+          }));
+          setMediaType(isVideo ? 'video' : 'photo');
+          toast.success('Fichier uploadé !');
+        } catch (err) {
+          toast.error('Erreur lors du traitement');
+        }
       } else {
         toast.error('Erreur lors de l\'upload');
       }
-    } catch (error) {
-      toast.error('Erreur lors de l\'upload');
-    } finally {
       setUploading(false);
+      setUploadProgress(0);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    });
+
+    xhr.addEventListener('error', () => {
+      toast.error('Erreur de connexion');
+      setUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    });
+
+    xhr.addEventListener('abort', () => {
+      toast.info('Upload annulé');
+      setUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    });
+
+    xhr.open('POST', endpoint);
+    xhr.withCredentials = true;
+    xhr.send(uploadFormData);
+  };
+
+  const cancelUpload = () => {
+    if (xhrRef.current) {
+      xhrRef.current.abort();
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+  };
     }
   };
 
