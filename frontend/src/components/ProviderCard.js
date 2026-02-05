@@ -150,6 +150,7 @@ const ProviderCard = ({ provider }) => {
   };
 
   const openPackBooking = (pack) => {
+    console.log('openPackBooking called', pack, 'user:', user);
     if (!user) {
       toast.error('Connectez-vous pour réserver');
       navigate('/login');
@@ -158,6 +159,7 @@ const ProviderCard = ({ provider }) => {
     setSelectedPack(pack);
     setPackBookingForm({ event_date: '', event_location: '', message: '' });
     setPackBookingOpen(true);
+    console.log('packBookingOpen set to true');
   };
 
   const handlePackBooking = async (e) => {
