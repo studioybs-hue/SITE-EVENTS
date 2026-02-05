@@ -178,8 +178,25 @@ const ProviderCard = ({ provider }) => {
       }
     }
 
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(formattedDate)) {
+      toast.error('Format de date invalide. Utilisez JJ/MM/AAAA');
+      return;
+    }
+
     setSubmitting(true);
     try {
+      // First check availability
+      const availRes = await fetch(`${BACKEND_URL}/api/providers/availability/${provider.provider_id}/${formattedDate}`);
+      if (availRes.ok) {
+        const availData = await availRes.json();
+        if (!availData.is_available) {
+          toast.error(availData.reason || 'Le prestataire n\'est pas disponible à cette date');
+          setSubmitting(false);
+          return;
+        }
+      }
+
       // Create a booking for the pack
       const res = await fetch(`${BACKEND_URL}/api/bookings`, {
         method: 'POST',
@@ -198,10 +215,31 @@ const ProviderCard = ({ provider }) => {
 
       if (res.ok) {
         const booking = await res.json();
-        toast.success('Réservation créée ! Procédez au paiement.');
+        toast.success('Réservation créée !');
         setPackBookingOpen(false);
-        // Redirect to payment
-        navigate(`/payment/${booking.booking_id}`);
+        
+        // Create Stripe checkout session and redirect
+        const paymentRes = await fetch(`${BACKEND_URL}/api/payments/create-checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            booking_id: booking.booking_id,
+            amount: selectedPack.price,
+            installments: 1
+          })
+        });
+        
+        if (paymentRes.ok) {
+          const paymentData = await paymentRes.json();
+          if (paymentData.checkout_url) {
+            window.location.href = paymentData.checkout_url;
+          } else {
+            toast.error('Erreur lors de la création du paiement');
+          }
+        } else {
+          toast.error('Erreur lors de la création du paiement');
+        }
       } else {
         const error = await res.json();
         toast.error(error.detail || 'Erreur lors de la réservation');
