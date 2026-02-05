@@ -615,6 +615,13 @@ const DashboardPage = () => {
                     </div>
                   </TabsContent>
 
+                  {/* Travels Tab */}
+                  <TabsContent value="travels">
+                    <Card className="p-6">
+                      <CountryPresenceManager />
+                    </Card>
+                  </TabsContent>
+
                   {/* Quotes Tab */}
                   <TabsContent value="quotes">
                     <QuoteManager />
