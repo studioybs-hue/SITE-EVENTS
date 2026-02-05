@@ -12,6 +12,7 @@ import ClientBookings from '@/components/ClientBookings';
 import MyEquipmentManager from '@/components/MyEquipmentManager';
 import FavoritesManager from '@/components/FavoritesManager';
 import MyMarketplaceOffers from '@/components/MyMarketplaceOffers';
+import CountryMultiSelect from '@/components/CountryMultiSelect';
 import { StatusBadge, ActionCard, NotificationDot } from '@/components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
