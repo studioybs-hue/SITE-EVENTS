@@ -23,6 +23,7 @@ const COUNTRIES = [
   { code: 'MA', name: 'Maroc' },
   { code: 'SN', name: 'Sénégal' },
   { code: 'CI', name: "Côte d'Ivoire" },
+  { code: 'KM', name: 'Comores' },
 ];
 
 const SearchPage = () => {
