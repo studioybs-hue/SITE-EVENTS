@@ -3131,22 +3131,15 @@ async def upload_portfolio_video(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ):
-    """Upload a video file for portfolio (story format)"""
+    """Upload a video file for portfolio (story format) - supports large files up to 1GB"""
     provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
     if not provider:
         raise HTTPException(status_code=403, detail="Profil prestataire requis")
     
     # Validate file type
-    allowed_types = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo']
+    allowed_types = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo', 'video/mpeg']
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Format vidéo non supporté. Utilisez MP4, MOV, WebM ou AVI")
-    
-    # Read file content
-    content = await file.read()
-    
-    # Limit file size (1GB for videos)
-    if len(content) > 1024 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 1GB)")
     
     # Generate unique filename
     file_id = f"vid_{uuid.uuid4().hex[:12]}"
@@ -3154,9 +3147,31 @@ async def upload_portfolio_video(
     safe_filename = f"{file_id}{ext}"
     file_path = UPLOAD_DIR / safe_filename
     
-    # Save file
-    async with aiofiles.open(file_path, 'wb') as f:
-        await f.write(content)
+    # Stream file to disk in chunks (handles large files)
+    total_size = 0
+    max_size = 1024 * 1024 * 1024  # 1GB
+    chunk_size = 1024 * 1024  # 1MB chunks
+    
+    try:
+        async with aiofiles.open(file_path, 'wb') as f:
+            while True:
+                chunk = await file.read(chunk_size)
+                if not chunk:
+                    break
+                total_size += len(chunk)
+                if total_size > max_size:
+                    # Delete partial file and raise error
+                    await f.close()
+                    os.remove(file_path)
+                    raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 1GB)")
+                await f.write(chunk)
+    except Exception as e:
+        # Clean up on error
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'upload: {str(e)}")
     
     video_url = f"/api/files/{safe_filename}"
     
