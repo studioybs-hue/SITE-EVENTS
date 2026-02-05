@@ -389,6 +389,39 @@ const LoginProPage = () => {
                       data-testid="pro-register-confirm-input"
                     />
                   </div>
+                  <div>
+                    <Label className="flex items-center gap-2 mb-2">
+                      <Globe className="h-4 w-4" />
+                      Pays d'intervention (plusieurs possibles)
+                    </Label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {registerData.countries.map((code) => {
+                        const country = COUNTRIES.find(c => c.code === code);
+                        return (
+                          <Badge 
+                            key={code} 
+                            className="bg-accent text-white flex items-center gap-1 cursor-pointer"
+                            onClick={() => toggleCountry(code)}
+                          >
+                            {country?.name}
+                            <X className="h-3 w-3" />
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                    <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-2 border rounded-lg">
+                      {COUNTRIES.filter(c => !registerData.countries.includes(c.code)).map((country) => (
+                        <Badge 
+                          key={country.code}
+                          variant="outline"
+                          className="cursor-pointer hover:bg-accent/10"
+                          onClick={() => toggleCountry(country.code)}
+                        >
+                          + {country.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                   <Button
                     type="submit"
                     className="w-full h-12 rounded-full bg-slate-900 hover:bg-slate-800"
