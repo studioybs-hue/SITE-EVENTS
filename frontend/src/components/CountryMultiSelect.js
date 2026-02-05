@@ -24,6 +24,7 @@ const COUNTRIES = [
   { code: 'MA', name: 'Maroc', flag: '🇲🇦' },
   { code: 'SN', name: 'Sénégal', flag: '🇸🇳' },
   { code: 'CI', name: "Côte d'Ivoire", flag: '🇨🇮' },
+  { code: 'KM', name: 'Comores', flag: '🇰🇲' },
 ];
 
 const CountryMultiSelect = ({ value = [], onChange, placeholder = "Sélectionner les pays" }) => {
