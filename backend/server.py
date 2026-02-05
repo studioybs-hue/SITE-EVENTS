@@ -1577,54 +1577,8 @@ async def client_decline_quote(
     return {"message": "Quote declined", "status": "declined"}
 
 # ============ REVIEW ROUTES ============
-
-@api_router.post("/reviews", response_model=Review)
-async def create_review(
-    review_data: ReviewCreate,
-    current_user: User = Depends(get_current_user)
-):
-    # Verify booking exists and is completed
-    booking = await db.bookings.find_one({"booking_id": review_data.booking_id}, {"_id": 0})
-    if not booking:
-        raise HTTPException(status_code=404, detail="Booking not found")
-    if booking['client_id'] != current_user.user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    if booking['status'] != 'completed':
-        raise HTTPException(status_code=400, detail="Can only review completed bookings")
-    
-    # Check if review already exists
-    existing = await db.reviews.find_one({"booking_id": review_data.booking_id})
-    if existing:
-        raise HTTPException(status_code=400, detail="Review already exists for this booking")
-    
-    review_id = f"review_{uuid.uuid4().hex[:12]}"
-    review_doc = review_data.model_dump()
-    review_doc.update({
-        "review_id": review_id,
-        "client_id": current_user.user_id,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    await db.reviews.insert_one(review_doc)
-    
-    # Update provider rating
-    reviews = await db.reviews.find({"provider_id": review_data.provider_id}, {"_id": 0}).to_list(1000)
-    avg_rating = sum(r['rating'] for r in reviews) / len(reviews)
-    await db.provider_profiles.update_one(
-        {"provider_id": review_data.provider_id},
-        {"$set": {"rating": round(avg_rating, 1), "total_reviews": len(reviews)}}
-    )
-    
-    review_doc['created_at'] = datetime.fromisoformat(review_doc['created_at'])
-    return Review(**review_doc)
-
-@api_router.get("/reviews/{provider_id}", response_model=List[Review])
-async def get_provider_reviews(provider_id: str):
-    reviews = await db.reviews.find({"provider_id": provider_id}, {"_id": 0}).to_list(100)
-    for r in reviews:
-        if isinstance(r['created_at'], str):
-            r['created_at'] = datetime.fromisoformat(r['created_at'])
-    return [Review(**r) for r in reviews]
+# Note: Main review endpoints are in the REVIEWS SYSTEM section below (line ~2940)
+# The new implementation supports both verified (with booking) and unverified reviews
 
 # ============ MESSAGING ROUTES ============
 
