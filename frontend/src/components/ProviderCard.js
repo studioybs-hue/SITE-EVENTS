@@ -384,6 +384,96 @@ const ProviderCard = ({ provider }) => {
               <p className="text-muted-foreground leading-relaxed">{provider.description}</p>
             </div>
 
+            {/* Packs disponibles */}
+            {packs.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Gift className="h-5 w-5 text-accent" />
+                  Packs disponibles
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {packs.map((pack) => (
+                    <Card 
+                      key={pack.pack_id} 
+                      className="overflow-hidden hover:shadow-lg transition-shadow"
+                      data-testid={`pack-card-${pack.pack_id}`}
+                    >
+                      {pack.image && (
+                        <div className="h-36 overflow-hidden">
+                          <img 
+                            src={pack.image.startsWith('/') ? `${BACKEND_URL}${pack.image}` : pack.image}
+                            alt={pack.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold text-lg">{pack.name}</h4>
+                          <Badge className="bg-accent text-white text-lg px-3">
+                            {pack.price}€
+                          </Badge>
+                        </div>
+                        
+                        {pack.description && (
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                            {pack.description}
+                          </p>
+                        )}
+                        
+                        <div className="flex flex-wrap gap-3 mb-3 text-xs text-muted-foreground">
+                          {pack.duration && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {pack.duration}
+                            </span>
+                          )}
+                          {pack.max_guests && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              Max {pack.max_guests} pers.
+                            </span>
+                          )}
+                        </div>
+                        
+                        {pack.features && pack.features.length > 0 && (
+                          <ul className="text-sm space-y-1 mb-4">
+                            {pack.features.slice(0, 4).map((feature, idx) => (
+                              <li key={idx} className="flex items-center gap-2">
+                                <Check className="h-3 w-3 text-green-500 shrink-0" />
+                                <span className="text-muted-foreground">{feature}</span>
+                              </li>
+                            ))}
+                            {pack.features.length > 4 && (
+                              <li className="text-xs text-accent">
+                                +{pack.features.length - 4} autres inclus...
+                              </li>
+                            )}
+                          </ul>
+                        )}
+                        
+                        <Button 
+                          className="w-full"
+                          onClick={() => openPackBooking(pack)}
+                          disabled={!isAuth}
+                          data-testid={`book-pack-${pack.pack_id}`}
+                        >
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Réserver ce pack
+                        </Button>
+                        
+                        {!isAuth && (
+                          <p className="text-xs text-center text-muted-foreground mt-2">
+                            Connectez-vous pour réserver
+                          </p>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Prestations avec sélection */}
             {services.length > 0 ? (
               <div>
