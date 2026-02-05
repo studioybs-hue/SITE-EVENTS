@@ -150,16 +150,19 @@ const ProviderCard = ({ provider }) => {
   };
 
   const openPackBooking = (pack) => {
-    console.log('openPackBooking called', pack, 'user:', user);
     if (!user) {
       toast.error('Connectez-vous pour réserver');
       navigate('/login');
       return;
     }
-    setSelectedPack(pack);
-    setPackBookingForm({ event_date: '', event_location: '', message: '' });
-    setPackBookingOpen(true);
-    console.log('packBookingOpen set to true');
+    // Close the provider modal first
+    setExpanded(false);
+    // Then open pack booking after a short delay
+    setTimeout(() => {
+      setSelectedPack(pack);
+      setPackBookingForm({ event_date: '', event_location: '', message: '' });
+      setPackBookingOpen(true);
+    }, 100);
   };
 
   const handlePackBooking = async (e) => {
