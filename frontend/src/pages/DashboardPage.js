@@ -658,6 +658,11 @@ const DashboardPage = () => {
                     <PortfolioManager />
                   </TabsContent>
 
+                  {/* Packs Tab */}
+                  <TabsContent value="packs">
+                    <ProviderPacksManager providerId={providerProfile.provider_id} />
+                  </TabsContent>
+
                   {/* Equipment Tab */}
                   <TabsContent value="equipment">
                     <MyEquipmentManager />
