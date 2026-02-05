@@ -24,13 +24,21 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Récupération de mot de passe
 - Sessions JWT avec cookies sécurisés
 
-### ✅ Recherche de Prestataires (Complète)
-- Liste des prestataires avec filtres (catégorie, localisation)
+### ✅ Recherche de Prestataires (Complète - mise à jour 05/02/2025)
+- Liste des prestataires avec filtres (catégorie, localisation, **pays**)
+- **Sélecteur de pays** pour filtrer par pays (France, Espagne, UK, etc.)
 - Cartes prestataires avec images, notes, tarifs
 - Modale de détail avec services, portfolio, contact
 - Badge "Vérifié" pour prestataires certifiés
 - **Affichage des prestations** (noms uniquement, sans prix)
 - **Système de demande de devis**
+
+### ✅ Internationalisation i18n (Nouveau - 05/02/2025)
+- **3 langues supportées** : Français (défaut), Anglais, Espagnol
+- Sélecteur de langue dans la navbar avec drapeaux
+- Détection automatique de la langue du navigateur
+- Persistance du choix de langue dans localStorage
+- Traduction de toute l'interface : navbar, recherche, dashboard, marketplace
 
 ### ✅ Gestion des Devis (Complète)
 - Onglet "Devis" pour prestataires avec actions (répondre/refuser)
