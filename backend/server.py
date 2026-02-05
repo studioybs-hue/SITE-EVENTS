@@ -761,6 +761,31 @@ async def get_providers(
             p['max_bookings_per_day'] = 1
     return [ProviderProfile(**p) for p in providers]
 
+@api_router.patch("/providers/profile")
+async def update_my_provider_profile(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Update the current user's provider profile"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Veuillez d'abord créer votre profil prestataire")
+    
+    body = await request.json()
+    update_dict = {k: v for k, v in body.items() if k in [
+        'business_name', 'description', 'location', 'countries', 
+        'services', 'pricing_range', 'profile_image', 'cover_image',
+        'portfolio_images', 'portfolio_videos', 'phone', 'max_bookings_per_day'
+    ]}
+    
+    if update_dict:
+        await db.provider_profiles.update_one(
+            {"provider_id": provider["provider_id"]},
+            {"$set": update_dict}
+        )
+    
+    return {"success": True}
+
 @api_router.get("/providers/{provider_id}", response_model=ProviderProfile)
 async def get_provider(provider_id: str):
     provider = await db.provider_profiles.find_one(
