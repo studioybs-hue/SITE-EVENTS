@@ -52,6 +52,7 @@
     "category": "Category",
     "location": "City",
     "country": "Country",
+    "eventDate": "Event date",
     "allCategories": "All categories",
     "allCountries": "All countries",
     "results": "results",
