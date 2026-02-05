@@ -535,6 +535,10 @@ const DashboardPage = () => {
                 <Tabs defaultValue="calendar" className="space-y-6">
                   <TabsList className="flex-wrap h-auto gap-1">
                     <TabsTrigger value="calendar" data-testid="tab-calendar">Planning</TabsTrigger>
+                    <TabsTrigger value="travels" data-testid="tab-travels" className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      Déplacements
+                    </TabsTrigger>
                     <TabsTrigger value="quotes" data-testid="tab-quotes">Devis</TabsTrigger>
                     <TabsTrigger value="services" data-testid="tab-services">Prestations</TabsTrigger>
                     <TabsTrigger value="equipment" data-testid="tab-equipment" className="flex items-center gap-1">
