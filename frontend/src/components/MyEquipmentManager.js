@@ -671,9 +671,12 @@ const MyEquipmentManager = () => {
                         {inquiry.item_title}
                       </p>
                     </div>
-                    <Badge variant={inquiry.status === 'pending' ? 'default' : 'secondary'}>
+                    <Badge variant={inquiry.status === 'pending' ? 'default' : 
+                                   inquiry.status === 'accepted' ? 'success' :
+                                   inquiry.status === 'paid' ? 'success' : 'secondary'}>
                       {inquiry.status === 'pending' ? 'Nouveau' : 
                        inquiry.status === 'accepted' ? 'Accepté' : 
+                       inquiry.status === 'paid' ? 'Payé' :
                        inquiry.status === 'declined' ? 'Refusé' : 'Répondu'}
                     </Badge>
                   </div>
@@ -683,9 +686,44 @@ const MyEquipmentManager = () => {
                       Offre: {inquiry.offer_amount}€
                     </p>
                   )}
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mb-3">
                     {new Date(inquiry.created_at).toLocaleDateString('fr-FR')}
                   </p>
+                  
+                  {/* Action buttons for pending inquiries */}
+                  {inquiry.status === 'pending' && inquiry.offer_amount && (
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                        onClick={() => handleInquiryAction(inquiry.inquiry_id, 'accepted')}
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Accepter
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="flex-1 text-destructive border-destructive hover:bg-destructive/10"
+                        onClick={() => handleInquiryAction(inquiry.inquiry_id, 'declined')}
+                      >
+                        Refuser
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {inquiry.status === 'accepted' && (
+                    <div className="p-2 bg-amber-50 rounded text-sm text-amber-700">
+                      En attente du paiement de l'acheteur
+                    </div>
+                  )}
+                  
+                  {inquiry.status === 'paid' && (
+                    <div className="p-2 bg-emerald-50 rounded text-sm text-emerald-700 flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      Paiement reçu !
+                    </div>
+                  )}
                 </Card>
               ))}
             {((selectedItemInquiries === 'all' ? inquiries : inquiries.filter(i => i.item_id === selectedItemInquiries)).length === 0) && (
