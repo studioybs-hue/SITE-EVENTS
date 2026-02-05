@@ -151,6 +151,12 @@ code {
     z-index: 99999 !important;
 }
 
+/* Force Select dropdown above everything */
+[data-radix-select-content],
+[data-radix-popper-content-wrapper] {
+    z-index: 2147483647 !important;
+}
+
 /* Fix mobile navigation z-index */
 .mobile-nav {
     z-index: 100 !important;
