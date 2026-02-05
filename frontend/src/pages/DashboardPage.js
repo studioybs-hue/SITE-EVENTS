@@ -866,11 +866,28 @@ const DashboardPage = () => {
                       />
                     </div>
                     <div>
-                      <Label>Localisation *</Label>
+                      <Label>Pays *</Label>
+                      <Select
+                        value={profileData.country}
+                        onValueChange={(value) => setProfileData({ ...profileData, country: value })}
+                      >
+                        <SelectTrigger data-testid="country-select">
+                          <SelectValue placeholder="Sélectionner un pays" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {COUNTRIES.map((c) => (
+                            <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Ville / Localisation *</Label>
                       <Input
                         required
                         value={profileData.location}
                         onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                        placeholder="Paris, Lyon, Marseille..."
                         data-testid="location-input"
                       />
                     </div>
