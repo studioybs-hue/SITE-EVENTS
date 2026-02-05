@@ -200,18 +200,58 @@ class BookingUpdate(BaseModel):
 class Review(BaseModel):
     model_config = ConfigDict(extra="ignore")
     review_id: str
-    booking_id: str
+    booking_id: Optional[str] = None  # Optional - if None, not verified
     client_id: str
+    client_name: Optional[str] = None
+    client_picture: Optional[str] = None
     provider_id: str
     rating: int  # 1-5
     comment: str
+    is_verified: bool = False  # True if linked to a completed booking
+    event_type: Optional[str] = None  # wedding, birthday, etc.
+    event_date: Optional[str] = None
+    provider_response: Optional[str] = None  # Provider can respond to review
     created_at: datetime
 
 class ReviewCreate(BaseModel):
-    booking_id: str
+    booking_id: Optional[str] = None  # If provided, will be marked as verified
     provider_id: str
     rating: int
     comment: str
+
+# Portfolio Item Models (Stories - photos/videos)
+class PortfolioItem(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    item_id: str
+    provider_id: str
+    media_type: str  # "photo", "video", "youtube", "vimeo"
+    media_url: str  # URL to the media file or embed URL
+    thumbnail_url: Optional[str] = None  # For videos
+    title: Optional[str] = None
+    description: Optional[str] = None
+    event_type: Optional[str] = None  # wedding, birthday, corporate, etc.
+    duration: Optional[int] = None  # Duration in seconds for videos
+    views_count: int = 0
+    display_order: int = 0
+    is_active: bool = True
+    created_at: datetime
+
+class PortfolioItemCreate(BaseModel):
+    media_type: str  # "photo", "video", "youtube", "vimeo"
+    media_url: str
+    thumbnail_url: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    event_type: Optional[str] = None
+    duration: Optional[int] = None
+
+class PortfolioItemUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    event_type: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    display_order: Optional[int] = None
+    is_active: Optional[bool] = None
 
 # Message Models
 class MessageAttachment(BaseModel):
