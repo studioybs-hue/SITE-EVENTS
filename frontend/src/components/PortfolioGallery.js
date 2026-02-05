@@ -17,7 +17,7 @@ const PortfolioGallery = ({ providerId }) => {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef(null);
   const autoPlayTimerRef = useRef(null);
   
