@@ -32,6 +32,25 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Badge "Vérifié" pour prestataires certifiés
 - **Affichage des prestations** (noms uniquement, sans prix)
 - **Système de demande de devis**
+- **Affichage des pays de déplacement** avec icône avion
+
+### ✅ Portfolio Stories (Nouveau - 05/02/2025)
+- **Format Instagram Stories** : Photos et vidéos courtes
+- **4 types de médias supportés** : Photo, Vidéo (upload), YouTube, Vimeo
+- **Gestion dans le dashboard prestataire** : Onglet "Portfolio"
+- **Visionneuse plein écran** avec navigation gauche/droite
+- **Barre de progression** pour les stories
+- **Compteur de vues** par item
+- **Catégorisation par type d'événement** (mariage, anniversaire, etc.)
+- Thumbnails cliquables style stories Instagram
+
+### ✅ Système d'Avis Clients (Nouveau - 05/02/2025)
+- **Avis vérifiés** : Badge "Client vérifié" pour les réservations confirmées
+- **Avis non-vérifiés** : Possibilité de laisser un avis sans réservation
+- **Note sur 5 étoiles** avec moyenne calculée automatiquement
+- **Réponses des prestataires** aux avis
+- **Statistiques** : Total avis, avis vérifiés, note moyenne
+- Affichage sur la fiche prestataire
 
 ### ✅ Internationalisation i18n (Nouveau - 05/02/2025)
 - **3 langues supportées** : Français (défaut), Anglais, Espagnol
