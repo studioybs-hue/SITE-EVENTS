@@ -338,14 +338,14 @@ const ReviewSection = ({ providerId, providerName, isOwner = false }) => {
                   Vous pouvez laisser un avis vérifié
                 </p>
                 <Select
-                  value={reviewForm.booking_id}
-                  onValueChange={(value) => setReviewForm(prev => ({ ...prev, booking_id: value }))}
+                  value={reviewForm.booking_id || "none"}
+                  onValueChange={(value) => setReviewForm(prev => ({ ...prev, booking_id: value === "none" ? "" : value }))}
                 >
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Sélectionner une réservation" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Avis non vérifié</SelectItem>
+                    <SelectItem value="none">Avis non vérifié</SelectItem>
                     {canReview.eligible_bookings.map((booking) => (
                       <SelectItem key={booking.booking_id} value={booking.booking_id}>
                         {booking.event_type} - {booking.event_date}
