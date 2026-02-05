@@ -851,12 +851,24 @@ const ProviderCard = ({ provider }) => {
               <div>
                 <Label>Date de l'événement *</Label>
                 <Input
-                  type="date"
+                  type="text"
                   required
-                  min={new Date().toISOString().split('T')[0]}
+                  placeholder="JJ/MM/AAAA"
                   value={packBookingForm.event_date}
-                  onChange={(e) => setPackBookingForm({ ...packBookingForm, event_date: e.target.value })}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/[^\d/]/g, '');
+                    // Auto-format: add slashes
+                    if (value.length === 2 && !value.includes('/')) {
+                      value += '/';
+                    } else if (value.length === 5 && value.split('/').length === 2) {
+                      value += '/';
+                    }
+                    if (value.length <= 10) {
+                      setPackBookingForm({ ...packBookingForm, event_date: value });
+                    }
+                  }}
                 />
+                <p className="text-xs text-muted-foreground mt-1">Format: JJ/MM/AAAA</p>
               </div>
 
               <div>
