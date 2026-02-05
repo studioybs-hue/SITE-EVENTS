@@ -802,6 +802,130 @@ const SettingsPage = () => {
                       </CardContent>
                     </Card>
                   )}
+
+                  {/* Danger Zone Section */}
+                  {activeSection === 'danger' && (
+                    <Card className="border-destructive/50">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-destructive">
+                          <AlertTriangle className="h-5 w-5" />
+                          Zone de danger
+                        </CardTitle>
+                        <CardDescription>
+                          Actions irréversibles sur votre compte
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-6">
+                          <div className="p-4 border border-destructive/30 rounded-lg bg-destructive/5">
+                            <h3 className="font-semibold text-destructive mb-2">Supprimer mon compte</h3>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Cette action est <strong>irréversible</strong>. Toutes vos données seront supprimées définitivement :
+                            </p>
+                            <ul className="text-sm text-muted-foreground mb-4 space-y-1">
+                              <li>• Votre profil et informations personnelles</li>
+                              <li>• Vos réservations et historique</li>
+                              <li>• Vos messages et conversations</li>
+                              {user?.user_type === 'provider' && (
+                                <>
+                                  <li>• Votre profil prestataire</li>
+                                  <li>• Vos services et prestations</li>
+                                  <li>• Vos articles du marketplace</li>
+                                </>
+                              )}
+                            </ul>
+                            
+                            {!showDeleteConfirm ? (
+                              <Button 
+                                variant="destructive" 
+                                onClick={() => setShowDeleteConfirm(true)}
+                                data-testid="delete-account-btn"
+                              >
+                                <AlertTriangle className="h-4 w-4 mr-2" />
+                                Supprimer mon compte
+                              </Button>
+                            ) : (
+                              <div className="space-y-4 p-4 border border-destructive/50 rounded-lg bg-white">
+                                <p className="text-sm font-medium text-destructive">
+                                  Êtes-vous sûr de vouloir supprimer votre compte ?
+                                </p>
+                                
+                                {hasPassword && (
+                                  <div>
+                                    <Label htmlFor="delete-password" className="text-sm">
+                                      Confirmez avec votre mot de passe
+                                    </Label>
+                                    <Input
+                                      id="delete-password"
+                                      type="password"
+                                      value={deletePassword}
+                                      onChange={(e) => setDeletePassword(e.target.value)}
+                                      placeholder="Votre mot de passe"
+                                      className="mt-1"
+                                      data-testid="delete-password-input"
+                                    />
+                                  </div>
+                                )}
+                                
+                                <div className="flex gap-2">
+                                  <Button 
+                                    variant="outline" 
+                                    onClick={() => {
+                                      setShowDeleteConfirm(false);
+                                      setDeletePassword('');
+                                    }}
+                                  >
+                                    Annuler
+                                  </Button>
+                                  <Button 
+                                    variant="destructive"
+                                    disabled={deletingAccount || (hasPassword && !deletePassword)}
+                                    onClick={async () => {
+                                      setDeletingAccount(true);
+                                      try {
+                                        const response = await fetch(`${BACKEND_URL}/api/auth/delete-account`, {
+                                          method: 'DELETE',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          credentials: 'include',
+                                          body: JSON.stringify({ password: deletePassword || null })
+                                        });
+                                        
+                                        if (response.ok) {
+                                          toast.success('Compte supprimé avec succès');
+                                          // Clear local state and redirect
+                                          setTimeout(() => {
+                                            window.location.href = '/';
+                                          }, 1500);
+                                        } else {
+                                          const error = await response.json();
+                                          toast.error(error.detail || 'Erreur lors de la suppression');
+                                        }
+                                      } catch (error) {
+                                        console.error('Delete error:', error);
+                                        toast.error('Erreur lors de la suppression');
+                                      } finally {
+                                        setDeletingAccount(false);
+                                      }
+                                    }}
+                                    data-testid="confirm-delete-btn"
+                                  >
+                                    {deletingAccount ? (
+                                      <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Suppression...
+                                      </>
+                                    ) : (
+                                      'Confirmer la suppression'
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </div>
             </div>
