@@ -113,6 +113,7 @@ const LoginPage = () => {
           name: registerData.name,
           email: registerData.email,
           password: registerData.password,
+          country: registerData.country,
         }),
       });
 
