@@ -620,8 +620,9 @@ const MyEquipmentManager = () => {
                 <Label>Titre *</Label>
                 <Input
                   required
+                  name="title"
                   value={formData.title}
-                  onChange={handleInputChange('title')}
+                  onChange={handleFormChange}
                   placeholder="Ex: Enceinte JBL EON615"
                 />
               </div>
@@ -630,8 +631,9 @@ const MyEquipmentManager = () => {
                 <Label>Description *</Label>
                 <Textarea
                   required
+                  name="description"
                   value={formData.description}
-                  onChange={handleInputChange('description')}
+                  onChange={handleFormChange}
                   rows={3}
                   placeholder="Décrivez votre article..."
                 />
@@ -641,7 +643,7 @@ const MyEquipmentManager = () => {
                 <Label>Catégorie *</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={handleSelectChange('category')}
+                  onValueChange={(value) => handleSelectChange('category', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner" />
@@ -658,7 +660,7 @@ const MyEquipmentManager = () => {
                 <Label>État *</Label>
                 <Select
                   value={formData.condition}
-                  onValueChange={handleSelectChange('condition')}
+                  onValueChange={(value) => handleSelectChange('condition', value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -677,10 +679,11 @@ const MyEquipmentManager = () => {
                 <Input
                   required
                   type="number"
+                  name="price"
                   min="0"
                   step="0.01"
                   value={formData.price}
-                  onChange={handleInputChange('price')}
+                  onChange={handleFormChange}
                 />
               </div>
 
@@ -688,8 +691,9 @@ const MyEquipmentManager = () => {
                 <Label>Localisation *</Label>
                 <Input
                   required
+                  name="location"
                   value={formData.location}
-                  onChange={handleInputChange('location')}
+                  onChange={handleFormChange}
                   placeholder="Paris, France"
                 />
               </div>
@@ -699,8 +703,9 @@ const MyEquipmentManager = () => {
                   <input
                     type="checkbox"
                     id="rental-create"
+                    name="rental_available"
                     checked={formData.rental_available}
-                    onChange={handleInputChange('rental_available')}
+                    onChange={handleFormChange}
                   />
                   <Label htmlFor="rental-create">Disponible à la location</Label>
                 </div>
@@ -709,10 +714,11 @@ const MyEquipmentManager = () => {
                     <Label>Prix de location par jour (€)</Label>
                     <Input
                       type="number"
+                      name="rental_price_per_day"
                       min="0"
                       step="0.01"
                       value={formData.rental_price_per_day}
-                      onChange={handleInputChange('rental_price_per_day')}
+                      onChange={handleFormChange}
                     />
                   </div>
                 )}
@@ -783,8 +789,9 @@ const MyEquipmentManager = () => {
                 <Label>Titre *</Label>
                 <Input
                   required
+                  name="title"
                   value={formData.title}
-                  onChange={handleInputChange('title')}
+                  onChange={handleFormChange}
                   placeholder="Ex: Enceinte JBL EON615"
                 />
               </div>
@@ -793,8 +800,9 @@ const MyEquipmentManager = () => {
                 <Label>Description *</Label>
                 <Textarea
                   required
+                  name="description"
                   value={formData.description}
-                  onChange={handleInputChange('description')}
+                  onChange={handleFormChange}
                   rows={3}
                   placeholder="Décrivez votre article..."
                 />
@@ -804,7 +812,7 @@ const MyEquipmentManager = () => {
                 <Label>Catégorie *</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={handleSelectChange('category')}
+                  onValueChange={(value) => handleSelectChange('category', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner" />
@@ -821,7 +829,7 @@ const MyEquipmentManager = () => {
                 <Label>État *</Label>
                 <Select
                   value={formData.condition}
-                  onValueChange={handleSelectChange('condition')}
+                  onValueChange={(value) => handleSelectChange('condition', value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -840,10 +848,11 @@ const MyEquipmentManager = () => {
                 <Input
                   required
                   type="number"
+                  name="price"
                   min="0"
                   step="0.01"
                   value={formData.price}
-                  onChange={handleInputChange('price')}
+                  onChange={handleFormChange}
                 />
               </div>
 
@@ -851,8 +860,9 @@ const MyEquipmentManager = () => {
                 <Label>Localisation *</Label>
                 <Input
                   required
+                  name="location"
                   value={formData.location}
-                  onChange={handleInputChange('location')}
+                  onChange={handleFormChange}
                   placeholder="Paris, France"
                 />
               </div>
@@ -862,8 +872,9 @@ const MyEquipmentManager = () => {
                   <input
                     type="checkbox"
                     id="rental-edit"
+                    name="rental_available"
                     checked={formData.rental_available}
-                    onChange={handleInputChange('rental_available')}
+                    onChange={handleFormChange}
                   />
                   <Label htmlFor="rental-edit">Disponible à la location</Label>
                 </div>
@@ -872,10 +883,11 @@ const MyEquipmentManager = () => {
                     <Label>Prix de location par jour (€)</Label>
                     <Input
                       type="number"
+                      name="rental_price_per_day"
                       min="0"
                       step="0.01"
                       value={formData.rental_price_per_day}
-                      onChange={handleInputChange('rental_price_per_day')}
+                      onChange={handleFormChange}
                     />
                   </div>
                 )}
