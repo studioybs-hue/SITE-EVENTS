@@ -496,7 +496,7 @@ const PortfolioManager = () => {
                             Cliquez pour {mediaType === 'photo' ? 'une photo' : 'une vidéo'}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Max {mediaType === 'video' ? '50MB' : '5MB'}
+                            Max {mediaType === 'video' ? '1GB' : '5MB'}
                           </p>
                         </>
                       )}
