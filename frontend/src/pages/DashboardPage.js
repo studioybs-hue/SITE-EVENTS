@@ -545,6 +545,10 @@ const DashboardPage = () => {
                     </TabsTrigger>
                     <TabsTrigger value="quotes" data-testid="tab-quotes">Devis</TabsTrigger>
                     <TabsTrigger value="services" data-testid="tab-services">Prestations</TabsTrigger>
+                    <TabsTrigger value="packs" data-testid="tab-packs" className="flex items-center gap-1">
+                      <Gift className="h-3 w-3" />
+                      Packs
+                    </TabsTrigger>
                     <TabsTrigger value="portfolio" data-testid="tab-portfolio" className="flex items-center gap-1">
                       <Video className="h-3 w-3" />
                       Portfolio
