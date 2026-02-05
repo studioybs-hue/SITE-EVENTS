@@ -136,7 +136,7 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 ### Future
 - [ ] Synchronisation Google Calendar
 - [ ] Panneau d'administration complet
-- [ ] Système d'avis et notes
+- [x] ~~Système d'avis et notes~~ (Implémenté 05/02/2025)
 - [ ] Ajouter plus de langues (Portugais, Allemand, Italien, Arabe)
 
 ---
