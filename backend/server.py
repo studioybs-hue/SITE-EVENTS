@@ -605,6 +605,7 @@ async def get_providers(
     category: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
     country: Optional[str] = Query(None),
+    event_date: Optional[str] = Query(None),  # ISO date YYYY-MM-DD
     search: Optional[str] = Query(None)
 ):
     query = {}
@@ -612,6 +613,18 @@ async def get_providers(
         query["category"] = category
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
+    
+    # If both country and date are provided, search by country presence
+    providers_with_presence = set()
+    if country and event_date:
+        # Find providers who have a presence in this country on this date
+        presences = await db.country_presences.find({
+            "country": country,
+            "start_date": {"$lte": event_date},
+            "end_date": {"$gte": event_date}
+        }).to_list(1000)
+        providers_with_presence = {p['provider_id'] for p in presences}
+    
     if country:
         # Search in countries array, also handle old 'country' field and providers without countries
         if country == "FR":
@@ -636,6 +649,15 @@ async def get_providers(
             query["$or"] = search_query["$or"]
     
     providers = await db.provider_profiles.find(query, {"_id": 0}).to_list(100)
+    
+    # Filter by presence if date was provided
+    if country and event_date and providers_with_presence:
+        # Providers with presence on that date get priority
+        providers_with_date = [p for p in providers if p['provider_id'] in providers_with_presence]
+        # Also include providers who have this country in their base countries (always available)
+        providers_base = [p for p in providers if p['provider_id'] not in providers_with_presence]
+        providers = providers_with_date + providers_base
+    
     for p in providers:
         if isinstance(p['created_at'], str):
             p['created_at'] = datetime.fromisoformat(p['created_at'])
