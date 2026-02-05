@@ -15,6 +15,7 @@ import MyMarketplaceOffers from '@/components/MyMarketplaceOffers';
 import CountryMultiSelect from '@/components/CountryMultiSelect';
 import CountryPresenceManager from '@/components/CountryPresenceManager';
 import CapacitySettings from '@/components/CapacitySettings';
+import PortfolioManager from '@/components/PortfolioManager';
 import { StatusBadge, ActionCard, NotificationDot } from '@/components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -28,7 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Calendar, Euro, MapPin, User, Building, MessageCircle, 
   Star, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle,
-  Settings, Edit, Reply, CalendarCheck, Lock, Search, Package, ShoppingBag, Heart
+  Settings, Edit, Reply, CalendarCheck, Lock, Search, Package, ShoppingBag, Heart, Video
 } from 'lucide-react';
 import { toast } from 'sonner';
 
