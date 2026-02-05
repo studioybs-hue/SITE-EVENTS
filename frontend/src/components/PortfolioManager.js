@@ -523,11 +523,43 @@ const PortfolioManager = () => {
                   <div>
                     <Label>Fichier</Label>
                     <div 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-accent transition-colors"
+                      onClick={() => !uploading && fileInputRef.current?.click()}
+                      className={`mt-2 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                        uploading 
+                          ? 'border-accent bg-accent/5 cursor-default' 
+                          : 'border-border cursor-pointer hover:border-accent'
+                      }`}
                     >
                       {uploading ? (
-                        <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-center gap-2">
+                            <Loader2 className="h-5 w-5 animate-spin text-accent" />
+                            <span className="text-sm font-medium text-accent">Upload en cours...</span>
+                          </div>
+                          
+                          {/* Progress bar */}
+                          <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-accent to-accent/80 transition-all duration-300 ease-out"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                          
+                          {/* Progress info */}
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{uploadProgress}%</span>
+                            <button 
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                cancelUpload();
+                              }}
+                              className="text-destructive hover:underline"
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        </div>
                       ) : formData.media_url ? (
                         <div className="text-sm text-accent">
                           Fichier uploadé ✓
