@@ -597,7 +597,7 @@ const MyEquipmentManager = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 relative z-10">
                       <Select
                         value={item.status}
                         onValueChange={(value) => handleStatusChange(item.item_id, value)}
@@ -605,7 +605,7 @@ const MyEquipmentManager = () => {
                         <SelectTrigger className="w-[130px] h-8 text-xs">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-[9999]" position="popper" sideOffset={5}>
                           <SelectItem value="available">Disponible</SelectItem>
                           <SelectItem value="reserved">Réservé</SelectItem>
                           <SelectItem value="sold">Vendu</SelectItem>
