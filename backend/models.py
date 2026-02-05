@@ -87,7 +87,7 @@ class ProviderProfile(BaseModel):
     category: str  # DJ, Photographer, Caterer, etc.
     description: str
     location: str
-    country: str = "FR"  # Country code (FR, ES, GB, US, etc.)
+    countries: List[str] = ["FR"]  # List of country codes (FR, ES, GB, US, etc.)
     services: List[str]
     pricing_range: str  # e.g., "€500-€2000"
     portfolio_images: List[str] = []
@@ -103,7 +103,7 @@ class ProviderProfileCreate(BaseModel):
     category: str
     description: str
     location: str
-    country: str = "FR"
+    countries: List[str] = ["FR"]
     services: List[str]
     pricing_range: str
     portfolio_images: List[str] = []
@@ -114,7 +114,7 @@ class ProviderProfileUpdate(BaseModel):
     business_name: Optional[str] = None
     description: Optional[str] = None
     location: Optional[str] = None
-    country: Optional[str] = None
+    countries: Optional[List[str]] = None
     services: Optional[List[str]] = None
     pricing_range: Optional[str] = None
     portfolio_images: Optional[List[str]] = None
