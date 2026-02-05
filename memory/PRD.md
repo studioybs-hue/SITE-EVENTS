@@ -98,8 +98,9 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 ## Prochaines Fonctionnalités (Backlog)
 
 ### P0 - Bugs à corriger
+- [x] ~~Saisie lente dans le formulaire Marketplace~~ (Corrigé 05/02/2025 - useCallback)
 - [ ] Écran blanc en cliquant sur le statut "Disponible" (menu déroulant - erreur JS)
-- [ ] Problèmes de chevauchement UI (z-index) persistants
+- [ ] Problèmes de chevauchement UI (z-index) sur sélecteur de pays dans modale "Ajouter une période"
 - [ ] Google OAuth à reconfigurer pour le domaine de production
 
 ### P1 - Notifications (Priorité haute)
