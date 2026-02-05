@@ -809,6 +809,31 @@ async def update_provider(
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     return ProviderProfile(**updated)
 
+@api_router.patch("/providers/profile")
+async def update_my_provider_profile(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Update the current user's provider profile"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    body = await request.json()
+    update_dict = {k: v for k, v in body.items() if k in [
+        'business_name', 'description', 'location', 'countries', 
+        'services', 'pricing_range', 'profile_image', 'cover_image',
+        'portfolio_images', 'portfolio_videos', 'phone', 'max_bookings_per_day'
+    ]}
+    
+    if update_dict:
+        await db.provider_profiles.update_one(
+            {"provider_id": provider["provider_id"]},
+            {"$set": update_dict}
+        )
+    
+    return {"success": True}
+
 # ============ COUNTRY PRESENCE ROUTES ============
 
 @api_router.get("/country-presence", response_model=List[CountryPresence])
