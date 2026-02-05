@@ -795,6 +795,10 @@ const DashboardPage = () => {
                     <ClientBookings />
                   </TabsContent>
 
+                  <TabsContent value="marketplace-offers">
+                    <MyMarketplaceOffers />
+                  </TabsContent>
+
                   <TabsContent value="favorites">
                     <FavoritesManager />
                   </TabsContent>
