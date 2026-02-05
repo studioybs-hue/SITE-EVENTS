@@ -39,7 +39,7 @@ const MyMarketplaceOffers = () => {
     setProcessingPayment(offer.inquiry_id);
     
     try {
-      const response = await fetch(`${BACKEND_URL}/api/marketplace/payment/create-checkout`, {
+      const response = await fetch(`${BACKEND_URL}/api/marketplace-payment/create-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
