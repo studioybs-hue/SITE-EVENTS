@@ -201,7 +201,7 @@ const Navbar = ({ user, onLogout }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Button 
                   variant="ghost"
                   onClick={() => navigate('/login/pro')}
@@ -211,11 +211,14 @@ const Navbar = ({ user, onLogout }) => {
                   {t('auth.loginPro')}
                 </Button>
                 <Button 
+                  variant="ghost"
+                  size="icon"
                   onClick={() => navigate('/login')}
-                  className="rounded-full h-10 px-6 bg-primary text-primary-foreground hover:scale-105 transition-transform"
+                  className="rounded-full h-10 w-10 hover:bg-accent/10"
                   data-testid="nav-login-btn"
+                  title={t('nav.login')}
                 >
-                  {t('nav.login')}
+                  <User className="h-5 w-5" />
                 </Button>
               </div>
             )}
