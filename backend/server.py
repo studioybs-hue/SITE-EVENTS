@@ -1113,6 +1113,16 @@ async def create_booking(
     now = datetime.now(timezone.utc)
     
     booking_doc = booking_data.model_dump()
+    
+    # Handle total_price as alias for total_amount
+    if booking_doc.get('total_price') and not booking_doc.get('total_amount'):
+        booking_doc['total_amount'] = booking_doc['total_price']
+    if not booking_doc.get('total_amount'):
+        booking_doc['total_amount'] = 0.0
+    
+    # Remove total_price if present (we use total_amount)
+    booking_doc.pop('total_price', None)
+    
     booking_doc.update({
         "booking_id": booking_id,
         "client_id": current_user.user_id,
