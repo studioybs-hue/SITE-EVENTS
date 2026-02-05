@@ -812,21 +812,34 @@ const ProviderCard = ({ provider }) => {
         </div>
       </Card>
       
-      {/* Pack Booking Dialog - Outside of expanded modal */}
-      <Dialog open={packBookingOpen} onOpenChange={setPackBookingOpen}>
-        <DialogContent 
-          className="max-w-md z-[100]"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onInteractOutside={(e) => e.preventDefault()}
-        >
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Gift className="h-5 w-5 text-accent" />
-              Réserver le pack
-            </DialogTitle>
-          </DialogHeader>
+      {/* Pack Booking Modal - Custom implementation to avoid focus issues */}
+      {packBookingOpen && selectedPack && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setPackBookingOpen(false)}
+          />
           
-          {selectedPack && (
+          {/* Modal Content */}
+          <div 
+            className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Gift className="h-5 w-5 text-accent" />
+                Réserver le pack
+              </h2>
+              <button 
+                onClick={() => setPackBookingOpen(false)}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
             <form onSubmit={handlePackBooking} className="space-y-4">
               {/* Pack Summary */}
               <div className="bg-accent/10 rounded-lg p-4">
@@ -857,7 +870,6 @@ const ProviderCard = ({ provider }) => {
                   value={packBookingForm.event_date}
                   onChange={(e) => {
                     let value = e.target.value.replace(/[^\d/]/g, '');
-                    // Auto-format: add slashes
                     if (value.length === 2 && !value.includes('/')) {
                       value += '/';
                     } else if (value.length === 5 && value.split('/').length === 2) {
@@ -891,11 +903,11 @@ const ProviderCard = ({ provider }) => {
                 />
               </div>
 
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setPackBookingOpen(false)}>
+              <div className="flex gap-3 pt-2">
+                <Button type="button" variant="outline" className="flex-1" onClick={() => setPackBookingOpen(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" className="flex-1" disabled={submitting}>
                   {submitting ? (
                     <span className="flex items-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -904,15 +916,15 @@ const ProviderCard = ({ provider }) => {
                   ) : (
                     <>
                       <CreditCard className="h-4 w-4 mr-2" />
-                      Réserver & Payer {selectedPack.price}€
+                      Payer {selectedPack.price}€
                     </>
                   )}
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
