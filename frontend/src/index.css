@@ -142,6 +142,15 @@ code {
     z-index: 9999 !important;
 }
 
+/* Fix Dialog z-index - content must be above overlay */
+[data-radix-dialog-overlay] {
+    z-index: 99990 !important;
+}
+
+[data-radix-dialog-content] {
+    z-index: 99999 !important;
+}
+
 /* Fix mobile navigation z-index */
 .mobile-nav {
     z-index: 100 !important;
