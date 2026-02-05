@@ -176,6 +176,9 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ## Historique des versions
 
+### 05/02/2025 - v2.1
+- ✅ **Correction bug saisie lente Marketplace** : Optimisation avec useCallback pour les handlers de formulaire dans MyEquipmentManager.js. Performance : ~30-40ms par caractère (auparavant plusieurs centaines de ms)
+
 ### 04/02/2025 - v2.0
 - ✅ Intégration complète du système de paiement Stripe
 - ✅ Options de paiement en plusieurs fois (1x, 2x, 3x)
