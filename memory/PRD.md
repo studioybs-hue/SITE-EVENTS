@@ -191,9 +191,29 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - `GET /api/payments/booking/{booking_id}` - Historique paiements
 - `POST /api/webhook/stripe` - Webhook Stripe
 
+### Portfolio (Nouveau - 05/02/2025)
+- `GET /api/portfolio/provider/{provider_id}` - Items du portfolio public
+- `GET /api/portfolio/my-items` - Items du prestataire connecté
+- `POST /api/portfolio` - Créer un item
+- `PATCH /api/portfolio/{item_id}` - Modifier un item
+- `DELETE /api/portfolio/{item_id}` - Supprimer un item
+- `POST /api/portfolio/upload-video` - Upload vidéo (max 50MB)
+- `POST /api/portfolio/{item_id}/view` - Incrémenter vues
+
+### Avis Clients (Nouveau - 05/02/2025)
+- `GET /api/reviews/provider/{provider_id}` - Avis d'un prestataire avec stats
+- `POST /api/reviews` - Créer un avis (vérifié ou non)
+- `PATCH /api/reviews/{review_id}/respond` - Répondre à un avis (prestataire)
+- `GET /api/reviews/can-review/{provider_id}` - Vérifier éligibilité avis vérifié
+
 ---
 
 ## Historique des versions
+
+### 05/02/2025 - v2.2
+- ✅ **Portfolio Stories** : Système de portfolio format Instagram Stories avec support photo, vidéo, YouTube et Vimeo
+- ✅ **Avis Clients** : Système d'avis avec badge "Client vérifié" pour les réservations confirmées
+- ✅ **Pays de déplacement** : Affichage des pays sur la fiche prestataire avec icône avion
 
 ### 05/02/2025 - v2.1
 - ✅ **Correction bug saisie lente Marketplace** : Optimisation avec useCallback pour les handlers de formulaire dans MyEquipmentManager.js. Performance : ~30-40ms par caractère (auparavant plusieurs centaines de ms)
