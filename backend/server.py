@@ -612,37 +612,38 @@ async def get_providers(
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
     if country:
-        # Include providers with this country OR providers without country field (default to FR)
+        # Search in countries array, also handle old 'country' field and providers without countries
         if country == "FR":
             query["$or"] = [
+                {"countries": country},
                 {"country": country},
-                {"country": {"$exists": False}}
+                {"countries": {"$exists": False}, "country": {"$exists": False}}
             ]
-        else:
-            query["country"] = country
-    if search:
-        if "$or" in query:
-            # Need to use $and to combine with existing $or
-            query = {"$and": [
-                {"$or": query["$or"]},
-                {"$or": [
-                    {"business_name": {"$regex": search, "$options": "i"}},
-                    {"description": {"$regex": search, "$options": "i"}}
-                ]}
-            ]}
         else:
             query["$or"] = [
-                {"business_name": {"$regex": search, "$options": "i"}},
-                {"description": {"$regex": search, "$options": "i"}}
+                {"countries": country},
+                {"country": country}
             ]
+    if search:
+        search_query = {"$or": [
+            {"business_name": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}}
+        ]}
+        if "$or" in query:
+            query = {"$and": [{"$or": query["$or"]}, search_query]}
+        else:
+            query["$or"] = search_query["$or"]
     
     providers = await db.provider_profiles.find(query, {"_id": 0}).to_list(100)
     for p in providers:
         if isinstance(p['created_at'], str):
             p['created_at'] = datetime.fromisoformat(p['created_at'])
-        # Ensure country field exists for old records
-        if 'country' not in p:
-            p['country'] = 'FR'
+        # Migrate old 'country' field to 'countries' array
+        if 'countries' not in p:
+            if 'country' in p:
+                p['countries'] = [p['country']]
+            else:
+                p['countries'] = ['FR']
     return [ProviderProfile(**p) for p in providers]
 
 @api_router.get("/providers/{provider_id}", response_model=ProviderProfile)
