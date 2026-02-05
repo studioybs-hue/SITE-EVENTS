@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { 
   User, Camera, Mail, Phone, Lock, Bell, CreditCard, 
   Crown, Save, Loader2, Check, Eye, EyeOff, AlertTriangle,
-  Shield, Receipt, Calendar, Settings as SettingsIcon
+  Shield, Receipt, Calendar, Settings as SettingsIcon, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
