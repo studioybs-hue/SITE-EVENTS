@@ -130,3 +130,63 @@ code {
 .chat-bubble-received {
     @apply max-w-[80%] bg-secondary text-secondary-foreground px-4 py-2.5 rounded-2xl rounded-bl-sm;
 }
+
+/* Fix z-index issues for dropdowns and modals */
+[data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+}
+
+[data-radix-select-content],
+[data-radix-dropdown-menu-content],
+[data-radix-popover-content] {
+    z-index: 9999 !important;
+}
+
+/* Fix mobile navigation z-index */
+.mobile-nav {
+    z-index: 100 !important;
+}
+
+/* Fix navbar dropdown */
+nav [role="menu"] {
+    z-index: 9999 !important;
+}
+
+/* Fix Select dropdown positioning */
+[role="listbox"] {
+    z-index: 9999 !important;
+    position: relative !important;
+}
+
+/* Ensure modals are on top */
+[role="dialog"] {
+    z-index: 10000 !important;
+}
+
+/* Fix form elements on mobile */
+@media (max-width: 768px) {
+    select, 
+    [data-radix-select-trigger],
+    [data-radix-select-content] {
+        font-size: 16px !important; /* Prevents iOS zoom */
+    }
+    
+    /* Ensure dropdowns don't get cut off */
+    [data-radix-select-viewport] {
+        max-height: 40vh !important;
+    }
+    
+    /* Fix overlapping on forms */
+    form {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Better touch targets */
+    button, 
+    [role="button"],
+    input,
+    select {
+        min-height: 44px;
+    }
+}
