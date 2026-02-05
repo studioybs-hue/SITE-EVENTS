@@ -129,6 +129,10 @@ async def register(request: Request, response: Response):
     # Hash password
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     
+    # Get country/countries from request
+    country = body.get('country', 'FR')
+    countries = body.get('countries', [country])
+    
     # Create user
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     user_doc = {
@@ -138,6 +142,8 @@ async def register(request: Request, response: Response):
         "password_hash": password_hash.decode('utf-8'),
         "picture": None,
         "user_type": "client",
+        "country": country,
+        "countries": countries,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user_doc)
