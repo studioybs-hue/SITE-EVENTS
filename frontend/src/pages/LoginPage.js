@@ -296,6 +296,27 @@ const LoginPage = () => {
                     data-testid="register-confirm-input"
                   />
                 </div>
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    Votre pays
+                  </Label>
+                  <Select
+                    value={registerData.country}
+                    onValueChange={(value) => setRegisterData({ ...registerData, country: value })}
+                  >
+                    <SelectTrigger data-testid="register-country-select">
+                      <SelectValue placeholder="Sélectionnez votre pays" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button
                   type="submit"
                   className="w-full h-12 rounded-full"
