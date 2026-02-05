@@ -169,6 +169,15 @@ const ProviderCard = ({ provider }) => {
     e.preventDefault();
     if (!selectedPack) return;
 
+    // Convert date from DD/MM/YYYY to YYYY-MM-DD
+    let formattedDate = packBookingForm.event_date;
+    if (formattedDate.includes('/')) {
+      const parts = formattedDate.split('/');
+      if (parts.length === 3) {
+        formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+
     setSubmitting(true);
     try {
       // Create a booking for the pack
@@ -178,10 +187,10 @@ const ProviderCard = ({ provider }) => {
         credentials: 'include',
         body: JSON.stringify({
           provider_id: provider.provider_id,
-          event_date: packBookingForm.event_date,
+          event_date: formattedDate,
           event_location: packBookingForm.event_location,
           event_type: selectedPack.name,
-          total_price: selectedPack.price,
+          total_amount: selectedPack.price,
           notes: `Pack: ${selectedPack.name}\n${packBookingForm.message || ''}`,
           pack_id: selectedPack.pack_id
         })
@@ -198,6 +207,7 @@ const ProviderCard = ({ provider }) => {
         toast.error(error.detail || 'Erreur lors de la réservation');
       }
     } catch (error) {
+      console.error('Booking error:', error);
       toast.error('Erreur de connexion');
     } finally {
       setSubmitting(false);
