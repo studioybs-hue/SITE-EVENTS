@@ -6,7 +6,7 @@ import ProviderCard from '@/components/ProviderCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Calendar } from 'lucide-react';
 
 const COUNTRIES = [
   { code: 'FR', name: 'France' },
@@ -37,6 +37,7 @@ const SearchPage = () => {
     category: searchParams.get('category') || '',
     location: searchParams.get('location') || '',
     country: searchParams.get('country') || '',
+    event_date: searchParams.get('event_date') || '',
   });
 
   const categories = [
