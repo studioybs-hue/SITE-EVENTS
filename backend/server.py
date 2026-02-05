@@ -1657,6 +1657,179 @@ async def update_inquiry_status(
     
     return {"message": "Statut mis à jour"}
 
+# ============ MARKETPLACE PAYMENT ============
+
+@api_router.post("/marketplace/payment/create-checkout")
+async def create_marketplace_checkout(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a Stripe checkout session for marketplace item purchase"""
+    body = await request.json()
+    inquiry_id = body.get('inquiry_id')
+    origin_url = body.get('origin_url')
+    
+    if not inquiry_id or not origin_url:
+        raise HTTPException(status_code=400, detail="inquiry_id and origin_url required")
+    
+    # Fetch inquiry
+    inquiry = await db.marketplace_inquiries.find_one({"inquiry_id": inquiry_id}, {"_id": 0})
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Offre non trouvée")
+    
+    # Verify buyer owns this inquiry
+    if inquiry['buyer_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    # Check inquiry is accepted
+    if inquiry.get('status') != 'accepted':
+        raise HTTPException(status_code=400, detail="Cette offre n'a pas encore été acceptée")
+    
+    # Fetch item
+    item = await db.marketplace_items.find_one({"item_id": inquiry['item_id']}, {"_id": 0})
+    if not item:
+        raise HTTPException(status_code=404, detail="Article non trouvé")
+    
+    # Determine amount (offer amount if exists, otherwise item price)
+    amount = inquiry.get('offer_amount') or item['price']
+    amount = round(float(amount), 2)
+    
+    # Initialize Stripe
+    api_key = os.environ.get('STRIPE_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Paiement non configuré")
+    
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    success_url = f"{origin_url}/marketplace/payment/success?inquiry_id={inquiry_id}"
+    cancel_url = f"{origin_url}/marketplace"
+    
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+    
+    transaction_id = f"mkt_txn_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
+    
+    metadata = {
+        "type": "marketplace",
+        "inquiry_id": inquiry_id,
+        "item_id": inquiry['item_id'],
+        "buyer_id": current_user.user_id,
+        "seller_id": inquiry['seller_id'],
+        "transaction_id": transaction_id
+    }
+    
+    try:
+        checkout_request = CheckoutSessionRequest(
+            amount=amount,
+            currency="eur",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata=metadata
+        )
+        session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
+        
+        # Store transaction
+        transaction_doc = {
+            "transaction_id": transaction_id,
+            "type": "marketplace",
+            "inquiry_id": inquiry_id,
+            "item_id": inquiry['item_id'],
+            "buyer_id": current_user.user_id,
+            "seller_id": inquiry['seller_id'],
+            "session_id": session.session_id,
+            "amount": amount,
+            "currency": "eur",
+            "payment_status": "pending",
+            "item_title": item['title'],
+            "created_at": now,
+            "updated_at": now
+        }
+        await db.marketplace_transactions.insert_one(transaction_doc)
+        
+        return {
+            "checkout_url": session.url,
+            "session_id": session.session_id,
+            "transaction_id": transaction_id,
+            "amount": amount
+        }
+    except Exception as e:
+        logger.error(f"Stripe error: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur de paiement: {str(e)}")
+
+@api_router.get("/marketplace/payment/status/{inquiry_id}")
+async def get_marketplace_payment_status(
+    inquiry_id: str,
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Check marketplace payment status"""
+    # Find transaction
+    transaction = await db.marketplace_transactions.find_one(
+        {"inquiry_id": inquiry_id},
+        {"_id": 0}
+    )
+    
+    if not transaction:
+        return {"status": "not_found", "paid": False}
+    
+    # Verify ownership
+    if transaction['buyer_id'] != current_user.user_id and transaction['seller_id'] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    # If already paid, return cached status
+    if transaction['payment_status'] == 'paid':
+        return {
+            "status": "paid",
+            "paid": True,
+            "amount": transaction['amount'],
+            "item_title": transaction['item_title']
+        }
+    
+    # Poll Stripe for status
+    api_key = os.environ.get('STRIPE_API_KEY')
+    if not api_key or not transaction.get('session_id'):
+        return {"status": transaction['payment_status'], "paid": False}
+    
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+    
+    try:
+        checkout_status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(transaction['session_id'])
+        
+        if checkout_status.payment_status == "paid":
+            # Update transaction
+            await db.marketplace_transactions.update_one(
+                {"inquiry_id": inquiry_id},
+                {"$set": {
+                    "payment_status": "paid",
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            # Update item status to sold
+            await db.marketplace_items.update_one(
+                {"item_id": transaction['item_id']},
+                {"$set": {"status": "sold"}}
+            )
+            
+            # Update inquiry status
+            await db.marketplace_inquiries.update_one(
+                {"inquiry_id": inquiry_id},
+                {"$set": {"status": "paid"}}
+            )
+            
+            return {
+                "status": "paid",
+                "paid": True,
+                "amount": transaction['amount'],
+                "item_title": transaction['item_title']
+            }
+    except Exception as e:
+        logger.error(f"Error checking payment: {e}")
+    
+    return {"status": transaction['payment_status'], "paid": False}
+
 # ============ MARKETPLACE IMAGE UPLOAD ============
 
 @api_router.post("/marketplace/upload-image")
