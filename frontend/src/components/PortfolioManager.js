@@ -87,9 +87,9 @@ const PortfolioManager = () => {
     }
 
     // Size limits
-    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    const maxSize = isVideo ? 1024 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast.error(`Fichier trop volumineux (max ${isVideo ? '50MB' : '5MB'})`);
+      toast.error(`Fichier trop volumineux (max ${isVideo ? '1GB' : '5MB'})`);
       return;
     }
 
