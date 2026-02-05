@@ -603,6 +603,7 @@ async def create_provider_profile(
 async def get_providers(
     category: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
+    country: Optional[str] = Query(None),
     search: Optional[str] = Query(None)
 ):
     query = {}
@@ -610,6 +611,8 @@ async def get_providers(
         query["category"] = category
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
+    if country:
+        query["country"] = country
     if search:
         query["$or"] = [
             {"business_name": {"$regex": search, "$options": "i"}},
@@ -620,6 +623,9 @@ async def get_providers(
     for p in providers:
         if isinstance(p['created_at'], str):
             p['created_at'] = datetime.fromisoformat(p['created_at'])
+        # Ensure country field exists for old records
+        if 'country' not in p:
+            p['country'] = 'FR'
     return [ProviderProfile(**p) for p in providers]
 
 @api_router.get("/providers/{provider_id}", response_model=ProviderProfile)
