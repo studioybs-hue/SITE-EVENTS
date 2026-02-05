@@ -27,7 +27,8 @@ from models import (
     Service, ServiceCreate, ServiceUpdate, ServiceOption,
     QuoteRequest, QuoteRequestCreate, QuoteRequestUpdate, QuoteServiceItem,
     MessageAttachment, Notification, FavoriteProvider, FavoriteProviderCreate,
-    PaymentTransaction, PaymentTransactionCreate
+    PaymentTransaction, PaymentTransactionCreate,
+    CountryPresence, CountryPresenceCreate, CountryPresenceUpdate
 )
 
 ROOT_DIR = Path(__file__).parent
