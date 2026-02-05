@@ -291,15 +291,19 @@ const MyEquipmentManager = () => {
   const reservedCount = items.filter(i => i.status === 'reserved').length;
   const soldCount = items.filter(i => i.status === 'sold').length;
 
-  // Form change handlers
-  const handleInputChange = (field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  // Optimized form change handler - single function for all inputs
+  const handleFormChange = useCallback((e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
+  }, []);
 
-  const handleSelectChange = (field) => (value) => {
+  // Handler for Select components
+  const handleSelectChange = useCallback((field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
   if (loading) {
     return (
