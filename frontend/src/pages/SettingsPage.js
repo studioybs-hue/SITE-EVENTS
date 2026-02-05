@@ -40,6 +40,9 @@ const SettingsPage = () => {
   });
   const [changingPassword, setChangingPassword] = useState(false);
   const [hasPassword, setHasPassword] = useState(true);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   // Profile form state
   const [formData, setFormData] = useState({
