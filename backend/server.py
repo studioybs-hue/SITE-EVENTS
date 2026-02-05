@@ -2938,6 +2938,302 @@ async def get_file(filename: str):
         }
     )
 
+# ============ REVIEWS SYSTEM ============
+
+@api_router.get("/reviews/provider/{provider_id}")
+async def get_provider_reviews(provider_id: str, limit: int = 20, skip: int = 0):
+    """Get all reviews for a provider"""
+    reviews = await db.reviews.find(
+        {"provider_id": provider_id},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
+    
+    # Calculate stats
+    total_reviews = await db.reviews.count_documents({"provider_id": provider_id})
+    verified_count = await db.reviews.count_documents({"provider_id": provider_id, "is_verified": True})
+    
+    # Calculate average rating
+    pipeline = [
+        {"$match": {"provider_id": provider_id}},
+        {"$group": {"_id": None, "avg_rating": {"$avg": "$rating"}}}
+    ]
+    avg_result = await db.reviews.aggregate(pipeline).to_list(length=1)
+    avg_rating = round(avg_result[0]["avg_rating"], 1) if avg_result else 0
+    
+    return {
+        "reviews": reviews,
+        "total": total_reviews,
+        "verified_count": verified_count,
+        "average_rating": avg_rating
+    }
+
+@api_router.post("/reviews")
+async def create_review(review_data: ReviewCreate, current_user: User = Depends(get_current_user)):
+    """Create a new review"""
+    # Check if it's a verified review (linked to a completed booking)
+    is_verified = False
+    event_type = None
+    event_date = None
+    
+    if review_data.booking_id:
+        # Verify the booking exists and belongs to this user
+        booking = await db.bookings.find_one({
+            "booking_id": review_data.booking_id,
+            "client_id": current_user.user_id,
+            "provider_id": review_data.provider_id,
+            "status": {"$in": ["completed", "confirmed"]}
+        }, {"_id": 0})
+        
+        if booking:
+            is_verified = True
+            event_type = booking.get("event_type")
+            event_date = booking.get("event_date")
+            
+            # Check if review already exists for this booking
+            existing_review = await db.reviews.find_one({"booking_id": review_data.booking_id})
+            if existing_review:
+                raise HTTPException(status_code=400, detail="Vous avez déjà laissé un avis pour cette réservation")
+    
+    # Validate rating
+    if not 1 <= review_data.rating <= 5:
+        raise HTTPException(status_code=400, detail="La note doit être entre 1 et 5")
+    
+    review_id = f"rev_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+    
+    review_doc = {
+        "review_id": review_id,
+        "booking_id": review_data.booking_id,
+        "client_id": current_user.user_id,
+        "client_name": current_user.name,
+        "client_picture": current_user.picture,
+        "provider_id": review_data.provider_id,
+        "rating": review_data.rating,
+        "comment": review_data.comment,
+        "is_verified": is_verified,
+        "event_type": event_type,
+        "event_date": event_date,
+        "provider_response": None,
+        "created_at": now.isoformat()
+    }
+    
+    await db.reviews.insert_one(review_doc)
+    
+    # Update provider's rating
+    pipeline = [
+        {"$match": {"provider_id": review_data.provider_id}},
+        {"$group": {"_id": None, "avg_rating": {"$avg": "$rating"}, "count": {"$sum": 1}}}
+    ]
+    stats = await db.reviews.aggregate(pipeline).to_list(length=1)
+    if stats:
+        await db.provider_profiles.update_one(
+            {"provider_id": review_data.provider_id},
+            {"$set": {
+                "rating": round(stats[0]["avg_rating"], 1),
+                "total_reviews": stats[0]["count"]
+            }}
+        )
+    
+    return {"review_id": review_id, "is_verified": is_verified}
+
+@api_router.patch("/reviews/{review_id}/respond")
+async def respond_to_review(review_id: str, request: Request, current_user: User = Depends(get_current_user)):
+    """Provider responds to a review"""
+    body = await request.json()
+    response_text = body.get("response")
+    
+    if not response_text:
+        raise HTTPException(status_code=400, detail="Réponse requise")
+    
+    # Verify the current user is the provider
+    review = await db.reviews.find_one({"review_id": review_id}, {"_id": 0})
+    if not review:
+        raise HTTPException(status_code=404, detail="Avis non trouvé")
+    
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider or provider["provider_id"] != review["provider_id"]:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    await db.reviews.update_one(
+        {"review_id": review_id},
+        {"$set": {"provider_response": response_text}}
+    )
+    
+    return {"success": True}
+
+@api_router.get("/reviews/can-review/{provider_id}")
+async def can_review_provider(provider_id: str, current_user: User = Depends(get_current_user)):
+    """Check if user can leave a review and get bookings eligible for verified review"""
+    # Get completed bookings with this provider that don't have reviews yet
+    bookings = await db.bookings.find({
+        "client_id": current_user.user_id,
+        "provider_id": provider_id,
+        "status": {"$in": ["completed", "confirmed"]}
+    }, {"_id": 0, "booking_id": 1, "event_type": 1, "event_date": 1}).to_list(length=100)
+    
+    # Filter out bookings that already have reviews
+    eligible_bookings = []
+    for booking in bookings:
+        existing_review = await db.reviews.find_one({"booking_id": booking["booking_id"]})
+        if not existing_review:
+            eligible_bookings.append(booking)
+    
+    return {
+        "can_leave_verified_review": len(eligible_bookings) > 0,
+        "eligible_bookings": eligible_bookings,
+        "can_leave_unverified_review": True  # Anyone can leave unverified review
+    }
+
+# ============ PORTFOLIO SYSTEM (Stories) ============
+
+@api_router.get("/portfolio/provider/{provider_id}")
+async def get_provider_portfolio(provider_id: str):
+    """Get all portfolio items (stories) for a provider"""
+    items = await db.portfolio_items.find(
+        {"provider_id": provider_id, "is_active": True},
+        {"_id": 0}
+    ).sort("display_order", 1).to_list(length=100)
+    
+    return items
+
+@api_router.post("/portfolio")
+async def create_portfolio_item(item_data: PortfolioItemCreate, current_user: User = Depends(get_current_user)):
+    """Create a new portfolio item"""
+    # Get provider profile
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Profil prestataire requis")
+    
+    item_id = f"port_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+    
+    # Get current max display_order
+    max_order_item = await db.portfolio_items.find_one(
+        {"provider_id": provider["provider_id"]},
+        sort=[("display_order", -1)]
+    )
+    next_order = (max_order_item["display_order"] + 1) if max_order_item else 0
+    
+    item_doc = {
+        "item_id": item_id,
+        "provider_id": provider["provider_id"],
+        "media_type": item_data.media_type,
+        "media_url": item_data.media_url,
+        "thumbnail_url": item_data.thumbnail_url,
+        "title": item_data.title,
+        "description": item_data.description,
+        "event_type": item_data.event_type,
+        "duration": item_data.duration,
+        "views_count": 0,
+        "display_order": next_order,
+        "is_active": True,
+        "created_at": now.isoformat()
+    }
+    
+    await db.portfolio_items.insert_one(item_doc)
+    
+    return {"item_id": item_id}
+
+@api_router.patch("/portfolio/{item_id}")
+async def update_portfolio_item(item_id: str, item_data: PortfolioItemUpdate, current_user: User = Depends(get_current_user)):
+    """Update a portfolio item"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    # Verify ownership
+    item = await db.portfolio_items.find_one({"item_id": item_id}, {"_id": 0})
+    if not item or item["provider_id"] != provider["provider_id"]:
+        raise HTTPException(status_code=404, detail="Item non trouvé")
+    
+    update_data = {k: v for k, v in item_data.model_dump().items() if v is not None}
+    if update_data:
+        await db.portfolio_items.update_one(
+            {"item_id": item_id},
+            {"$set": update_data}
+        )
+    
+    return {"success": True}
+
+@api_router.delete("/portfolio/{item_id}")
+async def delete_portfolio_item(item_id: str, current_user: User = Depends(get_current_user)):
+    """Delete a portfolio item"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    result = await db.portfolio_items.delete_one({
+        "item_id": item_id,
+        "provider_id": provider["provider_id"]
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Item non trouvé")
+    
+    return {"success": True}
+
+@api_router.post("/portfolio/upload-video")
+async def upload_portfolio_video(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a video file for portfolio (story format)"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Profil prestataire requis")
+    
+    # Validate file type
+    allowed_types = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo']
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Format vidéo non supporté. Utilisez MP4, MOV, WebM ou AVI")
+    
+    # Read file content
+    content = await file.read()
+    
+    # Limit file size (50MB for videos)
+    if len(content) > 50 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 50MB)")
+    
+    # Generate unique filename
+    file_id = f"vid_{uuid.uuid4().hex[:12]}"
+    ext = os.path.splitext(file.filename)[1] or '.mp4'
+    safe_filename = f"{file_id}{ext}"
+    file_path = UPLOAD_DIR / safe_filename
+    
+    # Save file
+    async with aiofiles.open(file_path, 'wb') as f:
+        await f.write(content)
+    
+    video_url = f"/api/files/{safe_filename}"
+    
+    return {
+        "video_url": video_url,
+        "file_id": file_id
+    }
+
+@api_router.post("/portfolio/{item_id}/view")
+async def increment_portfolio_view(item_id: str):
+    """Increment view count for a portfolio item"""
+    await db.portfolio_items.update_one(
+        {"item_id": item_id},
+        {"$inc": {"views_count": 1}}
+    )
+    return {"success": True}
+
+@api_router.get("/portfolio/my-items")
+async def get_my_portfolio_items(current_user: User = Depends(get_current_user)):
+    """Get all portfolio items for the current provider"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Profil prestataire requis")
+    
+    items = await db.portfolio_items.find(
+        {"provider_id": provider["provider_id"]},
+        {"_id": 0}
+    ).sort("display_order", 1).to_list(length=100)
+    
+    return items
+
 # ============ REAL-TIME MESSAGING WITH SOCKET.IO ============
 
 # Track connected users: {user_id: sid}
