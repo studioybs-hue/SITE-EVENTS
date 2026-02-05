@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { User, LogOut, MessageSquare, LayoutDashboard, Settings, Building, Heart, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -10,9 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import LanguageSelector from './LanguageSelector';
 
 const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -56,21 +59,21 @@ const Navbar = ({ user, onLogout }) => {
               className="text-foreground hover:text-accent transition-colors font-medium"
               data-testid="nav-search-link"
             >
-              Rechercher
+              {t('nav.search')}
             </Link>
             <Link 
               to="/packages" 
               className="text-foreground hover:text-accent transition-colors font-medium"
               data-testid="nav-packages-link"
             >
-              Packs Événement
+              {t('nav.packages')}
             </Link>
             <Link 
               to="/marketplace" 
               className="text-foreground hover:text-accent transition-colors font-medium"
               data-testid="nav-marketplace-link"
             >
-              Marketplace B2B
+              {t('nav.marketplace')}
             </Link>
             {user && (
               <Link 
@@ -78,13 +81,16 @@ const Navbar = ({ user, onLogout }) => {
                 className="text-foreground hover:text-accent transition-colors font-medium"
                 data-testid="nav-messages-link"
               >
-                Messages
+                {t('nav.messages')}
               </Link>
             )}
           </div>
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
+            {/* Language Selector */}
+            <LanguageSelector />
+            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -123,7 +129,7 @@ const Navbar = ({ user, onLogout }) => {
                             : 'bg-accent/10 text-accent'
                         }`}
                       >
-                        {isProvider ? 'PRO' : 'Client'}
+                        {isProvider ? 'PRO' : t('auth.client')}
                       </Badge>
                     </div>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -158,9 +164,9 @@ const Navbar = ({ user, onLogout }) => {
                           }`}
                         >
                           {isProvider ? (
-                            <><Building className="h-3 w-3 mr-1" /> Prestataire</>
+                            <><Building className="h-3 w-3 mr-1" /> {t('auth.provider')}</>
                           ) : (
-                            <><Heart className="h-3 w-3 mr-1" /> Client</>
+                            <><Heart className="h-3 w-3 mr-1" /> {t('auth.client')}</>
                           )}
                         </Badge>
                       </div>
@@ -169,19 +175,19 @@ const Navbar = ({ user, onLogout }) => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/dashboard')} data-testid="menu-dashboard">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    {isProvider ? 'Espace Prestataire' : 'Mon Espace'}
+                    {isProvider ? t('dashboard.providerTitle') : t('dashboard.clientTitle')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/messages')} data-testid="menu-messages">
                     <MessageSquare className="h-4 w-4 mr-2" />
-                    Messages
+                    {t('nav.messages')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/profile')} data-testid="menu-profile">
                     <User className="h-4 w-4 mr-2" />
-                    Mon profil
+                    {t('dashboard.settings')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/settings')} data-testid="menu-settings">
                     <Settings className="h-4 w-4 mr-2" />
-                    Paramètres
+                    {t('dashboard.settings')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
@@ -190,7 +196,7 @@ const Navbar = ({ user, onLogout }) => {
                     className="text-red-600 focus:text-red-600 focus:bg-red-50"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
-                    Déconnexion
+                    {t('nav.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -202,14 +208,14 @@ const Navbar = ({ user, onLogout }) => {
                   className="rounded-full h-10 px-4 text-muted-foreground hover:text-foreground"
                   data-testid="nav-pro-btn"
                 >
-                  Espace Pro
+                  {t('auth.loginPro')}
                 </Button>
                 <Button 
                   onClick={() => navigate('/login')}
                   className="rounded-full h-10 px-6 bg-primary text-primary-foreground hover:scale-105 transition-transform"
                   data-testid="nav-login-btn"
                 >
-                  Connexion
+                  {t('nav.login')}
                 </Button>
               </div>
             )}
