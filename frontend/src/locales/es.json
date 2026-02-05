@@ -52,6 +52,7 @@
     "category": "Categoría",
     "location": "Ciudad",
     "country": "País",
+    "eventDate": "Fecha del evento",
     "allCategories": "Todas las categorías",
     "allCountries": "Todos los países",
     "results": "resultados",
