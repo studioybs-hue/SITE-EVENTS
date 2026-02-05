@@ -535,7 +535,8 @@ const MyEquipmentManager = () => {
           {items.map((item) => {
             const statusConfig = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
             const itemInquiries = getItemInquiries(item.item_id);
-            const pendingCount = itemInquiries.filter(i => i.status === 'pending').length;
+            const pendingInquiries = itemInquiries.filter(i => i.status === 'pending');
+            const pendingCount = pendingInquiries.length;
             
             return (
               <Card key={item.item_id} className="p-4" data-testid="equipment-item">
@@ -622,15 +623,15 @@ const MyEquipmentManager = () => {
                         Modifier
                       </Button>
 
-                      {pendingCount > 0 && (
+                      {itemInquiries.length > 0 && (
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedItemInquiries(item.item_id)}
-                          className="text-blue-600 border-blue-200"
+                          className={pendingCount > 0 ? "text-blue-600 border-blue-200" : ""}
                         >
                           <MessageCircle className="h-3 w-3 mr-1" />
-                          {pendingCount} message{pendingCount > 1 ? 's' : ''}
+                          {itemInquiries.length} message{itemInquiries.length > 1 ? 's' : ''}
                         </Button>
                       )}
 
@@ -645,6 +646,60 @@ const MyEquipmentManager = () => {
                     </div>
                   </div>
                 </div>
+                
+                {/* Offres en attente - affichées directement sur la carte */}
+                {pendingInquiries.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <h4 className="text-sm font-semibold text-amber-600 mb-3 flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      {pendingInquiries.length} offre{pendingInquiries.length > 1 ? 's' : ''} en attente
+                    </h4>
+                    <div className="space-y-3">
+                      {pendingInquiries.map((inquiry) => (
+                        <div 
+                          key={inquiry.inquiry_id} 
+                          className="bg-amber-50 border border-amber-200 rounded-lg p-3"
+                          data-testid={`inquiry-${inquiry.inquiry_id}`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm">{inquiry.buyer_name}</p>
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {inquiry.message}
+                              </p>
+                              {inquiry.offer_amount && (
+                                <p className="text-sm font-bold text-emerald-600 mt-2">
+                                  Offre: {inquiry.offer_amount}€
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                              <Button 
+                                size="sm" 
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                onClick={() => handleInquiryAction(inquiry.inquiry_id, 'accepted')}
+                                data-testid={`accept-btn-${inquiry.inquiry_id}`}
+                              >
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Accepter
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="text-destructive border-destructive hover:bg-destructive/10"
+                                onClick={() => handleInquiryAction(inquiry.inquiry_id, 'declined')}
+                                data-testid={`decline-btn-${inquiry.inquiry_id}`}
+                              >
+                                <X className="h-3 w-3 mr-1" />
+                                Refuser
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Card>
             );
           })}
