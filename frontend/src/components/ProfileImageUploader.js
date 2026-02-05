@@ -58,9 +58,12 @@ const ProfileImageUploader = ({ currentImage, onImageUpdate }) => {
             toast.success('Photo de profil mise à jour !');
             if (onImageUpdate) onImageUpdate(data.image_url);
           } else {
-            toast.error('Erreur lors de la mise à jour');
+            const errorData = await updateResponse.json().catch(() => ({}));
+            toast.error(errorData.detail || 'Erreur lors de la mise à jour');
+            console.error('Update error:', errorData);
           }
         } catch (err) {
+          console.error('Processing error:', err);
           toast.error('Erreur lors du traitement');
         }
       } else {
