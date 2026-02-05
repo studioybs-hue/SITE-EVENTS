@@ -28,8 +28,10 @@ const PortfolioManager = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [mediaType, setMediaType] = useState('photo');
   const fileInputRef = useRef(null);
+  const xhrRef = useRef(null);
   
   const [formData, setFormData] = useState({
     media_type: 'photo',
