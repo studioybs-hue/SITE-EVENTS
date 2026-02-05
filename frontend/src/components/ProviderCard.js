@@ -281,6 +281,25 @@ const ProviderCard = ({ provider }) => {
           )}
 
           <div className="space-y-6">
+            {/* Portfolio Stories */}
+            <PortfolioGallery providerId={provider.provider_id} />
+
+            {/* Countries / Travel zones */}
+            {provider.countries && provider.countries.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Plane className="h-4 w-4" />
+                  Se déplace :
+                </span>
+                {provider.countries.map((code) => (
+                  <Badge key={code} variant="outline" className="text-xs">
+                    {COUNTRY_NAMES[code] || code}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Legacy portfolio images (if no new portfolio) */}
             {provider.portfolio_images && provider.portfolio_images.length > 0 && (
               <div className="grid grid-cols-2 gap-4">
                 {provider.portfolio_images.slice(0, 4).map((img, idx) => (
