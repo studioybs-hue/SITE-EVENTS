@@ -688,6 +688,9 @@ async def get_providers(
                 p['countries'] = [p['country']]
             else:
                 p['countries'] = ['FR']
+        # Default max_bookings_per_day for old profiles
+        if 'max_bookings_per_day' not in p:
+            p['max_bookings_per_day'] = 1
     return [ProviderProfile(**p) for p in providers]
 
 @api_router.get("/providers/{provider_id}", response_model=ProviderProfile)
