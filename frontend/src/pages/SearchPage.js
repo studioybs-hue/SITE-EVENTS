@@ -83,6 +83,7 @@ const SearchPage = () => {
       if (filters.category && filters.category !== 'all') params.append('category', filters.category);
       if (filters.location) params.append('location', filters.location);
       if (filters.country && filters.country !== 'all') params.append('country', filters.country);
+      if (filters.event_date) params.append('event_date', filters.event_date);
       if (filters.search) params.append('search', filters.search);
 
       const response = await fetch(`${BACKEND_URL}/api/providers?${params}`);
@@ -100,6 +101,7 @@ const SearchPage = () => {
     if (filters.category && filters.category !== 'all') params.set('category', filters.category);
     if (filters.location) params.set('location', filters.location);
     if (filters.country && filters.country !== 'all') params.set('country', filters.country);
+    if (filters.event_date) params.set('event_date', filters.event_date);
     if (filters.search) params.set('search', filters.search);
     setSearchParams(params);
   };
