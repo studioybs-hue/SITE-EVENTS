@@ -485,6 +485,73 @@ async def set_password(
     
     return {"message": "Mot de passe défini avec succès"}
 
+@api_router.delete("/auth/delete-account")
+async def delete_account(
+    current_user: User = Depends(get_current_user),
+    password: Optional[str] = None
+):
+    """Delete user account and all associated data"""
+    user_doc = await db.users.find_one({"user_id": current_user.user_id})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If user has a password, verify it
+    if user_doc.get('password_hash') and password:
+        if not bcrypt.checkpw(password.encode(), user_doc['password_hash'].encode()):
+            raise HTTPException(status_code=401, detail="Mot de passe incorrect")
+    elif user_doc.get('password_hash') and not password:
+        raise HTTPException(status_code=400, detail="Mot de passe requis pour supprimer le compte")
+    
+    user_id = current_user.user_id
+    
+    # Delete all associated data
+    # 1. Delete provider profile if exists
+    provider = await db.provider_profiles.find_one({"user_id": user_id})
+    if provider:
+        provider_id = provider['provider_id']
+        # Delete provider's services
+        await db.services.delete_many({"provider_id": provider_id})
+        # Delete provider's availability
+        await db.availability.delete_many({"provider_id": provider_id})
+        # Delete provider's country presences
+        await db.country_presences.delete_many({"provider_id": provider_id})
+        # Delete provider's marketplace items
+        await db.marketplace_items.delete_many({"seller_id": provider_id})
+        # Delete provider profile
+        await db.provider_profiles.delete_one({"provider_id": provider_id})
+    
+    # 2. Delete user's bookings (as client)
+    await db.bookings.delete_many({"client_id": user_id})
+    
+    # 3. Delete user's messages
+    await db.messages.delete_many({"$or": [{"sender_id": user_id}, {"receiver_id": user_id}]})
+    
+    # 4. Delete user's conversations
+    await db.conversations.delete_many({"participants": user_id})
+    
+    # 5. Delete user's quote requests
+    await db.quote_requests.delete_many({"client_id": user_id})
+    
+    # 6. Delete user's favorites
+    await db.favorites.delete_many({"user_id": user_id})
+    
+    # 7. Delete user's marketplace inquiries
+    await db.marketplace_inquiries.delete_many({"buyer_id": user_id})
+    
+    # 8. Delete user's notifications
+    await db.notifications.delete_many({"user_id": user_id})
+    
+    # 9. Delete user's sessions
+    await db.sessions.delete_many({"user_id": user_id})
+    
+    # 10. Delete user's payment transactions
+    await db.payment_transactions.delete_many({"user_id": user_id})
+    
+    # 11. Finally, delete the user
+    await db.users.delete_one({"user_id": user_id})
+    
+    return {"message": "Compte supprimé avec succès"}
+
 @api_router.get("/users/{user_id}", response_model=User)
 async def get_user_by_id(user_id: str, current_user: User = Depends(get_current_user)):
     """Get user details by user_id (requires authentication)"""
