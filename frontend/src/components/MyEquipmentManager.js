@@ -565,7 +565,160 @@ const MyEquipmentManager = () => {
           <DialogHeader>
             <DialogTitle>Ajouter un article</DialogTitle>
           </DialogHeader>
-          <ItemForm onSubmit={handleCreate} />
+          <form onSubmit={handleCreate} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+            {/* Images */}
+            <div>
+              <Label className="flex items-center gap-2 mb-2">
+                <ImagePlus className="h-4 w-4" />
+                Photos de l'article
+              </Label>
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                {formData.images.map((url, idx) => (
+                  <div key={idx} className="relative aspect-square rounded-md overflow-hidden bg-muted">
+                    <img src={`${BACKEND_URL}${url}`} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                {formData.images.length < 8 && (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="aspect-square rounded-md border-2 border-dashed border-border flex items-center justify-center hover:border-accent transition-colors"
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    ) : (
+                      <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                    )}
+                  </button>
+                )}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept=".jpg,.jpeg,.png,.gif,.webp"
+                multiple
+                className="hidden"
+              />
+              <p className="text-xs text-muted-foreground">Max 8 photos, 5MB chacune</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label>Titre *</Label>
+                <Input
+                  required
+                  value={formData.title}
+                  onChange={handleInputChange('title')}
+                  placeholder="Ex: Enceinte JBL EON615"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Description *</Label>
+                <Textarea
+                  required
+                  value={formData.description}
+                  onChange={handleInputChange('description')}
+                  rows={3}
+                  placeholder="Décrivez votre article..."
+                />
+              </div>
+
+              <div>
+                <Label>Catégorie *</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={handleSelectChange('category')}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>État *</Label>
+                <Select
+                  value={formData.condition}
+                  onValueChange={handleSelectChange('condition')}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Neuf</SelectItem>
+                    <SelectItem value="like_new">Comme neuf</SelectItem>
+                    <SelectItem value="good">Bon état</SelectItem>
+                    <SelectItem value="fair">Correct</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Prix de vente (€) *</Label>
+                <Input
+                  required
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={handleInputChange('price')}
+                />
+              </div>
+
+              <div>
+                <Label>Localisation *</Label>
+                <Input
+                  required
+                  value={formData.location}
+                  onChange={handleInputChange('location')}
+                  placeholder="Paris, France"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="rental-create"
+                    checked={formData.rental_available}
+                    onChange={handleInputChange('rental_available')}
+                  />
+                  <Label htmlFor="rental-create">Disponible à la location</Label>
+                </div>
+                {formData.rental_available && (
+                  <div>
+                    <Label>Prix de location par jour (€)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.rental_price_per_day}
+                      onChange={handleInputChange('rental_price_per_day')}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full">
+              Publier l'article
+            </Button>
+          </form>
         </DialogContent>
       </Dialog>
 
@@ -575,7 +728,160 @@ const MyEquipmentManager = () => {
           <DialogHeader>
             <DialogTitle>Modifier l'article</DialogTitle>
           </DialogHeader>
-          <ItemForm onSubmit={handleUpdate} isEdit />
+          <form onSubmit={handleUpdate} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+            {/* Images */}
+            <div>
+              <Label className="flex items-center gap-2 mb-2">
+                <ImagePlus className="h-4 w-4" />
+                Photos de l'article
+              </Label>
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                {formData.images.map((url, idx) => (
+                  <div key={idx} className="relative aspect-square rounded-md overflow-hidden bg-muted">
+                    <img src={`${BACKEND_URL}${url}`} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                {formData.images.length < 8 && (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="aspect-square rounded-md border-2 border-dashed border-border flex items-center justify-center hover:border-accent transition-colors"
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    ) : (
+                      <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                    )}
+                  </button>
+                )}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept=".jpg,.jpeg,.png,.gif,.webp"
+                multiple
+                className="hidden"
+              />
+              <p className="text-xs text-muted-foreground">Max 8 photos, 5MB chacune</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label>Titre *</Label>
+                <Input
+                  required
+                  value={formData.title}
+                  onChange={handleInputChange('title')}
+                  placeholder="Ex: Enceinte JBL EON615"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Description *</Label>
+                <Textarea
+                  required
+                  value={formData.description}
+                  onChange={handleInputChange('description')}
+                  rows={3}
+                  placeholder="Décrivez votre article..."
+                />
+              </div>
+
+              <div>
+                <Label>Catégorie *</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={handleSelectChange('category')}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>État *</Label>
+                <Select
+                  value={formData.condition}
+                  onValueChange={handleSelectChange('condition')}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Neuf</SelectItem>
+                    <SelectItem value="like_new">Comme neuf</SelectItem>
+                    <SelectItem value="good">Bon état</SelectItem>
+                    <SelectItem value="fair">Correct</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Prix de vente (€) *</Label>
+                <Input
+                  required
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={handleInputChange('price')}
+                />
+              </div>
+
+              <div>
+                <Label>Localisation *</Label>
+                <Input
+                  required
+                  value={formData.location}
+                  onChange={handleInputChange('location')}
+                  placeholder="Paris, France"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="rental-edit"
+                    checked={formData.rental_available}
+                    onChange={handleInputChange('rental_available')}
+                  />
+                  <Label htmlFor="rental-edit">Disponible à la location</Label>
+                </div>
+                {formData.rental_available && (
+                  <div>
+                    <Label>Prix de location par jour (€)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.rental_price_per_day}
+                      onChange={handleInputChange('rental_price_per_day')}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full">
+              Mettre à jour
+            </Button>
+          </form>
         </DialogContent>
       </Dialog>
 
