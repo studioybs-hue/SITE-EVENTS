@@ -45,7 +45,7 @@ const DashboardPage = () => {
     category: '',
     description: '',
     location: '',
-    country: 'FR',
+    countries: ['FR'],
     services: '',
     pricing_range: '',
     phone: '',
@@ -54,23 +54,6 @@ const DashboardPage = () => {
   const categories = [
     'DJ', 'Photographe', 'Vidéaste', 'Traiteur', 'Décorateur',
     'Wedding Planner', 'Fleuriste', 'Animateur', 'Loueur de matériel'
-  ];
-
-  const COUNTRIES = [
-    { code: 'FR', name: 'France' },
-    { code: 'ES', name: 'Espagne' },
-    { code: 'GB', name: 'Royaume-Uni' },
-    { code: 'DE', name: 'Allemagne' },
-    { code: 'IT', name: 'Italie' },
-    { code: 'PT', name: 'Portugal' },
-    { code: 'BE', name: 'Belgique' },
-    { code: 'CH', name: 'Suisse' },
-    { code: 'NL', name: 'Pays-Bas' },
-    { code: 'US', name: 'États-Unis' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'MA', name: 'Maroc' },
-    { code: 'SN', name: 'Sénégal' },
-    { code: 'CI', name: "Côte d'Ivoire" },
   ];
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
