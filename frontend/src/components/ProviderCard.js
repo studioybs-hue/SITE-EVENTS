@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Star, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package, Check, Send, Calendar, FileText, Heart, Globe, Plane } from 'lucide-react';
+import { MapPin, Star, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package, Check, Send, Calendar, FileText, Heart, Globe, Plane, Gift, Users, Euro, CreditCard } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,9 +25,12 @@ const ProviderCard = ({ provider }) => {
   const [user, setUser] = useState(null);
   const [expanded, setExpanded] = useState(false);
   const [services, setServices] = useState([]);
+  const [packs, setPacks] = useState([]);
   const [showAllServices, setShowAllServices] = useState(false);
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [selectedPack, setSelectedPack] = useState(null);
+  const [packBookingOpen, setPackBookingOpen] = useState(false);
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -36,6 +39,11 @@ const ProviderCard = ({ provider }) => {
     event_date: '',
     event_location: '',
     event_type: '',
+    message: ''
+  });
+  const [packBookingForm, setPackBookingForm] = useState({
+    event_date: '',
+    event_location: '',
     message: ''
   });
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
