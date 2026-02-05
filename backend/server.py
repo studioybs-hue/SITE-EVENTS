@@ -614,49 +614,70 @@ async def get_providers(
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
     
-    # If both country and date are provided, search by country presence
+    # Find providers who have a presence in this country on this date
     providers_with_presence = set()
     if country and event_date:
-        # Find providers who have a presence in this country on this date
         presences = await db.country_presences.find({
             "country": country,
             "start_date": {"$lte": event_date},
             "end_date": {"$gte": event_date}
         }).to_list(1000)
         providers_with_presence = {p['provider_id'] for p in presences}
+    elif country:
+        # If no date, get all providers with any presence in this country
+        presences = await db.country_presences.find({"country": country}).to_list(1000)
+        providers_with_presence = {p['provider_id'] for p in presences}
     
+    # Build the base query for providers
+    base_country_query = None
     if country:
         # Search in countries array, also handle old 'country' field and providers without countries
         if country == "FR":
-            query["$or"] = [
+            base_country_query = {"$or": [
                 {"countries": country},
                 {"country": country},
                 {"countries": {"$exists": False}, "country": {"$exists": False}}
-            ]
+            ]}
         else:
-            query["$or"] = [
+            base_country_query = {"$or": [
                 {"countries": country},
                 {"country": country}
-            ]
+            ]}
+    
     if search:
         search_query = {"$or": [
             {"business_name": {"$regex": search, "$options": "i"}},
             {"description": {"$regex": search, "$options": "i"}}
         ]}
-        if "$or" in query:
-            query = {"$and": [{"$or": query["$or"]}, search_query]}
+        if base_country_query:
+            query = {"$and": [base_country_query, search_query]}
         else:
             query["$or"] = search_query["$or"]
+    elif base_country_query:
+        query.update(base_country_query)
     
+    # Get providers matching base query (by countries in profile)
     providers = await db.provider_profiles.find(query, {"_id": 0}).to_list(100)
+    provider_ids = {p['provider_id'] for p in providers}
     
-    # Filter by presence if date was provided
-    if country and event_date and providers_with_presence:
-        # Providers with presence on that date get priority
-        providers_with_date = [p for p in providers if p['provider_id'] in providers_with_presence]
-        # Also include providers who have this country in their base countries (always available)
-        providers_base = [p for p in providers if p['provider_id'] not in providers_with_presence]
-        providers = providers_with_date + providers_base
+    # Also fetch providers with temporary presence in this country
+    if providers_with_presence:
+        # Find providers with presence that are not already in our list
+        extra_provider_ids = providers_with_presence - provider_ids
+        if extra_provider_ids:
+            extra_query = {"provider_id": {"$in": list(extra_provider_ids)}}
+            if category:
+                extra_query["category"] = category
+            if location:
+                extra_query["location"] = {"$regex": location, "$options": "i"}
+            if search:
+                extra_query["$or"] = [
+                    {"business_name": {"$regex": search, "$options": "i"}},
+                    {"description": {"$regex": search, "$options": "i"}}
+                ]
+            extra_providers = await db.provider_profiles.find(extra_query, {"_id": 0}).to_list(100)
+            # Put providers with date presence first
+            providers = extra_providers + providers
     
     for p in providers:
         if isinstance(p['created_at'], str):
