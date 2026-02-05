@@ -618,9 +618,18 @@ const DashboardPage = () => {
 
                   {/* Travels Tab */}
                   <TabsContent value="travels">
-                    <Card className="p-6">
-                      <CountryPresenceManager />
-                    </Card>
+                    <div className="space-y-6">
+                      {/* Capacity Settings */}
+                      <CapacitySettings 
+                        providerId={providerProfile?.provider_id} 
+                        initialValue={providerProfile?.max_bookings_per_day || 1}
+                      />
+                      
+                      {/* Country Presence */}
+                      <Card className="p-6">
+                        <CountryPresenceManager />
+                      </Card>
+                    </div>
                   </TabsContent>
 
                   {/* Quotes Tab */}
