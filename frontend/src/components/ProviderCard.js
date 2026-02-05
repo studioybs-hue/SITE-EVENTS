@@ -838,7 +838,13 @@ const ProviderCard = ({ provider }) => {
     <div onClick={() => setExpanded(true)} style={{ cursor: 'pointer' }} data-testid={`provider-card-${provider.provider_id}`}>
       <Card className="provider-card overflow-hidden border-border/50 hover:shadow-lg group">
         <div className="relative h-48 overflow-hidden bg-muted">
-          {provider.portfolio_images && provider.portfolio_images.length > 0 ? (
+          {provider.profile_image ? (
+            <img
+              src={provider.profile_image.startsWith('/') ? `${BACKEND_URL}${provider.profile_image}` : provider.profile_image}
+              alt={provider.business_name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : provider.portfolio_images && provider.portfolio_images.length > 0 ? (
             <img
               src={provider.portfolio_images[0]}
               alt={provider.business_name}
