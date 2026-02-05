@@ -43,7 +43,7 @@ const MarketplacePaymentSuccessPage = () => {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/marketplace/payment/status/${inquiryId}`, {
+      const response = await fetch(`${BACKEND_URL}/api/marketplace-payment/status/${inquiryId}`, {
         credentials: 'include',
       });
 
