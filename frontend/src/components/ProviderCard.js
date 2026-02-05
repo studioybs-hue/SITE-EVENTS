@@ -437,6 +437,14 @@ const ProviderCard = ({ provider }) => {
               </div>
             )}
 
+            {/* Reviews Section */}
+            <div className="pt-4 border-t">
+              <ReviewSection 
+                providerId={provider.provider_id} 
+                providerName={provider.business_name}
+              />
+            </div>
+
             {/* Actions */}
             <div className="pt-4 border-t">
               {isAuth ? (
