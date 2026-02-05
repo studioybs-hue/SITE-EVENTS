@@ -896,6 +896,110 @@ async def get_availability(provider_id: str, month: Optional[str] = Query(None))
     availabilities = await db.availability.find(query, {"_id": 0}).to_list(100)
     return availabilities
 
+@api_router.get("/availability/{provider_id}/check")
+async def check_date_availability(
+    provider_id: str,
+    date: str = Query(..., description="Date to check (YYYY-MM-DD)")
+):
+    """Check if a provider is available on a specific date based on their max_bookings_per_day setting"""
+    # Get provider profile
+    provider = await db.provider_profiles.find_one({"provider_id": provider_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    
+    max_bookings = provider.get('max_bookings_per_day', 1)
+    
+    # Check manual availability (if provider marked this date as unavailable)
+    manual_avail = await db.availability.find_one({
+        "provider_id": provider_id,
+        "date": date,
+        "is_available": False
+    })
+    if manual_avail:
+        return {
+            "available": False,
+            "reason": "blocked",
+            "slots_total": max_bookings,
+            "slots_taken": max_bookings,
+            "slots_remaining": 0
+        }
+    
+    # Count confirmed bookings for this date
+    confirmed_bookings = await db.bookings.count_documents({
+        "provider_id": provider_id,
+        "event_date": date,
+        "status": {"$in": ["confirmed", "pending"]}
+    })
+    
+    slots_remaining = max_bookings - confirmed_bookings
+    
+    return {
+        "available": slots_remaining > 0,
+        "reason": "full" if slots_remaining <= 0 else "available",
+        "slots_total": max_bookings,
+        "slots_taken": confirmed_bookings,
+        "slots_remaining": max(0, slots_remaining)
+    }
+
+@api_router.get("/availability/{provider_id}/month-status")
+async def get_month_availability_status(
+    provider_id: str,
+    month: str = Query(..., description="Month to check (YYYY-MM)")
+):
+    """Get availability status for all days in a month"""
+    # Get provider profile
+    provider = await db.provider_profiles.find_one({"provider_id": provider_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    
+    max_bookings = provider.get('max_bookings_per_day', 1)
+    
+    # Get manually blocked dates
+    blocked_dates = await db.availability.find({
+        "provider_id": provider_id,
+        "date": {"$regex": f"^{month}"},
+        "is_available": False
+    }, {"_id": 0, "date": 1}).to_list(100)
+    blocked_set = {d['date'] for d in blocked_dates}
+    
+    # Get bookings for the month
+    bookings = await db.bookings.find({
+        "provider_id": provider_id,
+        "event_date": {"$regex": f"^{month}"},
+        "status": {"$in": ["confirmed", "pending"]}
+    }, {"_id": 0, "event_date": 1}).to_list(1000)
+    
+    # Count bookings per day
+    bookings_per_day = {}
+    for b in bookings:
+        date = b['event_date']
+        bookings_per_day[date] = bookings_per_day.get(date, 0) + 1
+    
+    # Build status for each date with activity
+    status = {}
+    for date in blocked_set:
+        status[date] = {
+            "available": False,
+            "reason": "blocked",
+            "slots_remaining": 0
+        }
+    
+    for date, count in bookings_per_day.items():
+        if date in blocked_set:
+            continue
+        slots_remaining = max_bookings - count
+        status[date] = {
+            "available": slots_remaining > 0,
+            "reason": "full" if slots_remaining <= 0 else "partial" if count > 0 else "available",
+            "slots_remaining": max(0, slots_remaining),
+            "slots_taken": count
+        }
+    
+    return {
+        "max_bookings_per_day": max_bookings,
+        "dates": status
+    }
+
 # ============ BOOKING ROUTES ============
 
 @api_router.post("/bookings", response_model=Booking)
