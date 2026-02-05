@@ -694,6 +694,10 @@ const DashboardPage = () => {
                     <TabsTrigger value="overview" data-testid="tab-overview">Vue d'ensemble</TabsTrigger>
                     <TabsTrigger value="quotes" data-testid="tab-client-quotes">Mes devis</TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-bookings">Mes réservations</TabsTrigger>
+                    <TabsTrigger value="marketplace-offers" data-testid="tab-marketplace-offers" className="flex items-center gap-1">
+                      <ShoppingBag className="h-3 w-3" />
+                      Mes offres
+                    </TabsTrigger>
                     <TabsTrigger value="favorites" data-testid="tab-favorites" className="flex items-center gap-1">
                       <Heart className="h-3 w-3" />
                       Favoris
