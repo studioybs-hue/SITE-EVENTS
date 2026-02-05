@@ -1756,7 +1756,7 @@ async def create_marketplace_checkout(
         logger.error(f"Stripe error: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur de paiement: {str(e)}")
 
-@api_router.get("/marketplace/payment/status/{inquiry_id}")
+@api_router.get("/marketplace-payment/status/{inquiry_id}")
 async def get_marketplace_payment_status(
     inquiry_id: str,
     request: Request,
