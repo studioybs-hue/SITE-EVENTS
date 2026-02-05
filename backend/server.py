@@ -1102,6 +1102,52 @@ async def get_month_availability_status(
         "dates": status
     }
 
+@api_router.get("/providers/availability/{provider_id}/{date}")
+async def check_provider_availability(provider_id: str, date: str):
+    """Check if a provider is available on a specific date"""
+    # Get provider profile
+    provider = await db.provider_profiles.find_one({"provider_id": provider_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    max_bookings = provider.get('max_bookings_per_day', 1)
+    provider_countries = provider.get('countries', ['FR'])
+    
+    # Check if provider has presence in any country on this date
+    presence = await db.country_presences.find_one({
+        "provider_id": provider_id,
+        "start_date": {"$lte": date},
+        "end_date": {"$gte": date}
+    }, {"_id": 0})
+    
+    # Get country where provider is present on this date
+    available_country = presence.get('country_code') if presence else (provider_countries[0] if provider_countries else 'FR')
+    
+    # Count existing bookings for this date
+    existing_bookings = await db.bookings.count_documents({
+        "provider_id": provider_id,
+        "event_date": date,
+        "status": {"$nin": ["cancelled", "rejected"]}
+    })
+    
+    slots_remaining = max_bookings - existing_bookings
+    
+    if slots_remaining <= 0:
+        return {
+            "is_available": False,
+            "reason": f"Le prestataire est complet pour cette date (max {max_bookings} réservation(s)/jour)",
+            "slots_remaining": 0,
+            "available_country": available_country
+        }
+    
+    return {
+        "is_available": True,
+        "reason": None,
+        "slots_remaining": slots_remaining,
+        "available_country": available_country,
+        "presence": presence
+    }
+
 # ============ BOOKING ROUTES ============
 
 @api_router.post("/bookings", response_model=Booking)
