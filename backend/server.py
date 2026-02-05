@@ -695,6 +695,116 @@ async def update_provider(
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     return ProviderProfile(**updated)
 
+# ============ COUNTRY PRESENCE ROUTES ============
+
+@api_router.get("/country-presence", response_model=List[CountryPresence])
+async def get_my_country_presence(current_user: User = Depends(get_current_user)):
+    """Get all country presence periods for the current provider"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    presences = await db.country_presences.find(
+        {"provider_id": provider['provider_id']},
+        {"_id": 0}
+    ).sort("start_date", 1).to_list(100)
+    
+    for p in presences:
+        if isinstance(p.get('created_at'), str):
+            p['created_at'] = datetime.fromisoformat(p['created_at'])
+    
+    return [CountryPresence(**p) for p in presences]
+
+@api_router.get("/country-presence/provider/{provider_id}", response_model=List[CountryPresence])
+async def get_provider_country_presence(provider_id: str):
+    """Get all country presence periods for a specific provider"""
+    presences = await db.country_presences.find(
+        {"provider_id": provider_id},
+        {"_id": 0}
+    ).sort("start_date", 1).to_list(100)
+    
+    for p in presences:
+        if isinstance(p.get('created_at'), str):
+            p['created_at'] = datetime.fromisoformat(p['created_at'])
+    
+    return [CountryPresence(**p) for p in presences]
+
+@api_router.post("/country-presence", response_model=CountryPresence)
+async def create_country_presence(
+    presence_data: CountryPresenceCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new country presence period"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    presence_id = f"pres_{uuid.uuid4().hex[:12]}"
+    presence_doc = {
+        "presence_id": presence_id,
+        "provider_id": provider['provider_id'],
+        "country": presence_data.country,
+        "start_date": presence_data.start_date,
+        "end_date": presence_data.end_date,
+        "notes": presence_data.notes,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.country_presences.insert_one(presence_doc)
+    presence_doc.pop('_id', None)
+    presence_doc['created_at'] = datetime.fromisoformat(presence_doc['created_at'])
+    
+    return CountryPresence(**presence_doc)
+
+@api_router.patch("/country-presence/{presence_id}", response_model=CountryPresence)
+async def update_country_presence(
+    presence_id: str,
+    update_data: CountryPresenceUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a country presence period"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    presence = await db.country_presences.find_one({"presence_id": presence_id})
+    if not presence:
+        raise HTTPException(status_code=404, detail="Presence not found")
+    if presence['provider_id'] != provider['provider_id']:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        await db.country_presences.update_one(
+            {"presence_id": presence_id},
+            {"$set": update_dict}
+        )
+    
+    updated = await db.country_presences.find_one({"presence_id": presence_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    
+    return CountryPresence(**updated)
+
+@api_router.delete("/country-presence/{presence_id}")
+async def delete_country_presence(
+    presence_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a country presence period"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    presence = await db.country_presences.find_one({"presence_id": presence_id})
+    if not presence:
+        raise HTTPException(status_code=404, detail="Presence not found")
+    if presence['provider_id'] != provider['provider_id']:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.country_presences.delete_one({"presence_id": presence_id})
+    return {"message": "Presence deleted"}
+
 # ============ AVAILABILITY ROUTES ============
 
 @api_router.post("/availability")
