@@ -1659,7 +1659,7 @@ async def update_inquiry_status(
 
 # ============ MARKETPLACE PAYMENT ============
 
-@api_router.post("/marketplace/payment/create-checkout")
+@api_router.post("/marketplace-payment/create-checkout")
 async def create_marketplace_checkout(
     request: Request,
     current_user: User = Depends(get_current_user)
