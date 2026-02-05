@@ -13,6 +13,7 @@ import SearchPage from '@/pages/SearchPage';
 import DashboardPage from '@/pages/DashboardPage';
 import MarketplacePage from '@/pages/MarketplacePage';
 import MarketplaceItemPage from '@/pages/MarketplaceItemPage';
+import MarketplacePaymentSuccessPage from '@/pages/MarketplacePaymentSuccessPage';
 import MessagesPage from '@/pages/MessagesPage';
 import PackagesPage from '@/pages/PackagesPage';
 import ProfilePage from '@/pages/ProfilePage';
