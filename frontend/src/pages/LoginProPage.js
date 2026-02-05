@@ -5,8 +5,27 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LogIn, Building, Camera, Music, Utensils, Sparkles, ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { LogIn, Building, Camera, Music, Utensils, Sparkles, ArrowLeft, Globe, X } from 'lucide-react';
 import { toast } from 'sonner';
+
+const COUNTRIES = [
+  { code: 'FR', name: 'France' },
+  { code: 'KM', name: 'Comores' },
+  { code: 'ES', name: 'Espagne' },
+  { code: 'BE', name: 'Belgique' },
+  { code: 'CH', name: 'Suisse' },
+  { code: 'MA', name: 'Maroc' },
+  { code: 'SN', name: 'Sénégal' },
+  { code: 'CI', name: "Côte d'Ivoire" },
+  { code: 'GB', name: 'Royaume-Uni' },
+  { code: 'DE', name: 'Allemagne' },
+  { code: 'IT', name: 'Italie' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'NL', name: 'Pays-Bas' },
+  { code: 'US', name: 'États-Unis' },
+  { code: 'CA', name: 'Canada' },
+];
 
 const LoginProPage = () => {
   const navigate = useNavigate();
@@ -20,10 +39,20 @@ const LoginProPage = () => {
     name: '', 
     email: '', 
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    countries: ['FR']
   });
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+  const toggleCountry = (code) => {
+    setRegisterData(prev => {
+      const countries = prev.countries.includes(code)
+        ? prev.countries.filter(c => c !== code)
+        : [...prev.countries, code];
+      return { ...prev, countries: countries.length > 0 ? countries : ['FR'] };
+    });
+  };
 
   useEffect(() => {
     // Check if already authenticated
