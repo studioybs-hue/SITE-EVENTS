@@ -630,6 +630,18 @@ const DashboardPage = () => {
                   {/* Travels Tab */}
                   <TabsContent value="travels">
                     <div className="space-y-6">
+                      {/* Profile Image */}
+                      <Card className="p-6">
+                        <h3 className="font-semibold mb-4 flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Photo de profil
+                        </h3>
+                        <ProfileImageUploader 
+                          currentImage={providerProfile?.profile_image}
+                          onImageUpdate={(url) => setProviderProfile(prev => ({ ...prev, profile_image: url }))}
+                        />
+                      </Card>
+                      
                       {/* Capacity Settings */}
                       <CapacitySettings 
                         providerId={providerProfile?.provider_id} 
