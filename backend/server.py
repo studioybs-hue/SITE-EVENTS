@@ -3203,6 +3203,99 @@ async def get_my_portfolio_items(current_user: User = Depends(get_current_user))
     
     return items
 
+# ============ PROVIDER PACKS ============
+
+@api_router.get("/providers/{provider_id}/packs")
+async def get_provider_packs(provider_id: str):
+    """Get all packs for a provider"""
+    packs = await db.provider_packs.find(
+        {"provider_id": provider_id, "is_active": True},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(length=50)
+    return packs
+
+@api_router.post("/providers/{provider_id}/packs")
+async def create_provider_pack(
+    provider_id: str,
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new pack for the provider"""
+    # Verify ownership
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider or provider["provider_id"] != provider_id:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    body = await request.json()
+    
+    pack_id = f"pack_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+    
+    pack_doc = {
+        "pack_id": pack_id,
+        "provider_id": provider_id,
+        "name": body.get("name"),
+        "description": body.get("description"),
+        "price": body.get("price"),
+        "duration": body.get("duration"),
+        "max_guests": body.get("max_guests"),
+        "features": body.get("features", []),
+        "image": body.get("image"),
+        "is_active": True,
+        "created_at": now.isoformat()
+    }
+    
+    await db.provider_packs.insert_one(pack_doc)
+    
+    return {"pack_id": pack_id}
+
+@api_router.patch("/providers/packs/{pack_id}")
+async def update_provider_pack(
+    pack_id: str,
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a pack"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    # Verify ownership
+    pack = await db.provider_packs.find_one({"pack_id": pack_id}, {"_id": 0})
+    if not pack or pack["provider_id"] != provider["provider_id"]:
+        raise HTTPException(status_code=404, detail="Pack non trouvé")
+    
+    body = await request.json()
+    update_data = {k: v for k, v in body.items() if v is not None}
+    
+    if update_data:
+        await db.provider_packs.update_one(
+            {"pack_id": pack_id},
+            {"$set": update_data}
+        )
+    
+    return {"success": True}
+
+@api_router.delete("/providers/packs/{pack_id}")
+async def delete_provider_pack(
+    pack_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a pack"""
+    provider = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not provider:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    result = await db.provider_packs.delete_one({
+        "pack_id": pack_id,
+        "provider_id": provider["provider_id"]
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Pack non trouvé")
+    
+    return {"success": True}
+
 # ============ REAL-TIME MESSAGING WITH SOCKET.IO ============
 
 # Track connected users: {user_id: sid}
