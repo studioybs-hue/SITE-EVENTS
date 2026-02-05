@@ -118,6 +118,7 @@ const ProviderCard = ({ provider }) => {
   useEffect(() => {
     if (expanded && provider.provider_id) {
       fetchServices();
+      fetchPacks();
       // Reset selections when modal opens
       setSelectedServices([]);
       setSelectedOptions({});
@@ -133,6 +134,68 @@ const ProviderCard = ({ provider }) => {
       }
     } catch (e) {
       console.error('Error fetching services:', e);
+    }
+  };
+
+  const fetchPacks = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/providers/${provider.provider_id}/packs`);
+      if (res.ok) {
+        const data = await res.json();
+        setPacks(data);
+      }
+    } catch (e) {
+      console.error('Error fetching packs:', e);
+    }
+  };
+
+  const openPackBooking = (pack) => {
+    if (!user) {
+      toast.error('Connectez-vous pour réserver');
+      navigate('/login');
+      return;
+    }
+    setSelectedPack(pack);
+    setPackBookingForm({ event_date: '', event_location: '', message: '' });
+    setPackBookingOpen(true);
+  };
+
+  const handlePackBooking = async (e) => {
+    e.preventDefault();
+    if (!selectedPack) return;
+
+    setSubmitting(true);
+    try {
+      // Create a booking for the pack
+      const res = await fetch(`${BACKEND_URL}/api/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          provider_id: provider.provider_id,
+          event_date: packBookingForm.event_date,
+          event_location: packBookingForm.event_location,
+          event_type: selectedPack.name,
+          total_price: selectedPack.price,
+          notes: `Pack: ${selectedPack.name}\n${packBookingForm.message || ''}`,
+          pack_id: selectedPack.pack_id
+        })
+      });
+
+      if (res.ok) {
+        const booking = await res.json();
+        toast.success('Réservation créée ! Procédez au paiement.');
+        setPackBookingOpen(false);
+        // Redirect to payment
+        navigate(`/payment/${booking.booking_id}`);
+      } else {
+        const error = await res.json();
+        toast.error(error.detail || 'Erreur lors de la réservation');
+      }
+    } catch (error) {
+      toast.error('Erreur de connexion');
+    } finally {
+      setSubmitting(false);
     }
   };
 
