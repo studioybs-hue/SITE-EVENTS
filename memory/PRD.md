@@ -48,10 +48,14 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Envoi de fichiers (images, documents)
 - Indicateurs de saisie et lecture
 
-### ✅ Marketplace de Matériel (Complète)
+### ✅ Marketplace de Matériel (Complète - mise à jour 05/02/2025)
 - Prestataires peuvent lister du matériel à vendre/louer
 - Page publique avec fiches détaillées
 - Système d'inquiries (questions, offres)
+- **Gestion des offres directement sur les cartes d'articles** :
+  - Boutons "Accepter" et "Refuser" visibles sans modale
+  - Offres en attente mises en évidence (fond jaune)
+  - Mise à jour automatique du statut de l'article à l'acceptation
 
 ### ✅ Prestataires Favoris (Complète)
 - Ajouter/supprimer des favoris
