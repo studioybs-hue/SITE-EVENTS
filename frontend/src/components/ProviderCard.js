@@ -741,7 +741,11 @@ const ProviderCard = ({ provider }) => {
 
         {/* Pack Booking Dialog */}
         <Dialog open={packBookingOpen} onOpenChange={setPackBookingOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent 
+            className="max-w-md"
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onInteractOutside={(e) => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Gift className="h-5 w-5 text-accent" />
@@ -771,7 +775,7 @@ const ProviderCard = ({ provider }) => {
                   )}
                 </div>
 
-                <div>
+                <div onClick={(e) => e.stopPropagation()}>
                   <Label>Date de l'événement *</Label>
                   <Input
                     type="date"
@@ -779,6 +783,8 @@ const ProviderCard = ({ provider }) => {
                     min={new Date().toISOString().split('T')[0]}
                     value={packBookingForm.event_date}
                     onChange={(e) => setPackBookingForm({ ...packBookingForm, event_date: e.target.value })}
+                    onFocus={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
 
