@@ -245,6 +245,26 @@ const MyEquipmentManager = () => {
     }
   };
 
+  const handleInquiryAction = async (inquiryId, status) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/marketplace-inquiries/${inquiryId}?status=${status}`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        toast.success(status === 'accepted' ? 'Offre acceptée ! L\'acheteur peut maintenant payer.' : 'Offre refusée');
+        fetchInquiries();
+        fetchMyItems();
+      } else {
+        const error = await response.json();
+        toast.error(error.detail || 'Erreur');
+      }
+    } catch (error) {
+      toast.error('Erreur');
+    }
+  };
+
   const openEdit = (item) => {
     setFormData({
       title: item.title,
