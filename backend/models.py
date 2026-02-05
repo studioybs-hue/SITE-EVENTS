@@ -200,7 +200,9 @@ class BookingCreate(BaseModel):
     event_type: str
     event_date: str
     event_location: str
-    total_amount: float
+    total_amount: Optional[float] = None
+    total_price: Optional[float] = None  # Alias for total_amount
+    pack_id: Optional[str] = None
     notes: Optional[str] = None
 
 class BookingUpdate(BaseModel):
