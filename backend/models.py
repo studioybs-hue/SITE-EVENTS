@@ -135,6 +135,29 @@ class AvailabilityCreate(BaseModel):
     is_available: bool
     notes: Optional[str] = None
 
+# Country Presence Models (Provider location by date range)
+class CountryPresence(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    presence_id: str
+    provider_id: str
+    country: str  # Country code (FR, KM, etc.)
+    start_date: str  # ISO date format YYYY-MM-DD
+    end_date: str  # ISO date format YYYY-MM-DD
+    notes: Optional[str] = None
+    created_at: datetime
+
+class CountryPresenceCreate(BaseModel):
+    country: str
+    start_date: str
+    end_date: str
+    notes: Optional[str] = None
+
+class CountryPresenceUpdate(BaseModel):
+    country: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    notes: Optional[str] = None
+
 # Booking Models
 class Booking(BaseModel):
     model_config = ConfigDict(extra="ignore")
