@@ -60,6 +60,8 @@ class User(BaseModel):
     picture: Optional[str] = None
     phone: Optional[str] = None
     user_type: str  # 'client', 'provider', 'admin'
+    country: Optional[str] = "FR"  # User's primary country
+    countries: List[str] = ["FR"]  # For providers: countries where they operate
     preferences: Optional[UserPreferences] = None
     notification_settings: Optional[NotificationSettings] = None
     created_at: datetime
@@ -70,11 +72,15 @@ class UserCreate(BaseModel):
     picture: Optional[str] = None
     phone: Optional[str] = None
     user_type: str = 'client'
+    country: Optional[str] = "FR"
+    countries: List[str] = ["FR"]
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     picture: Optional[str] = None
+    country: Optional[str] = None
+    countries: Optional[List[str]] = None
     preferences: Optional[UserPreferences] = None
     notification_settings: Optional[NotificationSettings] = None
 
