@@ -3144,9 +3144,9 @@ async def upload_portfolio_video(
     # Read file content
     content = await file.read()
     
-    # Limit file size (50MB for videos)
-    if len(content) > 50 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 50MB)")
+    # Limit file size (1GB for videos)
+    if len(content) > 1024 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 1GB)")
     
     # Generate unique filename
     file_id = f"vid_{uuid.uuid4().hex[:12]}"
