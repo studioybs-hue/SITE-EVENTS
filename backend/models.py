@@ -93,6 +93,7 @@ class ProviderProfile(BaseModel):
     portfolio_images: List[str] = []
     portfolio_videos: List[str] = []
     phone: Optional[str] = None
+    max_bookings_per_day: int = 1  # Number of clients the provider can take per day
     verified: bool = False
     rating: float = 0.0
     total_reviews: int = 0
@@ -109,6 +110,7 @@ class ProviderProfileCreate(BaseModel):
     portfolio_images: List[str] = []
     portfolio_videos: List[str] = []
     phone: Optional[str] = None
+    max_bookings_per_day: int = 1
 
 class ProviderProfileUpdate(BaseModel):
     business_name: Optional[str] = None
@@ -120,6 +122,7 @@ class ProviderProfileUpdate(BaseModel):
     portfolio_images: Optional[List[str]] = None
     portfolio_videos: Optional[List[str]] = None
     phone: Optional[str] = None
+    max_bookings_per_day: Optional[int] = None
 
 # Availability Models
 class Availability(BaseModel):
