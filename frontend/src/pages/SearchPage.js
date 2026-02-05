@@ -123,7 +123,7 @@ const SearchPage = () => {
 
           {/* Search Filters */}
           <div className="bg-white p-6 rounded-sm border border-border/60 shadow-sm">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               <Input
                 placeholder={t('search.placeholder')}
                 value={filters.search}
@@ -159,6 +159,16 @@ const SearchPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <div className="relative">
+                <Input
+                  type="date"
+                  value={filters.event_date}
+                  onChange={(e) => setFilters({ ...filters, event_date: e.target.value })}
+                  className="h-12 pl-10"
+                  data-testid="event-date-input"
+                />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              </div>
               <Input
                 placeholder={t('search.location')}
                 value={filters.location}
