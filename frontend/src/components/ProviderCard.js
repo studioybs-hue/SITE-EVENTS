@@ -454,7 +454,11 @@ const ProviderCard = ({ provider }) => {
                         
                         <Button 
                           className="w-full"
-                          onClick={() => openPackBooking(pack)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            openPackBooking(pack);
+                          }}
                           disabled={!isAuth}
                           data-testid={`book-pack-${pack.pack_id}`}
                         >
