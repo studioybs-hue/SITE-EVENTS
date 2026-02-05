@@ -65,7 +65,8 @@ const SettingsPage = () => {
     { id: 'security', label: 'Mot de passe', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'billing', label: 'Paiements & facturation', icon: CreditCard },
-    { id: 'subscription', label: 'Abonnement', icon: Crown }
+    { id: 'subscription', label: 'Abonnement', icon: Crown },
+    { id: 'danger', label: 'Zone de danger', icon: AlertTriangle }
   ];
 
   useEffect(() => {
