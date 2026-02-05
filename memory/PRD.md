@@ -97,9 +97,17 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ## Prochaines Fonctionnalités (Backlog)
 
+### P0 - Bugs à corriger
+- [ ] Écran blanc en cliquant sur le statut "Disponible" (menu déroulant - erreur JS)
+- [ ] Problèmes de chevauchement UI (z-index) persistants
+- [ ] Google OAuth à reconfigurer pour le domaine de production
+
 ### P1 - Notifications (Priorité haute)
 - [ ] Notifications email (nouveaux messages, devis, réservations, paiements)
 - [ ] Notifications push (optionnel)
+
+### P1 - Intégration PayPal
+- [ ] Ajouter PayPal comme alternative à Stripe pour les paiements
 
 ### P2 - Abonnements et Commission
 - [ ] Finaliser les abonnements prestataires/clients (interface déjà prête)
@@ -109,7 +117,7 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - [ ] Synchronisation Google Calendar
 - [ ] Panneau d'administration complet
 - [ ] Système d'avis et notes
-- [ ] Intégration PayPal comme alternative
+- [ ] Ajouter plus de langues (Portugais, Allemand, Italien, Arabe)
 
 ---
 
