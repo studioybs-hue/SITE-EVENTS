@@ -850,20 +850,12 @@ const DashboardPage = () => {
                       />
                     </div>
                     <div>
-                      <Label>Pays *</Label>
-                      <Select
-                        value={profileData.country}
-                        onValueChange={(value) => setProfileData({ ...profileData, country: value })}
-                      >
-                        <SelectTrigger data-testid="country-select">
-                          <SelectValue placeholder="Sélectionner un pays" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {COUNTRIES.map((c) => (
-                            <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label>Pays d'intervention * (vous pouvez en sélectionner plusieurs)</Label>
+                      <CountryMultiSelect
+                        value={profileData.countries}
+                        onChange={(countries) => setProfileData({ ...profileData, countries })}
+                        placeholder="Sélectionner les pays où vous intervenez"
+                      />
                     </div>
                     <div>
                       <Label>Ville / Localisation *</Label>
