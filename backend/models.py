@@ -90,6 +90,8 @@ class ProviderProfile(BaseModel):
     countries: List[str] = ["FR"]  # List of country codes (FR, ES, GB, US, etc.)
     services: List[str]
     pricing_range: str  # e.g., "€500-€2000"
+    profile_image: Optional[str] = None  # Provider profile photo
+    cover_image: Optional[str] = None  # Cover/banner image
     portfolio_images: List[str] = []
     portfolio_videos: List[str] = []
     phone: Optional[str] = None
@@ -107,6 +109,8 @@ class ProviderProfileCreate(BaseModel):
     countries: List[str] = ["FR"]
     services: List[str]
     pricing_range: str
+    profile_image: Optional[str] = None
+    cover_image: Optional[str] = None
     portfolio_images: List[str] = []
     portfolio_videos: List[str] = []
     phone: Optional[str] = None
@@ -119,6 +123,8 @@ class ProviderProfileUpdate(BaseModel):
     countries: Optional[List[str]] = None
     services: Optional[List[str]] = None
     pricing_range: Optional[str] = None
+    profile_image: Optional[str] = None
+    cover_image: Optional[str] = None
     portfolio_images: Optional[List[str]] = None
     portfolio_videos: Optional[List[str]] = None
     phone: Optional[str] = None
