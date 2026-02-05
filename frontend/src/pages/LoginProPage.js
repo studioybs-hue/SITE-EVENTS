@@ -135,6 +135,7 @@ const LoginProPage = () => {
           name: registerData.name,
           email: registerData.email,
           password: registerData.password,
+          countries: registerData.countries,
         }),
       });
 
