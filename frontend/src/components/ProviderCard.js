@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Star, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package, Check, Send, Calendar, FileText, Heart } from 'lucide-react';
+import { MapPin, Star, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package, Check, Send, Calendar, FileText, Heart, Globe, Plane } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import PortfolioGallery from './PortfolioGallery';
+import ReviewSection from './ReviewSection';
+
+const COUNTRY_NAMES = {
+  FR: 'France', ES: 'Espagne', GB: 'Royaume-Uni', DE: 'Allemagne',
+  IT: 'Italie', PT: 'Portugal', BE: 'Belgique', CH: 'Suisse',
+  NL: 'Pays-Bas', US: 'États-Unis', CA: 'Canada', MA: 'Maroc',
+  SN: 'Sénégal', CI: "Côte d'Ivoire", KM: 'Comores'
+};
 
 const ProviderCard = ({ provider }) => {
   const navigate = useNavigate();
