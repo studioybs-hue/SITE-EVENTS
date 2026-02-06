@@ -120,7 +120,7 @@ async def forgot_password(request: PasswordResetRequest):
     })
     
     # Get site URL from env or default
-    site_url = os.environ.get("SITE_URL", "https://lumiere-events.com")
+    site_url = os.environ.get("SITE_URL", "https://events.creativindustry.cloud")
     reset_link = f"{site_url}/admin/reset-password?token={token}"
     
     # Send email
