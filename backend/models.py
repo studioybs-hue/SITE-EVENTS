@@ -499,3 +499,74 @@ class PaymentTransactionCreate(BaseModel):
     installment_number: Optional[int] = None
     total_installments: Optional[int] = None
 
+
+# Subscription Models
+class SubscriptionPlan(BaseModel):
+    """Définition des plans d'abonnement"""
+    plan_id: str  # "free", "pro", "premium"
+    name: str
+    description: str
+    price_monthly: float
+    price_yearly: float
+    features: List[str] = []
+    limits: dict = {}  # {"max_bookings_per_month": 5, "max_portfolio_items": 5, "commission_rate": 0.15}
+    stripe_price_id_monthly: Optional[str] = None
+    stripe_price_id_yearly: Optional[str] = None
+    paypal_plan_id_monthly: Optional[str] = None
+    paypal_plan_id_yearly: Optional[str] = None
+    is_active: bool = True
+
+class Subscription(BaseModel):
+    """Abonnement actif d'un prestataire"""
+    model_config = ConfigDict(extra="ignore")
+    subscription_id: str
+    user_id: str
+    provider_id: str
+    plan_id: str  # "free", "pro", "premium"
+    billing_cycle: str  # "monthly", "yearly"
+    status: str = "active"  # active, cancelled, past_due, trialing
+    payment_provider: str = "stripe"  # "stripe" or "paypal"
+    external_subscription_id: Optional[str] = None  # Stripe or PayPal subscription ID
+    current_period_start: datetime
+    current_period_end: datetime
+    cancel_at_period_end: bool = False
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+class SubscriptionCreate(BaseModel):
+    plan_id: str
+    billing_cycle: str  # "monthly", "yearly"
+    payment_provider: str = "stripe"
+
+class SubscriptionUpdate(BaseModel):
+    plan_id: Optional[str] = None
+    billing_cycle: Optional[str] = None
+    status: Optional[str] = None
+    cancel_at_period_end: Optional[bool] = None
+
+
+# Admin Models
+class AdminUser(BaseModel):
+    """Utilisateur administrateur"""
+    model_config = ConfigDict(extra="ignore")
+    admin_id: str
+    email: EmailStr
+    name: str
+    role: str = "admin"  # admin, super_admin
+    permissions: List[str] = []  # ["manage_users", "manage_providers", "view_stats", "manage_subscriptions"]
+    is_active: bool = True
+    created_at: datetime
+    last_login: Optional[datetime] = None
+
+class AdminStats(BaseModel):
+    """Statistiques pour le dashboard admin"""
+    total_users: int = 0
+    total_providers: int = 0
+    total_clients: int = 0
+    total_bookings: int = 0
+    total_revenue: float = 0.0
+    active_subscriptions: dict = {}  # {"free": 10, "pro": 5, "premium": 2}
+    new_users_this_month: int = 0
+    new_bookings_this_month: int = 0
+    revenue_this_month: float = 0.0
+
