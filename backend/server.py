@@ -148,6 +148,14 @@ async def register(request: Request, response: Response):
     }
     await db.users.insert_one(user_doc)
     
+    # Send welcome email
+    try:
+        from email_service import send_welcome_email_client
+        import asyncio
+        asyncio.create_task(send_welcome_email_client(email, name))
+    except Exception as e:
+        print(f"Welcome email error: {e}")
+    
     # Create session
     session_token = f"session_{uuid.uuid4().hex}"
     expires_at = datetime.now(timezone.utc) + timedelta(days=7)
