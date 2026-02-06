@@ -127,6 +127,20 @@ const DashboardPage = () => {
         } catch (error) {
           // Ignore error
         }
+        
+        // Fetch subscription info
+        try {
+          const subRes = await fetch(`${BACKEND_URL}/api/subscriptions/my-subscription`, {
+            credentials: 'include',
+          });
+          if (subRes.ok) {
+            const subData = await subRes.json();
+            setSubscription(subData.subscription);
+            setSubscriptionPlan(subData.plan);
+          }
+        } catch (error) {
+          // Ignore error
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
