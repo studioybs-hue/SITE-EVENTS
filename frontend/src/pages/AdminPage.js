@@ -2080,6 +2080,53 @@ const AdminPage = () => {
                 </CardContent>
               </Card>
 
+              {/* Change Password */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    Changer le mot de passe
+                  </CardTitle>
+                  <CardDescription>
+                    Modifiez le mot de passe de votre compte administrateur
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Mot de passe actuel</Label>
+                    <Input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Nouveau mot de passe</Label>
+                      <Input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Minimum 8 caractères"
+                      />
+                    </div>
+                    <div>
+                      <Label>Confirmer le mot de passe</Label>
+                      <Input
+                        type="password"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        placeholder="Confirmez le mot de passe"
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={changePassword} disabled={passwordLoading || !currentPassword || !newPassword}>
+                    {passwordLoading ? 'Modification...' : 'Modifier le mot de passe'}
+                  </Button>
+                </CardContent>
+              </Card>
+
               {/* 2FA Configuration */}
               <Card>
                 <CardHeader>
