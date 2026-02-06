@@ -18,6 +18,39 @@ def get_db():
     return db
 
 
+async def get_admin_user_from_cookie(request: Request):
+    """Get admin user from cookie without raising exception"""
+    db = get_db()
+    
+    admin_token = request.cookies.get('admin_session_token')
+    if not admin_token:
+        return None
+    
+    session = await db.admin_sessions.find_one(
+        {"session_token": admin_token},
+        {"_id": 0}
+    )
+    
+    if not session:
+        return None
+    
+    expires_at = session["expires_at"]
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    if expires_at < datetime.now(timezone.utc):
+        return None
+    
+    admin = await db.admin_users.find_one(
+        {"admin_id": session["admin_id"]},
+        {"_id": 0}
+    )
+    
+    return admin if admin and admin.get("is_active") else None
+
+
 async def get_admin_user(request: Request):
     """Verify admin authentication"""
     db = get_db()
