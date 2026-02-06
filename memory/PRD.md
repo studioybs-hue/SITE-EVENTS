@@ -213,6 +213,10 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ## Historique des versions
 
+### 06/02/2025 - v2.3
+- ✅ **Correction page /packages** : La page affiche maintenant correctement les 3 packs multi-prestataires (Pack Mariage Complet, Pack Mariage Essentiel, Pack Anniversaire Premium)
+- ✅ **Correction modale réservation pack** : Utilisation de createPortal pour rendre la modale hors du div parent, empêchant la fermeture intempestive lors du clic sur les champs de formulaire
+
 ### 05/02/2025 - v2.2
 - ✅ **Portfolio Stories** : Système de portfolio format Instagram Stories avec support photo, vidéo, YouTube et Vimeo
 - ✅ **Avis Clients** : Système d'avis avec badge "Client vérifié" pour les réservations confirmées
