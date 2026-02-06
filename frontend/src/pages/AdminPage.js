@@ -782,6 +782,220 @@ const AdminPage = () => {
             </Card>
           </TabsContent>
 
+          {/* Moderation Tab */}
+          <TabsContent value="moderation">
+            <div className="space-y-6">
+              {/* Keywords Configuration */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-500" />
+                    Mots-clés de modération
+                  </CardTitle>
+                  <CardDescription>
+                    Les messages contenant ces mots seront automatiquement signalés
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 mb-4">
+                    <label className="flex items-center gap-2">
+                      <input 
+                        type="checkbox" 
+                        checked={moderationEnabled}
+                        onChange={(e) => setModerationEnabled(e.target.checked)}
+                        className="w-4 h-4"
+                      />
+                      Modération activée
+                    </label>
+                  </div>
+                  
+                  <div className="flex gap-2 mb-4">
+                    <Input
+                      placeholder="Ajouter un mot-clé..."
+                      value={newKeyword}
+                      onChange={(e) => setNewKeyword(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
+                    />
+                    <Button onClick={addKeyword}>
+                      <Plus className="h-4 w-4 mr-2" /> Ajouter
+                    </Button>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {moderationKeywords.map((keyword, i) => (
+                      <Badge key={i} variant="secondary" className="px-3 py-1">
+                        {keyword}
+                        <button 
+                          onClick={() => removeKeyword(keyword)}
+                          className="ml-2 hover:text-red-500"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                  
+                  <Button onClick={saveModerationKeywords} className="bg-green-600 hover:bg-green-700">
+                    <Save className="h-4 w-4 mr-2" /> Sauvegarder les mots-clés
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Flagged Messages */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5 text-red-500" />
+                    Messages signalés
+                    {flaggedMessages.length > 0 && (
+                      <Badge variant="destructive">{flaggedMessages.length}</Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    Messages détectés comme potentiellement inappropriés
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {flaggedMessages.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                      <p>Aucun message signalé</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {flaggedMessages.map((flag) => (
+                        <div key={flag.flag_id} className={`p-4 border rounded-lg ${
+                          flag.status === 'pending' ? 'border-red-300 bg-red-50' :
+                          flag.status === 'reviewed' ? 'border-yellow-300 bg-yellow-50' :
+                          'border-gray-200'
+                        }`}>
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold">{flag.sender?.name || 'Inconnu'}</span>
+                                <span className="text-muted-foreground">→</span>
+                                <span className="font-semibold">{flag.receiver?.name || 'Inconnu'}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(flag.flagged_at).toLocaleString('fr-FR')}
+                              </div>
+                            </div>
+                            <Badge variant={
+                              flag.status === 'pending' ? 'destructive' :
+                              flag.status === 'reviewed' ? 'outline' :
+                              flag.status === 'action_taken' ? 'default' : 'secondary'
+                            }>
+                              {flag.status === 'pending' ? 'En attente' :
+                               flag.status === 'reviewed' ? 'Examiné' :
+                               flag.status === 'action_taken' ? 'Action prise' : 'Ignoré'}
+                            </Badge>
+                          </div>
+                          
+                          <div className="bg-white p-3 rounded border mb-3">
+                            <p className="text-sm">{flag.content}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-xs text-muted-foreground">Mots détectés:</span>
+                            {flag.flagged_keywords?.map((kw, i) => (
+                              <Badge key={i} variant="destructive" className="text-xs">{kw}</Badge>
+                            ))}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => viewConversation(flag.conversation_id)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" /> Voir conversation
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => updateFlagStatus(flag.flag_id, 'reviewed')}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" /> Marquer examiné
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => updateFlagStatus(flag.flag_id, 'dismissed')}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" /> Ignorer
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => blockUserFromModeration(flag.sender_id, 'Message inapproprié')}
+                            >
+                              <Ban className="h-4 w-4 mr-1" /> Bloquer expéditeur
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Pagination */}
+                  {flaggedTotalPages > 1 && (
+                    <div className="flex items-center justify-between mt-4">
+                      <span className="text-sm text-muted-foreground">Page {flaggedPage} sur {flaggedTotalPages}</span>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setFlaggedPage(p => Math.max(1, p - 1))}
+                          disabled={flaggedPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setFlaggedPage(p => Math.min(flaggedTotalPages, p + 1))}
+                          disabled={flaggedPage === flaggedTotalPages}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Conversation Modal */}
+              {selectedConversation && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                  <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
+                    <div className="p-4 border-b flex justify-between items-center">
+                      <h3 className="font-semibold">Historique de la conversation</h3>
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedConversation(null)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="p-4 overflow-y-auto max-h-[60vh] space-y-3">
+                      {conversationMessages.map((msg, i) => {
+                        const sender = selectedConversation.participants?.[msg.sender_id];
+                        return (
+                          <div key={i} className="p-3 rounded-lg bg-gray-50">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-medium text-sm">{sender?.name || msg.sender_id}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(msg.created_at).toLocaleString('fr-FR')}
+                              </span>
+                            </div>
+                            <p className="text-sm">{msg.content}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
           {/* Subscriptions Tab */}
           <TabsContent value="subscriptions">
             <Card>
