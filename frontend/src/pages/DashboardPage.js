@@ -45,6 +45,8 @@ const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [pendingQuotes, setPendingQuotes] = useState(0);
+  const [subscription, setSubscription] = useState(null);
+  const [subscriptionPlan, setSubscriptionPlan] = useState(null);
   const [profileData, setProfileData] = useState({
     business_name: '',
     category: '',
