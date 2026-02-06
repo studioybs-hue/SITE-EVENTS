@@ -125,6 +125,20 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - [ ] Logique de disponibilité incomplète (ne vérifie pas le pays du prestataire)
 - [ ] Google OAuth à reconfigurer pour le domaine de production
 
+### P1 - Abonnements (COMPLÉTÉ ✅)
+- [x] ~~Système d'abonnement avec 3 formules~~ (Gratuit/Pro/Premium)
+- [x] ~~Page tarifs /pricing~~
+- [x] ~~Intégration Stripe pour paiement récurrent~~
+- [x] ~~Onglet abonnement dans dashboard prestataire~~
+
+### P1 - Panneau Administration (COMPLÉTÉ ✅)
+- [x] ~~Login admin séparé~~
+- [x] ~~Dashboard statistiques~~
+- [x] ~~Gestion utilisateurs~~
+- [x] ~~Gestion prestataires~~
+- [x] ~~Gestion abonnements~~
+- [x] ~~Gestion réservations~~
+
 ### P1 - Notifications (Priorité haute)
 - [ ] Notifications email (nouveaux messages, devis, réservations, paiements)
 - [ ] Notifications push (optionnel)
