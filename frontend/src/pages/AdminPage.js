@@ -4,13 +4,15 @@ import {
   Users, TrendingUp, CreditCard, BarChart3, Shield, 
   Search, ChevronLeft, ChevronRight, Eye, Ban, Trash2,
   CheckCircle, XCircle, Crown, Star, LogOut, Settings,
-  Calendar, Package, MessageSquare
+  Calendar, Package, MessageSquare, Globe, Image, Phone, Mail, MapPin, Video, Plus, Save, Quote
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
 import {
   Table,
   TableBody,
@@ -37,6 +39,12 @@ const AdminPage = () => {
   
   // Dashboard stats
   const [stats, setStats] = useState(null);
+  
+  // Site Content
+  const [siteContent, setSiteContent] = useState(null);
+  const [savingContent, setSavingContent] = useState(false);
+  const [newTestimonial, setNewTestimonial] = useState({ client_name: '', event_type: '', rating: 5, comment: '', image: '' });
+  const [newImage, setNewImage] = useState({ url: '', title: '', description: '' });
   
   // Users
   const [users, setUsers] = useState([]);
