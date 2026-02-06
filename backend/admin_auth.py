@@ -287,12 +287,12 @@ async def setup_2fa(request: Request):
 
 
 @router.post("/verify-2fa-setup")
-async def verify_2fa_setup(request: Verify2FARequest, response: Response):
+async def verify_2fa_setup(code_request: Verify2FARequest, request: Request):
     """Verify 2FA code and activate 2FA"""
     db = get_db()
     
     from admin import get_admin_user_from_cookie
-    admin = await get_admin_user_from_cookie(response)
+    admin = await get_admin_user_from_cookie(request)
     if not admin:
         raise HTTPException(status_code=401, detail="Non authentifié")
     
@@ -302,7 +302,7 @@ async def verify_2fa_setup(request: Verify2FARequest, response: Response):
     
     # Verify code
     totp = pyotp.TOTP(pending_secret)
-    if not totp.verify(request.code):
+    if not totp.verify(code_request.code):
         raise HTTPException(status_code=400, detail="Code invalide")
     
     # Activate 2FA
@@ -318,12 +318,12 @@ async def verify_2fa_setup(request: Verify2FARequest, response: Response):
 
 
 @router.post("/disable-2fa")
-async def disable_2fa(request: Verify2FARequest, response: Response):
+async def disable_2fa(code_request: Verify2FARequest, request: Request):
     """Disable 2FA (requires current 2FA code)"""
     db = get_db()
     
     from admin import get_admin_user_from_cookie
-    admin = await get_admin_user_from_cookie(response)
+    admin = await get_admin_user_from_cookie(request)
     if not admin:
         raise HTTPException(status_code=401, detail="Non authentifié")
     
@@ -333,7 +333,7 @@ async def disable_2fa(request: Verify2FARequest, response: Response):
     
     # Verify code
     totp = pyotp.TOTP(secret)
-    if not totp.verify(request.code):
+    if not totp.verify(code_request.code):
         raise HTTPException(status_code=400, detail="Code invalide")
     
     # Disable 2FA
@@ -349,13 +349,12 @@ async def disable_2fa(request: Verify2FARequest, response: Response):
 
 
 @router.post("/verify-2fa")
-async def verify_2fa_login(request: Verify2FARequest, response: Response):
+async def verify_2fa_login(code_request: Verify2FARequest, request: Request, response: Response):
     """Verify 2FA code during login"""
     db = get_db()
     
     # Get pending admin from cookie
-    from server import request as req
-    pending_admin_email = req.cookies.get("pending_2fa_admin")
+    pending_admin_email = request.cookies.get("pending_2fa_admin")
     
     if not pending_admin_email:
         raise HTTPException(status_code=400, detail="Aucune authentification en attente")
