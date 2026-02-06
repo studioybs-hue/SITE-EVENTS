@@ -761,6 +761,103 @@ const DashboardPage = () => {
                       )}
                     </Card>
                   </TabsContent>
+
+                  {/* Subscription Tab */}
+                  <TabsContent value="subscription">
+                    <Card className="p-6">
+                      <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                        <CreditCard className="h-5 w-5 text-accent" />
+                        Mon abonnement
+                      </h3>
+                      
+                      {subscriptionPlan && (
+                        <div className="space-y-6">
+                          {/* Current Plan Card */}
+                          <div className={`p-6 rounded-xl border-2 ${
+                            subscriptionPlan.plan_id === 'premium' ? 'border-yellow-400 bg-yellow-50' :
+                            subscriptionPlan.plan_id === 'pro' ? 'border-blue-400 bg-blue-50' :
+                            'border-gray-200 bg-gray-50'
+                          }`}>
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                {subscriptionPlan.plan_id === 'premium' && <Crown className="h-6 w-6 text-yellow-500" />}
+                                {subscriptionPlan.plan_id === 'pro' && <Star className="h-5 w-5 text-blue-500" />}
+                                <div>
+                                  <h4 className="text-xl font-bold">{subscriptionPlan.name}</h4>
+                                  <p className="text-sm text-muted-foreground">{subscriptionPlan.description}</p>
+                                </div>
+                              </div>
+                              <Badge className={
+                                subscriptionPlan.plan_id === 'premium' ? 'bg-yellow-500' :
+                                subscriptionPlan.plan_id === 'pro' ? 'bg-blue-500' : 'bg-gray-500'
+                              }>
+                                {subscription ? 'Actif' : 'Gratuit'}
+                              </Badge>
+                            </div>
+                            
+                            {subscription && (
+                              <div className="text-sm text-muted-foreground mb-4">
+                                <p>Cycle : {subscription.billing_cycle === 'yearly' ? 'Annuel' : 'Mensuel'}</p>
+                                <p>Fin de période : {new Date(subscription.current_period_end).toLocaleDateString('fr-FR')}</p>
+                                {subscription.cancel_at_period_end && (
+                                  <p className="text-amber-600 mt-2">Annulation prévue en fin de période</p>
+                                )}
+                              </div>
+                            )}
+                            
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                              <div className="p-3 bg-white rounded-lg">
+                                <p className="text-sm text-muted-foreground">Commission</p>
+                                <p className="text-lg font-semibold">{(subscriptionPlan.limits?.commission_rate || 0.15) * 100}%</p>
+                              </div>
+                              <div className="p-3 bg-white rounded-lg">
+                                <p className="text-sm text-muted-foreground">Réservations/mois</p>
+                                <p className="text-lg font-semibold">
+                                  {subscriptionPlan.limits?.max_bookings_per_month === -1 ? 'Illimité' : subscriptionPlan.limits?.max_bookings_per_month || 5}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Features List */}
+                          <div>
+                            <h5 className="font-medium mb-3">Fonctionnalités incluses</h5>
+                            <ul className="space-y-2">
+                              {subscriptionPlan.features?.map((feature, idx) => (
+                                <li key={idx} className="flex items-center gap-2 text-sm">
+                                  <CheckCircle className="h-4 w-4 text-green-500" />
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Upgrade CTA */}
+                          {subscriptionPlan.plan_id !== 'premium' && (
+                            <div className="pt-4 border-t">
+                              <Button 
+                                onClick={() => navigate('/pricing')}
+                                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                              >
+                                <ArrowRight className="h-4 w-4 mr-2" />
+                                {subscriptionPlan.plan_id === 'free' ? 'Passer à un abonnement payant' : 'Passer à Premium'}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {!subscriptionPlan && (
+                        <div className="text-center py-8">
+                          <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <p className="text-muted-foreground mb-4">Vous êtes actuellement sur le plan gratuit</p>
+                          <Button onClick={() => navigate('/pricing')}>
+                            Voir les offres
+                          </Button>
+                        </div>
+                      )}
+                    </Card>
+                  </TabsContent>
                 </Tabs>
               )}
 
