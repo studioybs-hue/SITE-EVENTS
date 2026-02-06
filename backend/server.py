@@ -1167,6 +1167,9 @@ async def check_provider_availability(provider_id: str, date: str):
 
 # ============ BOOKING ROUTES ============
 
+# Platform commission rate (10%)
+PLATFORM_COMMISSION_RATE = 0.10
+
 @api_router.post("/bookings", response_model=Booking)
 async def create_booking(
     booking_data: BookingCreate,
@@ -1186,17 +1189,58 @@ async def create_booking(
     # Remove total_price if present (we use total_amount)
     booking_doc.pop('total_price', None)
     
+    # Calculate platform commission (10% added to client price)
+    base_amount = booking_doc['total_amount']
+    commission = round(base_amount * PLATFORM_COMMISSION_RATE, 2)
+    total_with_commission = round(base_amount + commission, 2)
+    
     booking_doc.update({
         "booking_id": booking_id,
         "client_id": current_user.user_id,
+        "client_name": current_user.name,
         "status": "pending",
         "deposit_paid": 0.0,
         "payment_status": "pending",
+        "base_amount": base_amount,
+        "platform_commission": commission,
+        "total_amount": total_with_commission,
         "created_at": now.isoformat(),
         "updated_at": now.isoformat()
     })
     
     await db.bookings.insert_one(booking_doc)
+    
+    # Send email notification to provider
+    try:
+        from email_service import send_new_booking_notification
+        import asyncio
+        
+        # Get provider info
+        provider = await db.provider_profiles.find_one(
+            {"provider_id": booking_doc.get('provider_id')},
+            {"_id": 0}
+        )
+        if provider:
+            provider_user = await db.users.find_one(
+                {"user_id": provider.get('user_id')},
+                {"_id": 0}
+            )
+            if provider_user:
+                notification_data = {
+                    "client_name": current_user.name,
+                    "event_type": booking_doc.get('event_type', 'Événement'),
+                    "event_date": booking_doc.get('event_date', ''),
+                    "location": booking_doc.get('location', ''),
+                    "amount": base_amount
+                }
+                asyncio.create_task(send_new_booking_notification(
+                    provider_user['email'],
+                    provider['business_name'],
+                    notification_data
+                ))
+    except Exception as e:
+        print(f"Booking notification error: {e}")
+    
     booking_doc['created_at'] = now
     booking_doc['updated_at'] = now
     return Booking(**booking_doc)
