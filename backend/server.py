@@ -2518,43 +2518,6 @@ async def book_package(
     first_booking['updated_at'] = now
     return Booking(**first_booking)
 
-# ============ ADMIN ROUTES ============
-
-@api_router.get("/admin/stats")
-async def get_admin_stats(current_user: User = Depends(get_current_user)):
-    if current_user.user_type != 'admin':
-        raise HTTPException(status_code=403, detail="Admin access required")
-    
-    total_users = await db.users.count_documents({})
-    total_providers = await db.provider_profiles.count_documents({})
-    total_bookings = await db.bookings.count_documents({})
-    total_revenue = await db.bookings.aggregate([
-        {"$group": {"_id": None, "total": {"$sum": "$deposit_paid"}}}
-    ]).to_list(1)
-    
-    return {
-        "total_users": total_users,
-        "total_providers": total_providers,
-        "total_bookings": total_bookings,
-        "total_revenue": total_revenue[0]['total'] if total_revenue else 0
-    }
-
-@api_router.patch("/admin/providers/{provider_id}/verify")
-async def verify_provider(
-    provider_id: str,
-    verified: bool,
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.user_type != 'admin':
-        raise HTTPException(status_code=403, detail="Admin access required")
-    
-    await db.provider_profiles.update_one(
-        {"provider_id": provider_id},
-        {"$set": {"verified": verified}}
-    )
-    
-    return {"message": "Provider verification updated"}
-
 # ============ PAYMENT ROUTES (STRIPE) ============
 
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
