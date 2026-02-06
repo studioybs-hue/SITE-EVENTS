@@ -246,6 +246,130 @@ const AdminPage = () => {
     }
   };
 
+  // Security Functions
+  const fetchEmailConfig = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/email-config`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setEmailConfig(data);
+      }
+    } catch (e) {
+      console.error('Error fetching email config:', e);
+    }
+  };
+
+  const saveEmailConfig = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/email-config`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(emailConfig)
+      });
+      if (res.ok) {
+        toast.success('Configuration email sauvegardée');
+      } else {
+        toast.error('Erreur lors de la sauvegarde');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const testEmail = async () => {
+    setEmailTestLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/test-email`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.detail || 'Erreur');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    } finally {
+      setEmailTestLoading(false);
+    }
+  };
+
+  const fetch2FAStatus = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/2fa-status`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setTwoFactorEnabled(data.two_factor_enabled);
+      }
+    } catch (e) {
+      console.error('Error fetching 2FA status:', e);
+    }
+  };
+
+  const startSetup2FA = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/setup-2fa`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSetup2FA(data);
+      } else {
+        toast.error('Erreur lors de la configuration');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const verifyAndEnable2FA = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/verify-2fa-setup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code: verifyCode })
+      });
+      if (res.ok) {
+        toast.success('Double authentification activée !');
+        setTwoFactorEnabled(true);
+        setSetup2FA(null);
+        setVerifyCode('');
+      } else {
+        const data = await res.json();
+        toast.error(data.detail || 'Code invalide');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const disable2FA = async () => {
+    if (!window.confirm('Désactiver la double authentification ?')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/disable-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code: disableCode })
+      });
+      if (res.ok) {
+        toast.success('Double authentification désactivée');
+        setTwoFactorEnabled(false);
+        setDisableCode('');
+      } else {
+        const data = await res.json();
+        toast.error(data.detail || 'Code invalide');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
   // Moderation Functions
   const fetchFlaggedMessages = async () => {
     try {
