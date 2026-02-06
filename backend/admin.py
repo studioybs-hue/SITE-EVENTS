@@ -611,6 +611,247 @@ async def get_site_content(admin: dict = Depends(get_admin_user)):
     return content
 
 
+# ============ CHAT MODERATION ============
+
+# Default inappropriate keywords (can be customized via admin)
+DEFAULT_FLAGGED_KEYWORDS = [
+    # Contact hors plateforme
+    "whatsapp", "telegram", "signal", "viber", "skype",
+    "mon numéro", "mon numero", "appelle-moi", "appelle moi",
+    "contacte-moi", "contacte moi", "mon email", "mon mail",
+    "hors plateforme", "en dehors", "sans passer par",
+    # Paiement hors plateforme
+    "virement", "espèces", "cash", "liquide", "paypal direct",
+    "paiement direct", "sans commission", "éviter les frais",
+    # Contenu inapproprié
+    "arnaque", "escroquerie", "faux", "frauduleux",
+    # Mots vulgaires/offensants (basiques)
+    "merde", "putain", "connard", "salaud", "enculé",
+    "nique", "fdp", "ntm", "tg", "ferme ta gueule"
+]
+
+
+@router.get("/moderation/keywords")
+async def get_moderation_keywords(admin: dict = Depends(get_admin_user)):
+    """Get current moderation keywords"""
+    db = get_db()
+    
+    config = await db.moderation_config.find_one({"type": "keywords"}, {"_id": 0})
+    
+    if not config:
+        config = {
+            "type": "keywords",
+            "keywords": DEFAULT_FLAGGED_KEYWORDS,
+            "enabled": True
+        }
+        await db.moderation_config.insert_one(config)
+    
+    return config
+
+
+@router.put("/moderation/keywords")
+async def update_moderation_keywords(request: Request, admin: dict = Depends(get_admin_user)):
+    """Update moderation keywords"""
+    db = get_db()
+    body = await request.json()
+    
+    keywords = body.get("keywords", DEFAULT_FLAGGED_KEYWORDS)
+    enabled = body.get("enabled", True)
+    
+    await db.moderation_config.update_one(
+        {"type": "keywords"},
+        {"$set": {
+            "keywords": keywords,
+            "enabled": enabled,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": admin["admin_id"]
+        }},
+        upsert=True
+    )
+    
+    return {"success": True, "message": "Mots-clés mis à jour"}
+
+
+@router.get("/moderation/flagged")
+async def get_flagged_messages(
+    admin: dict = Depends(get_admin_user),
+    page: int = 1,
+    limit: int = 20,
+    status: Optional[str] = None
+):
+    """Get flagged messages"""
+    db = get_db()
+    
+    query = {}
+    if status:
+        query["status"] = status
+    
+    skip = (page - 1) * limit
+    
+    total = await db.flagged_messages.count_documents(query)
+    messages = await db.flagged_messages.find(
+        query,
+        {"_id": 0}
+    ).skip(skip).limit(limit).sort("flagged_at", -1).to_list(limit)
+    
+    # Enrich with user info
+    for msg in messages:
+        sender = await db.users.find_one(
+            {"user_id": msg.get("sender_id")},
+            {"_id": 0, "name": 1, "email": 1, "user_type": 1}
+        )
+        receiver = await db.users.find_one(
+            {"user_id": msg.get("receiver_id")},
+            {"_id": 0, "name": 1, "email": 1, "user_type": 1}
+        )
+        msg["sender"] = sender
+        msg["receiver"] = receiver
+    
+    return {
+        "flagged_messages": messages,
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit
+    }
+
+
+@router.patch("/moderation/flagged/{flag_id}")
+async def update_flagged_message_status(
+    flag_id: str,
+    request: Request,
+    admin: dict = Depends(get_admin_user)
+):
+    """Update flagged message status (reviewed, dismissed, action_taken)"""
+    db = get_db()
+    body = await request.json()
+    
+    status = body.get("status", "reviewed")
+    notes = body.get("notes", "")
+    
+    await db.flagged_messages.update_one(
+        {"flag_id": flag_id},
+        {"$set": {
+            "status": status,
+            "admin_notes": notes,
+            "reviewed_by": admin["admin_id"],
+            "reviewed_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {"success": True, "message": "Statut mis à jour"}
+
+
+@router.get("/moderation/conversation/{conversation_id}")
+async def get_conversation_history(
+    conversation_id: str,
+    admin: dict = Depends(get_admin_user)
+):
+    """Get full conversation history for review"""
+    db = get_db()
+    
+    messages = await db.messages.find(
+        {"conversation_id": conversation_id},
+        {"_id": 0}
+    ).sort("created_at", 1).to_list(100)
+    
+    # Get participant info
+    if messages:
+        participants = set()
+        for msg in messages:
+            participants.add(msg.get("sender_id"))
+            participants.add(msg.get("receiver_id"))
+        
+        users = {}
+        for user_id in participants:
+            if user_id:
+                user = await db.users.find_one(
+                    {"user_id": user_id},
+                    {"_id": 0, "user_id": 1, "name": 1, "email": 1, "user_type": 1}
+                )
+                if user:
+                    users[user_id] = user
+        
+        return {
+            "conversation_id": conversation_id,
+            "messages": messages,
+            "participants": users
+        }
+    
+    return {"conversation_id": conversation_id, "messages": [], "participants": {}}
+
+
+@router.post("/moderation/block-user/{user_id}")
+async def block_user_from_moderation(
+    user_id: str,
+    request: Request,
+    admin: dict = Depends(get_admin_user)
+):
+    """Block a user directly from moderation panel"""
+    db = get_db()
+    body = await request.json()
+    
+    reason = body.get("reason", "Comportement inapproprié")
+    
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "is_blocked": True,
+            "blocked_reason": reason,
+            "blocked_by": admin["admin_id"],
+            "blocked_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # Invalidate sessions
+    await db.user_sessions.delete_many({"user_id": user_id})
+    
+    return {"success": True, "message": "Utilisateur bloqué"}
+
+
+# Function to check and flag messages (called from message sending)
+async def check_message_for_moderation(message_data: dict):
+    """Check a message for inappropriate content and flag if needed"""
+    from server import db
+    
+    # Get moderation config
+    config = await db.moderation_config.find_one({"type": "keywords"})
+    
+    if not config or not config.get("enabled", True):
+        return None
+    
+    keywords = config.get("keywords", DEFAULT_FLAGGED_KEYWORDS)
+    content = message_data.get("content", "").lower()
+    
+    # Check for flagged keywords
+    found_keywords = []
+    for keyword in keywords:
+        if keyword.lower() in content:
+            found_keywords.append(keyword)
+    
+    if found_keywords:
+        # Create flag entry
+        flag_id = f"flag_{uuid.uuid4().hex[:12]}"
+        flag_doc = {
+            "flag_id": flag_id,
+            "message_id": message_data.get("message_id"),
+            "conversation_id": message_data.get("conversation_id"),
+            "sender_id": message_data.get("sender_id"),
+            "receiver_id": message_data.get("receiver_id"),
+            "content": message_data.get("content"),
+            "flagged_keywords": found_keywords,
+            "status": "pending",  # pending, reviewed, dismissed, action_taken
+            "flagged_at": datetime.now(timezone.utc).isoformat(),
+            "admin_notes": "",
+            "reviewed_by": None,
+            "reviewed_at": None
+        }
+        
+        await db.flagged_messages.insert_one(flag_doc)
+        return flag_id
+    
+    return None
+
+
 @router.put("/site-content")
 async def update_site_content(request: Request, admin: dict = Depends(get_admin_user)):
     """Update site content settings"""
