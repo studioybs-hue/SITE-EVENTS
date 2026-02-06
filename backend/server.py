@@ -679,6 +679,15 @@ async def create_provider_profile(
     })
     
     await db.provider_profiles.insert_one(profile_doc)
+    
+    # Send welcome email to provider
+    try:
+        from email_service import send_welcome_email_provider
+        import asyncio
+        asyncio.create_task(send_welcome_email_provider(current_user.email, current_user.name))
+    except Exception as e:
+        print(f"Provider welcome email error: {e}")
+    
     profile_doc['created_at'] = datetime.fromisoformat(profile_doc['created_at'])
     return ProviderProfile(**profile_doc)
 
