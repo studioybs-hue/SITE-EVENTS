@@ -211,6 +211,36 @@ async def reset_password(request: PasswordResetConfirm):
     return {"message": "Mot de passe réinitialisé avec succès"}
 
 
+@router.post("/change-password")
+async def change_password(request: ChangePasswordRequest, response: Response):
+    """Change password for logged in admin"""
+    db = get_db()
+    
+    from admin import get_admin_user_from_cookie
+    admin = await get_admin_user_from_cookie(response)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    
+    # Verify current password
+    if not bcrypt.checkpw(request.current_password.encode(), admin["password_hash"].encode()):
+        raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect")
+    
+    # Validate new password
+    if len(request.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Le nouveau mot de passe doit contenir au moins 8 caractères")
+    
+    # Hash new password
+    password_hash = bcrypt.hashpw(request.new_password.encode(), bcrypt.gensalt()).decode()
+    
+    # Update password
+    await db.admin_users.update_one(
+        {"admin_id": admin["admin_id"]},
+        {"$set": {"password_hash": password_hash}}
+    )
+    
+    return {"message": "Mot de passe modifié avec succès"}
+
+
 # ============ 2FA FUNCTIONS ============
 
 @router.post("/setup-2fa")
