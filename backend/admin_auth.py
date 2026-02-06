@@ -369,7 +369,7 @@ async def verify_2fa_login(code_request: Verify2FARequest, request: Request, res
     
     # Verify code
     totp = pyotp.TOTP(secret)
-    if not totp.verify(request.code):
+    if not totp.verify(code_request.code):
         raise HTTPException(status_code=400, detail="Code invalide")
     
     # Set authenticated cookie
