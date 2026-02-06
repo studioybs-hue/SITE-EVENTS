@@ -418,6 +418,42 @@ const AdminPage = () => {
     }
   };
 
+  // Commission Functions
+  const fetchCommissionSettings = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/commission`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setCommissionEnabled(data.enabled || false);
+        setCommissionRate(data.rate || 5);
+      }
+    } catch (e) {
+      console.error('Error fetching commission settings:', e);
+    }
+  };
+
+  const saveCommissionSettings = async () => {
+    setCommissionLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/commission`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ enabled: commissionEnabled, rate: commissionRate })
+      });
+      if (res.ok) {
+        toast.success('Paramètres de commission sauvegardés');
+      } else {
+        const data = await res.json();
+        toast.error(data.detail || 'Erreur');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    } finally {
+      setCommissionLoading(false);
+    }
+  };
+
   // Moderation Functions
   const fetchFlaggedMessages = async () => {
     try {
