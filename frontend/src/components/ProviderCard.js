@@ -59,10 +59,12 @@ const ProviderCard = ({ provider }) => {
           // Check if provider is in favorites
           checkFavorite();
         }
-      } catch (e) {}
+      } catch (e) {
+        // Auth check failed silently
+      }
     };
     checkAuth();
-  }, []);
+  }, [BACKEND_URL]);
 
   const checkFavorite = async () => {
     try {
@@ -73,7 +75,9 @@ const ProviderCard = ({ provider }) => {
         const data = await res.json();
         setIsFavorite(data.is_favorite);
       }
-    } catch (e) {}
+    } catch (e) {
+      // Favorite check failed silently
+    }
   };
 
   const toggleFavorite = async (e) => {
