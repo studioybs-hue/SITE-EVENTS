@@ -923,7 +923,7 @@ const ProviderCard = ({ provider }) => {
               </div>
 
               <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
-                <Label>Date de l'événement *</Label>
+                <Label>Date de l&apos;événement *</Label>
                 <Input
                   type="text"
                   required
