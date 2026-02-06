@@ -213,6 +213,17 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ## Historique des versions
 
+### 06/02/2025 - v2.4 - Abonnements & Administration
+- ✅ **Page Tarifs `/pricing`** : Affichage des 3 formules (Gratuit 0€, Pro 15€/mois, Premium 19€/mois)
+- ✅ **Toggle mensuel/annuel** : Annuel à 150€ et 190€ (2 mois offerts)
+- ✅ **Panneau Admin `/admin`** : Dashboard complet avec statistiques
+- ✅ **Gestion Utilisateurs** : Liste, recherche, blocage, suppression
+- ✅ **Gestion Prestataires** : Liste, vérification (badge)
+- ✅ **Gestion Abonnements** : Visualisation des abonnements actifs
+- ✅ **Gestion Réservations** : Liste des réservations avec statuts
+- ✅ **Login Admin séparé** : `/admin/login` avec compte dédié
+- ✅ **Onglet Abonnement** dans le dashboard prestataire
+
 ### 06/02/2025 - v2.3
 - ✅ **Correction page /packages** : La page affiche maintenant correctement les 3 packs multi-prestataires (Pack Mariage Complet, Pack Mariage Essentiel, Pack Anniversaire Premium)
 - ✅ **Correction modale réservation pack** : Utilisation de createPortal pour rendre la modale hors du div parent, empêchant la fermeture intempestive lors du clic sur les champs de formulaire
