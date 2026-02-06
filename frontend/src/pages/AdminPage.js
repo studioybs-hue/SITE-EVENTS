@@ -890,9 +890,19 @@ const AdminPage = () => {
                           <div className="flex justify-between items-start mb-3">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold">{flag.sender?.name || 'Inconnu'}</span>
+                                <button 
+                                  className="font-semibold text-blue-600 hover:underline"
+                                  onClick={() => viewUserAllConversations(flag.sender_id, flag.sender?.name)}
+                                >
+                                  {flag.sender?.name || 'Inconnu'}
+                                </button>
                                 <span className="text-muted-foreground">→</span>
-                                <span className="font-semibold">{flag.receiver?.name || 'Inconnu'}</span>
+                                <button 
+                                  className="font-semibold text-blue-600 hover:underline"
+                                  onClick={() => viewUserAllConversations(flag.receiver_id, flag.receiver?.name)}
+                                >
+                                  {flag.receiver?.name || 'Inconnu'}
+                                </button>
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 {new Date(flag.flagged_at).toLocaleString('fr-FR')}
@@ -920,13 +930,20 @@ const AdminPage = () => {
                             ))}
                           </div>
                           
-                          <div className="flex gap-2">
+                          <div className="flex flex-wrap gap-2">
                             <Button 
                               size="sm" 
                               variant="outline"
                               onClick={() => viewConversation(flag.conversation_id)}
                             >
-                              <Eye className="h-4 w-4 mr-1" /> Voir conversation
+                              <Eye className="h-4 w-4 mr-1" /> Cette conversation
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="default"
+                              onClick={() => viewUserAllConversations(flag.sender_id, flag.sender?.name)}
+                            >
+                              <MessageCircle className="h-4 w-4 mr-1" /> Toutes les conversations
                             </Button>
                             <Button 
                               size="sm" 
