@@ -193,6 +193,41 @@ const AdminPage = () => {
     }
   };
 
+  // Packs Functions
+  const fetchPacks = async () => {
+    try {
+      const typeParam = packsTypeFilter !== 'all' ? `&pack_type=${packsTypeFilter}` : '';
+      const res = await fetch(`${BACKEND_URL}/api/admin/packs?page=${packsPage}&limit=20${typeParam}`, { 
+        credentials: 'include' 
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPacks(data.packs);
+        setPacksTotalPages(data.pages);
+      }
+    } catch (e) {
+      console.error('Error fetching packs:', e);
+    }
+  };
+
+  const deletePack = async (packType, packId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce pack ?')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/packs/${packType}/${packId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        toast.success('Pack supprimé');
+        fetchPacks();
+      } else {
+        toast.error('Erreur lors de la suppression');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
   // Moderation Functions
   const fetchFlaggedMessages = async () => {
     try {
