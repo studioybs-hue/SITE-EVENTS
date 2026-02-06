@@ -396,10 +396,10 @@ async def verify_2fa_login(request: Verify2FARequest, response: Response):
 
 
 @router.get("/2fa-status")
-async def get_2fa_status(response: Response):
+async def get_2fa_status(request: Request):
     """Check if 2FA is enabled for current admin"""
     from admin import get_admin_user_from_cookie
-    admin = await get_admin_user_from_cookie(response)
+    admin = await get_admin_user_from_cookie(request)
     if not admin:
         raise HTTPException(status_code=401, detail="Non authentifié")
     
@@ -411,10 +411,10 @@ async def get_2fa_status(response: Response):
 # ============ EMAIL CONFIG ============
 
 @router.get("/email-config")
-async def get_email_config_endpoint(response: Response):
+async def get_email_config_endpoint(request: Request):
     """Get email configuration (admin only)"""
     from admin import get_admin_user
-    await get_admin_user(response)  # Verify auth
+    await get_admin_user(request)  # Verify auth
     
     config = await get_email_config()
     # Don't send password
@@ -423,12 +423,12 @@ async def get_email_config_endpoint(response: Response):
 
 
 @router.put("/email-config")
-async def update_email_config(config: EmailConfigUpdate, response: Response):
+async def update_email_config(config: EmailConfigUpdate, request: Request):
     """Update email configuration"""
     db = get_db()
     
     from admin import get_admin_user
-    await get_admin_user(response)  # Verify auth
+    await get_admin_user(request)  # Verify auth
     
     config_dict = config.model_dump()
     
@@ -447,7 +447,7 @@ async def update_email_config(config: EmailConfigUpdate, response: Response):
 
 
 @router.post("/test-email")
-async def test_email(response: Response):
+async def test_email(request: Request):
     """Send a test email"""
     from admin import get_admin_user
     await get_admin_user(response)  # Verify auth
