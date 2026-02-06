@@ -37,9 +37,32 @@ const PackagesPage = () => {
       const params = new URLSearchParams();
       if (eventTypeFilter) params.append('event_type', eventTypeFilter);
 
-      const response = await fetch(`${BACKEND_URL}/api/packages?${params}`);
-      const data = await response.json();
-      setPackages(data);
+      // Fetch both event packages and provider packs
+      const [eventPackagesRes, providerPacksRes] = await Promise.all([
+        fetch(`${BACKEND_URL}/api/packages?${params}`),
+        fetch(`${BACKEND_URL}/api/packs?${params}`)
+      ]);
+      
+      const eventPackages = await eventPackagesRes.json();
+      const providerPacks = await providerPacksRes.json();
+      
+      // Normalize provider packs to match event package format
+      const normalizedProviderPacks = (providerPacks || []).map(pack => ({
+        ...pack,
+        package_id: pack.pack_id,
+        original_price: pack.price,
+        total_price: pack.price,
+        discounted_price: pack.price,
+        discount_percentage: 0,
+        services_included: pack.features || [],
+        services: pack.features || [],
+        providers: pack.provider ? [pack.provider] : [],
+        is_provider_pack: true
+      }));
+      
+      // Combine both types
+      const allPackages = [...(eventPackages || []), ...normalizedProviderPacks];
+      setPackages(allPackages);
     } catch (error) {
       console.error('Error fetching packages:', error);
     } finally {
