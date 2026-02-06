@@ -1167,8 +1167,12 @@ async def check_provider_availability(provider_id: str, date: str):
 
 # ============ BOOKING ROUTES ============
 
-# Platform commission rate (disabled for launch - set to 0)
-PLATFORM_COMMISSION_RATE = 0.0
+async def get_commission_settings():
+    """Get commission settings from database"""
+    settings = await db.site_settings.find_one({"key": "commission"}, {"_id": 0})
+    if settings:
+        return settings.get("value", {"enabled": False, "rate": 0})
+    return {"enabled": False, "rate": 0}
 
 @api_router.post("/bookings", response_model=Booking)
 async def create_booking(
@@ -1189,8 +1193,17 @@ async def create_booking(
     # Remove total_price if present (we use total_amount)
     booking_doc.pop('total_price', None)
     
-    # No commission for launch
+    # Get commission settings from database
+    commission_settings = await get_commission_settings()
     base_amount = booking_doc['total_amount']
+    
+    if commission_settings.get("enabled"):
+        rate = commission_settings.get("rate", 0) / 100
+        commission = round(base_amount * rate, 2)
+        total_with_commission = round(base_amount + commission, 2)
+    else:
+        commission = 0.0
+        total_with_commission = base_amount
     
     booking_doc.update({
         "booking_id": booking_id,
@@ -1200,8 +1213,8 @@ async def create_booking(
         "deposit_paid": 0.0,
         "payment_status": "pending",
         "base_amount": base_amount,
-        "platform_commission": 0.0,
-        "total_amount": base_amount,
+        "platform_commission": commission,
+        "total_amount": total_with_commission,
         "created_at": now.isoformat(),
         "updated_at": now.isoformat()
     })
