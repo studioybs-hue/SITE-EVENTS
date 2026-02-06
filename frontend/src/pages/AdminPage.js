@@ -86,6 +86,23 @@ const AdminPage = () => {
   const [packsTotalPages, setPacksTotalPages] = useState(1);
   const [packsTypeFilter, setPacksTypeFilter] = useState('all');
 
+  // Security - Email Config
+  const [emailConfig, setEmailConfig] = useState({
+    smtp_host: 'smtp.ionos.fr',
+    smtp_port: 587,
+    smtp_user: '',
+    smtp_password: '',
+    sender_email: '',
+    receiver_email: ''
+  });
+  const [emailTestLoading, setEmailTestLoading] = useState(false);
+  
+  // Security - 2FA
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [setup2FA, setSetup2FA] = useState(null);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [disableCode, setDisableCode] = useState('');
+
   useEffect(() => {
     checkAdminAuth();
   }, []);
