@@ -1022,7 +1022,7 @@ const DashboardPage = () => {
                       />
                     </div>
                     <div>
-                      <Label>Pays d'intervention * (vous pouvez en sélectionner plusieurs)</Label>
+                      <Label>Pays d&apos;intervention * (vous pouvez en sélectionner plusieurs)</Label>
                       <CountryMultiSelect
                         value={profileData.countries}
                         onChange={(countries) => setProfileData({ ...profileData, countries })}
