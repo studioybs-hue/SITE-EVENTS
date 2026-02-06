@@ -67,12 +67,13 @@ async def get_admin_user(request: Request):
 
 @router.post("/login")
 async def admin_login(request: Request, response: Response):
-    """Admin login with email and password"""
+    """Admin login with email and password (+ 2FA if enabled)"""
     db = get_db()
     body = await request.json()
     
     email = body.get("email")
     password = body.get("password")
+    totp_code = body.get("totp_code")  # 2FA code if provided
     
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email et mot de passe requis")
@@ -89,6 +90,22 @@ async def admin_login(request: Request, response: Response):
     
     if not admin.get("is_active"):
         raise HTTPException(status_code=401, detail="Compte désactivé")
+    
+    # Check if 2FA is enabled
+    if admin.get("two_factor_enabled") and admin.get("totp_secret"):
+        if not totp_code:
+            # Return that 2FA is required
+            return {
+                "success": False,
+                "requires_2fa": True,
+                "message": "Code d'authentification requis"
+            }
+        
+        # Verify 2FA code
+        import pyotp
+        totp = pyotp.TOTP(admin["totp_secret"])
+        if not totp.verify(totp_code):
+            raise HTTPException(status_code=401, detail="Code d'authentification invalide")
     
     # Create session
     session_token = f"admin_session_{uuid.uuid4().hex}"
@@ -125,7 +142,8 @@ async def admin_login(request: Request, response: Response):
             "admin_id": admin["admin_id"],
             "email": admin["email"],
             "name": admin["name"],
-            "role": admin.get("role", "admin")
+            "role": admin.get("role", "admin"),
+            "two_factor_enabled": admin.get("two_factor_enabled", False)
         }
     }
 
