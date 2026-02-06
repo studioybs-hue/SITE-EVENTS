@@ -1949,6 +1949,185 @@ const AdminPage = () => {
               </div>
             </div>
           </TabsContent>
+
+          {/* Security Tab */}
+          <TabsContent value="security">
+            <div className="space-y-6">
+              {/* Email Configuration */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Configuration Email SMTP
+                  </CardTitle>
+                  <CardDescription>
+                    Paramètres d&apos;envoi des emails (notifications, réinitialisation de mot de passe)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Serveur SMTP</Label>
+                      <Input
+                        value={emailConfig.smtp_host}
+                        onChange={(e) => setEmailConfig({...emailConfig, smtp_host: e.target.value})}
+                        placeholder="smtp.ionos.fr"
+                      />
+                    </div>
+                    <div>
+                      <Label>Port SMTP</Label>
+                      <Input
+                        type="number"
+                        value={emailConfig.smtp_port}
+                        onChange={(e) => setEmailConfig({...emailConfig, smtp_port: parseInt(e.target.value)})}
+                        placeholder="587"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Utilisateur SMTP (email)</Label>
+                      <Input
+                        value={emailConfig.smtp_user}
+                        onChange={(e) => setEmailConfig({...emailConfig, smtp_user: e.target.value})}
+                        placeholder="infos@votredomaine.com"
+                      />
+                    </div>
+                    <div>
+                      <Label>Mot de passe SMTP</Label>
+                      <Input
+                        type="password"
+                        value={emailConfig.smtp_password}
+                        onChange={(e) => setEmailConfig({...emailConfig, smtp_password: e.target.value})}
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Email expéditeur</Label>
+                      <Input
+                        type="email"
+                        value={emailConfig.sender_email}
+                        onChange={(e) => setEmailConfig({...emailConfig, sender_email: e.target.value})}
+                        placeholder="infos@votredomaine.com"
+                      />
+                    </div>
+                    <div>
+                      <Label>Email destinataire (notifications)</Label>
+                      <Input
+                        type="email"
+                        value={emailConfig.receiver_email}
+                        onChange={(e) => setEmailConfig({...emailConfig, receiver_email: e.target.value})}
+                        placeholder="contact@votredomaine.com"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2 pt-4">
+                    <Button onClick={saveEmailConfig}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Sauvegarder
+                    </Button>
+                    <Button variant="outline" onClick={testEmail} disabled={emailTestLoading}>
+                      {emailTestLoading ? 'Envoi...' : 'Envoyer un email de test'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 2FA Configuration */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Double Authentification (2FA)
+                  </CardTitle>
+                  <CardDescription>
+                    Sécurisez votre compte avec Google Authenticator
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {twoFactorEnabled ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <CheckCircle className="h-6 w-6 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-800">Double authentification activée</p>
+                          <p className="text-sm text-green-600">Votre compte est protégé par Google Authenticator</p>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4 border-t">
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Pour désactiver la 2FA, entrez le code actuel de votre application :
+                        </p>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Code à 6 chiffres"
+                            value={disableCode}
+                            onChange={(e) => setDisableCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            maxLength={6}
+                            className="w-40"
+                          />
+                          <Button variant="destructive" onClick={disable2FA} disabled={disableCode.length !== 6}>
+                            Désactiver 2FA
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : setup2FA ? (
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <p className="mb-4">Scannez ce QR code avec Google Authenticator :</p>
+                        <img src={setup2FA.qr_code} alt="QR Code 2FA" className="mx-auto border rounded-lg" />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Ou entrez manuellement : <code className="bg-gray-100 px-2 py-1 rounded">{setup2FA.secret}</code>
+                        </p>
+                      </div>
+                      
+                      <div className="pt-4 border-t">
+                        <p className="text-sm mb-3">Entrez le code affiché dans l&apos;application pour confirmer :</p>
+                        <div className="flex gap-2 justify-center">
+                          <Input
+                            placeholder="000000"
+                            value={verifyCode}
+                            onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            maxLength={6}
+                            className="w-40 text-center text-xl"
+                          />
+                          <Button onClick={verifyAndEnable2FA} disabled={verifyCode.length !== 6}>
+                            Activer
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <Button variant="ghost" className="w-full" onClick={() => setSetup2FA(null)}>
+                        Annuler
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <AlertTriangle className="h-6 w-6 text-yellow-600" />
+                        <div>
+                          <p className="font-medium text-yellow-800">2FA non activée</p>
+                          <p className="text-sm text-yellow-600">Activez la double authentification pour plus de sécurité</p>
+                        </div>
+                      </div>
+                      
+                      <Button onClick={startSetup2FA}>
+                        <Shield className="h-4 w-4 mr-2" />
+                        Configurer Google Authenticator
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
