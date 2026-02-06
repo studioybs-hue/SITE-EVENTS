@@ -143,12 +143,12 @@ const PackagesPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <Card className="overflow-hidden border-border/50 hover:shadow-lg transition-all duration-300 h-full flex flex-col" data-testid={`package-card-${pkg.package_id}`}>
+                  <Card className="overflow-hidden border-border/50 hover:shadow-lg transition-all duration-300 h-full flex flex-col" data-testid={`package-card-${pkg.package_id || pkg.pack_id}`}>
                     {/* Image */}
                     <div className="relative h-48 bg-muted">
-                      {pkg.image_url ? (
+                      {(pkg.image_url || pkg.image) ? (
                         <img
-                          src={pkg.image_url}
+                          src={pkg.image_url || pkg.image}
                           alt={pkg.name}
                           className="w-full h-full object-cover"
                         />
@@ -157,13 +157,23 @@ const PackagesPage = () => {
                           <Package className="h-16 w-16 text-accent/50" />
                         </div>
                       )}
-                      {/* Discount Badge */}
-                      <div className="absolute top-3 right-3">
-                        <Badge className="bg-accent text-accent-foreground font-semibold" data-testid="discount-badge">
-                          <TrendingDown className="h-3 w-3 mr-1" />
-                          -{pkg.discount_percentage}%
-                        </Badge>
-                      </div>
+                      {/* Discount Badge - only show if there's a discount */}
+                      {pkg.discount_percentage > 0 && (
+                        <div className="absolute top-3 right-3">
+                          <Badge className="bg-accent text-accent-foreground font-semibold" data-testid="discount-badge">
+                            <TrendingDown className="h-3 w-3 mr-1" />
+                            -{pkg.discount_percentage}%
+                          </Badge>
+                        </div>
+                      )}
+                      {/* Provider Pack Badge */}
+                      {pkg.is_provider_pack && (
+                        <div className="absolute top-3 left-3">
+                          <Badge className="bg-blue-500 text-white font-semibold">
+                            Pack Prestataire
+                          </Badge>
+                        </div>
+                      )}
                     </div>
 
                     {/* Content */}
@@ -172,8 +182,14 @@ const PackagesPage = () => {
                         <h3 className="text-2xl font-heading font-semibold text-foreground mb-2" data-testid="package-name">
                           {pkg.name}
                         </h3>
+                        {/* Provider name for provider packs */}
+                        {pkg.is_provider_pack && pkg.provider && (
+                          <p className="text-sm text-accent font-medium mb-2">
+                            Par {pkg.provider.business_name}
+                          </p>
+                        )}
                         <Badge variant="secondary" className="text-xs mb-3">
-                          {pkg.event_type}
+                          {pkg.event_type || 'Événement'}
                         </Badge>
                         <p className="text-sm text-muted-foreground leading-relaxed" data-testid="package-description">
                           {pkg.description}
