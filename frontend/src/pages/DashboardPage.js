@@ -736,24 +736,43 @@ const DashboardPage = () => {
                                       {booking.total_amount}€
                                     </span>
                                   </div>
+                                  {booking.client_name && (
+                                    <div className="flex items-center text-sm text-muted-foreground mt-1">
+                                      <User className="h-4 w-4 mr-1" />
+                                      Client: <span className="font-medium ml-1">{booking.client_name}</span>
+                                    </div>
+                                  )}
                                 </div>
-                                {booking.status === 'pending' && (
-                                  <div className="flex gap-2">
-                                    <Button 
-                                      size="sm"
-                                      onClick={() => handleUpdateBookingStatus(booking.booking_id, 'confirmed')}
-                                    >
-                                      Accepter
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      onClick={() => handleUpdateBookingStatus(booking.booking_id, 'cancelled')}
-                                    >
-                                      Refuser
-                                    </Button>
-                                  </div>
-                                )}
+                                <div className="flex flex-col gap-2 items-end">
+                                  {/* Contact Client Button */}
+                                  <Button 
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => navigate(`/messages?user=${booking.client_id}`)}
+                                    data-testid={`contact-client-${booking.booking_id}`}
+                                  >
+                                    <MessageCircle className="h-4 w-4 mr-1" />
+                                    Contacter
+                                  </Button>
+                                  
+                                  {booking.status === 'pending' && (
+                                    <div className="flex gap-2">
+                                      <Button 
+                                        size="sm"
+                                        onClick={() => handleUpdateBookingStatus(booking.booking_id, 'confirmed')}
+                                      >
+                                        Accepter
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => handleUpdateBookingStatus(booking.booking_id, 'cancelled')}
+                                      >
+                                        Refuser
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ))}
