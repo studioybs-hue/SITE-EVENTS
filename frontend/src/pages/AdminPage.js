@@ -88,12 +88,12 @@ const AdminPage = () => {
       if (activeTab === 'dashboard') fetchStats();
       if (activeTab === 'users') fetchUsers();
       if (activeTab === 'providers') fetchProviders();
-      if (activeTab === 'moderation') { fetchFlaggedMessages(); fetchModerationKeywords(); };
+      if (activeTab === 'moderation') { fetchFlaggedMessages(); fetchModerationKeywords(); }
       if (activeTab === 'subscriptions') fetchSubscriptions();
       if (activeTab === 'bookings') fetchBookings();
       if (activeTab === 'site') fetchSiteContent();
     }
-  }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage]);
+  }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage, flaggedPage]);
 
   const checkAdminAuth = async () => {
     try {
