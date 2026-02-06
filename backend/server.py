@@ -1685,6 +1685,13 @@ async def send_message(
     
     await db.messages.insert_one(message_doc)
     
+    # Check message for moderation (flag inappropriate content)
+    try:
+        from admin import check_message_for_moderation
+        await check_message_for_moderation(message_doc)
+    except Exception as e:
+        print(f"Moderation check error: {e}")
+    
     # Prepare response
     response_doc = message_doc.copy()
     response_doc['created_at'] = datetime.fromisoformat(message_doc['created_at'])
