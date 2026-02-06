@@ -296,11 +296,11 @@ const PackagesPage = () => {
                         </div>
 
                         <Button
-                          onClick={() => handleBookPackage(pkg.package_id)}
+                          onClick={() => handleViewPack(pkg)}
                           className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:scale-105 transition-transform"
-                          data-testid="book-package-btn"
+                          data-testid="view-package-btn"
                         >
-                          Réserver ce pack
+                          Voir ce pack
                         </Button>
                       </div>
                     </div>
