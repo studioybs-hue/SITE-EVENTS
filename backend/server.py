@@ -1790,6 +1790,22 @@ async def send_message(
     except Exception as e:
         print(f"Moderation check error: {e}")
     
+    # Send email notification to receiver
+    try:
+        from email_service import send_new_message_notification
+        import asyncio
+        
+        receiver = await db.users.find_one({"user_id": message_data.receiver_id}, {"_id": 0})
+        if receiver:
+            asyncio.create_task(send_new_message_notification(
+                receiver['email'],
+                receiver['name'],
+                current_user.name,
+                message_doc.get('content', '')
+            ))
+    except Exception as e:
+        print(f"Message notification error: {e}")
+    
     # Prepare response
     response_doc = message_doc.copy()
     response_doc['created_at'] = datetime.fromisoformat(message_doc['created_at'])
