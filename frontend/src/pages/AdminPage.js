@@ -846,6 +846,123 @@ const AdminPage = () => {
             </Card>
           </TabsContent>
 
+          {/* Packs Tab */}
+          <TabsContent value="packs">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Gestion des Packs
+                </CardTitle>
+                <CardDescription>
+                  Gérez tous les packs (événements et prestataires)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {/* Filter */}
+                <div className="flex gap-4 mb-6">
+                  <select 
+                    className="border rounded-lg px-3 py-2"
+                    value={packsTypeFilter}
+                    onChange={(e) => { setPacksTypeFilter(e.target.value); setPacksPage(1); }}
+                  >
+                    <option value="all">Tous les packs</option>
+                    <option value="event">Packs Événements</option>
+                    <option value="provider">Packs Prestataires</option>
+                  </select>
+                </div>
+
+                {/* Packs Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4">Nom</th>
+                        <th className="text-left py-3 px-4">Type</th>
+                        <th className="text-left py-3 px-4">Prix</th>
+                        <th className="text-left py-3 px-4">Créateur</th>
+                        <th className="text-left py-3 px-4">Date</th>
+                        <th className="text-left py-3 px-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {packs.map((pack) => (
+                        <tr key={pack.pack_id || pack.package_id} className="border-b hover:bg-gray-50">
+                          <td className="py-3 px-4">
+                            <div className="font-medium">{pack.name || pack.title}</div>
+                            <div className="text-sm text-muted-foreground truncate max-w-xs">
+                              {pack.description?.substring(0, 50)}...
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <Badge variant={pack.pack_type === 'event' ? 'default' : 'secondary'}>
+                              {pack.pack_type === 'event' ? 'Événement' : 'Prestataire'}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 font-medium">
+                            {pack.price || pack.total_price}€
+                          </td>
+                          <td className="py-3 px-4">
+                            {pack.pack_type === 'provider' ? (
+                              <span className="text-sm">{pack.provider_name}</span>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">Plateforme</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-sm text-muted-foreground">
+                            {pack.created_at ? new Date(pack.created_at).toLocaleDateString('fr-FR') : 'N/A'}
+                          </td>
+                          <td className="py-3 px-4">
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => deletePack(pack.pack_type, pack.pack_id || pack.package_id)}
+                              data-testid={`delete-pack-${pack.pack_id || pack.package_id}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {packs.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Package className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                    <p>Aucun pack trouvé</p>
+                  </div>
+                )}
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-sm text-muted-foreground">
+                    Page {packsPage} sur {packsTotalPages}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      disabled={packsPage <= 1}
+                      onClick={() => setPacksPage(p => p - 1)}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      disabled={packsPage >= packsTotalPages}
+                      onClick={() => setPacksPage(p => p + 1)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Moderation Tab */}
           <TabsContent value="moderation">
             <div className="space-y-6">
