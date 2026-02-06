@@ -377,6 +377,42 @@ const AdminPage = () => {
     }
   };
 
+  const changePassword = async () => {
+    if (newPassword !== confirmNewPassword) {
+      toast.error('Les mots de passe ne correspondent pas');
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast.error('Le mot de passe doit contenir au moins 8 caractères');
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/auth/change-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword
+        })
+      });
+      if (res.ok) {
+        toast.success('Mot de passe modifié avec succès');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+      } else {
+        const data = await res.json();
+        toast.error(data.detail || 'Erreur');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   // Moderation Functions
   const fetchFlaggedMessages = async () => {
     try {
