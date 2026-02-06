@@ -4,7 +4,7 @@ import {
   Users, TrendingUp, CreditCard, BarChart3, Shield, 
   Search, ChevronLeft, ChevronRight, Eye, Ban, Trash2,
   CheckCircle, XCircle, Crown, Star, LogOut, Settings,
-  Calendar, Package, MessageSquare, Globe, Image, Phone, Mail, MapPin, Video, Plus, Save, Quote
+  Calendar, Package, MessageSquare, Globe, Image, Phone, Mail, MapPin, Video, Plus, Save, Quote, AlertTriangle, MessageCircle, X
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
