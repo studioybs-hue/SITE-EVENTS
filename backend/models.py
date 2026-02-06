@@ -417,10 +417,13 @@ class UserSession(BaseModel):
 
 # Event Package Models
 class PackageProvider(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     provider_id: str
-    business_name: str
-    category: str
-    services: List[str]
+    business_name: Optional[str] = None
+    category: Optional[str] = None
+    services: Optional[List[str]] = None
+    service_type: Optional[str] = None
+    contribution: Optional[float] = None
 
 class EventPackage(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -428,14 +431,16 @@ class EventPackage(BaseModel):
     name: str
     description: str
     event_type: str  # wedding, birthday, corporate, etc.
-    providers: List[PackageProvider]
-    original_price: float
+    providers: List[PackageProvider] = []
+    original_price: Optional[float] = None
+    total_price: Optional[float] = None
     discounted_price: float
     discount_percentage: int
-    services_included: List[str]
+    services_included: Optional[List[str]] = None
+    services: Optional[List[str]] = None
     image_url: Optional[str] = None
     is_active: bool = True
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 class EventPackageCreate(BaseModel):
     name: str
