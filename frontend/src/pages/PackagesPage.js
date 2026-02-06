@@ -183,7 +183,7 @@ const PackagesPage = () => {
                           Services inclus
                         </p>
                         <ul className="space-y-1">
-                          {pkg.services_included.slice(0, 4).map((service, i) => (
+                          {(pkg.services_included || pkg.services || []).slice(0, 4).map((service, i) => (
                             <li key={i} className="flex items-start text-sm">
                               <Check className="h-4 w-4 text-accent mr-2 mt-0.5 flex-shrink-0" />
                               <span className="text-muted-foreground">{service}</span>
@@ -197,7 +197,7 @@ const PackagesPage = () => {
                         <div className="flex items-baseline justify-between mb-4">
                           <div>
                             <span className="text-sm text-muted-foreground line-through" data-testid="original-price">
-                              {pkg.original_price}€
+                              {pkg.original_price || pkg.total_price}€
                             </span>
                             <div className="text-3xl font-semibold text-foreground" data-testid="discounted-price">
                               {pkg.discounted_price}€
@@ -206,7 +206,7 @@ const PackagesPage = () => {
                           <div className="text-right">
                             <div className="text-xs text-muted-foreground">Économie</div>
                             <div className="text-lg font-semibold text-accent">
-                              {pkg.original_price - pkg.discounted_price}€
+                              {(pkg.original_price || pkg.total_price) - pkg.discounted_price}€
                             </div>
                           </div>
                         </div>
