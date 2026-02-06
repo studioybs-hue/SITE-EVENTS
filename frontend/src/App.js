@@ -22,6 +22,7 @@ import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
 import PricingPage from '@/pages/PricingPage';
 import AdminPage from '@/pages/AdminPage';
 import AdminLoginPage from '@/pages/AdminLoginPage';
+import AdminResetPasswordPage from '@/pages/AdminResetPasswordPage';
 
 // Components
 import AuthCallback from '@/components/AuthCallback';
