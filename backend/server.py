@@ -3433,12 +3433,17 @@ async def send_message(sid, data):
             await sio.emit('error', {'message': 'Message content or attachment required'}, room=sid)
             return
         
+        # Create conversation_id for grouping messages
+        sorted_ids = sorted([sender_id, receiver_id])
+        conversation_id = f"conv_{sorted_ids[0]}_{sorted_ids[1]}"
+        
         # Create message in database
         message_id = f"msg_{uuid.uuid4().hex[:12]}"
         now = datetime.now(timezone.utc).isoformat()
         
         message_doc = {
             "message_id": message_id,
+            "conversation_id": conversation_id,
             "sender_id": sender_id,
             "receiver_id": receiver_id,
             "content": content,
@@ -3448,6 +3453,13 @@ async def send_message(sid, data):
         }
         
         await db.messages.insert_one(message_doc)
+        
+        # Check for inappropriate content (moderation)
+        try:
+            from admin import check_message_for_moderation
+            await check_message_for_moderation(message_doc)
+        except Exception as mod_err:
+            logger.warning(f"Moderation check failed: {mod_err}")
         
         # Prepare response message
         response_msg = {
