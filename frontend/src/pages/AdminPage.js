@@ -117,6 +117,7 @@ const AdminPage = () => {
       if (activeTab === 'subscriptions') fetchSubscriptions();
       if (activeTab === 'bookings') fetchBookings();
       if (activeTab === 'site') fetchSiteContent();
+      if (activeTab === 'security') { fetchEmailConfig(); fetch2FAStatus(); }
     }
   }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage, flaggedPage, packsPage, packsTypeFilter]);
 
