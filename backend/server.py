@@ -1322,13 +1322,50 @@ async def update_booking(
     if booking['client_id'] != current_user.user_id and (not provider or booking['provider_id'] != provider['provider_id']):
         raise HTTPException(status_code=403, detail="Not authorized")
     
+    old_status = booking.get('status')
     update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    
     if update_dict:
         update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
         await db.bookings.update_one(
             {"booking_id": booking_id},
             {"$set": update_dict}
         )
+    
+    # Send notification if status changed
+    new_status = update_dict.get('status')
+    if new_status and new_status != old_status:
+        try:
+            from email_service import send_booking_confirmed_notification, send_booking_rejected_notification
+            import asyncio
+            
+            # Get client info
+            client = await db.users.find_one({"user_id": booking['client_id']}, {"_id": 0})
+            provider_doc = await db.provider_profiles.find_one({"provider_id": booking['provider_id']}, {"_id": 0})
+            
+            if client:
+                notification_data = {
+                    "provider_name": provider_doc['business_name'] if provider_doc else 'Prestataire',
+                    "event_type": booking.get('event_type', 'Événement'),
+                    "event_date": booking.get('event_date', ''),
+                    "location": booking.get('location', ''),
+                    "amount": booking.get('base_amount', booking.get('total_amount', 0))
+                }
+                
+                if new_status == 'confirmed':
+                    asyncio.create_task(send_booking_confirmed_notification(
+                        client['email'],
+                        client['name'],
+                        notification_data
+                    ))
+                elif new_status in ['cancelled', 'rejected']:
+                    asyncio.create_task(send_booking_rejected_notification(
+                        client['email'],
+                        client['name'],
+                        notification_data
+                    ))
+        except Exception as e:
+            print(f"Booking status notification error: {e}")
     
     updated = await db.bookings.find_one({"booking_id": booking_id}, {"_id": 0})
     if isinstance(updated['created_at'], str):
