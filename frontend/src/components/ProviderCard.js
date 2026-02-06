@@ -733,7 +733,7 @@ const ProviderCard = ({ provider }) => {
               </div>
 
               <div>
-                <Label htmlFor="event_type">Type d'événement *</Label>
+                <Label htmlFor="event_type">Type d&apos;événement *</Label>
                 <Input
                   id="event_type"
                   required
