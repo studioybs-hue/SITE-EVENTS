@@ -269,6 +269,24 @@ const AdminPage = () => {
     }
   };
 
+  const [userConversations, setUserConversations] = useState(null);
+  const [selectedUserForChat, setSelectedUserForChat] = useState(null);
+
+  const viewUserAllConversations = async (userId, userName) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/moderation/user-conversations/${userId}`, {
+        credentials: 'include'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserConversations(data);
+        setSelectedUserForChat({ userId, userName });
+      }
+    } catch (e) {
+      console.error('Error fetching user conversations:', e);
+    }
+  };
+
   const blockUserFromModeration = async (userId, reason) => {
     if (!window.confirm('Bloquer cet utilisateur ?')) return;
     try {
