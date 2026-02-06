@@ -576,6 +576,40 @@ async def get_all_bookings(
     }
 
 
+# ============ COMMISSION SETTINGS ============
+
+@router.get("/commission")
+async def get_commission_settings(admin: dict = Depends(get_admin_user)):
+    """Get commission settings"""
+    db = get_db()
+    settings = await db.site_settings.find_one({"key": "commission"}, {"_id": 0})
+    if settings:
+        return settings.get("value", {"enabled": False, "rate": 5})
+    return {"enabled": False, "rate": 5}
+
+
+@router.put("/commission")
+async def update_commission_settings(request: Request, admin: dict = Depends(get_admin_user)):
+    """Update commission settings"""
+    db = get_db()
+    body = await request.json()
+    
+    enabled = body.get("enabled", False)
+    rate = body.get("rate", 5)
+    
+    # Validate rate
+    if rate < 0 or rate > 50:
+        raise HTTPException(status_code=400, detail="Le taux doit être entre 0 et 50%")
+    
+    await db.site_settings.update_one(
+        {"key": "commission"},
+        {"$set": {"key": "commission", "value": {"enabled": enabled, "rate": rate}}},
+        upsert=True
+    )
+    
+    return {"message": "Paramètres de commission mis à jour", "enabled": enabled, "rate": rate}
+
+
 # ============ PACKS MANAGEMENT ============
 
 @router.get("/packs")
