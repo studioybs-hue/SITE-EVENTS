@@ -3159,6 +3159,28 @@ async def create_review(review_data: ReviewCreate, current_user: User = Depends(
             }}
         )
     
+    # Send email notification to provider
+    try:
+        from email_service import send_new_review_notification
+        import asyncio
+        
+        provider = await db.provider_profiles.find_one({"provider_id": review_data.provider_id}, {"_id": 0})
+        if provider:
+            provider_user = await db.users.find_one({"user_id": provider['user_id']}, {"_id": 0})
+            if provider_user:
+                review_notification = {
+                    "client_name": current_user.name,
+                    "rating": review_data.rating,
+                    "comment": review_data.comment
+                }
+                asyncio.create_task(send_new_review_notification(
+                    provider_user['email'],
+                    provider['business_name'],
+                    review_notification
+                ))
+    except Exception as e:
+        print(f"Review notification error: {e}")
+    
     return {"review_id": review_id, "is_verified": is_verified}
 
 @api_router.patch("/reviews/{review_id}/respond")
