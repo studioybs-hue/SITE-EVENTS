@@ -235,19 +235,23 @@ const PackagesPage = () => {
                       <div className="pt-4 border-t border-border">
                         <div className="flex items-baseline justify-between mb-4">
                           <div>
-                            <span className="text-sm text-muted-foreground line-through" data-testid="original-price">
-                              {pkg.original_price || pkg.total_price}€
-                            </span>
+                            {pkg.discount_percentage > 0 && (
+                              <span className="text-sm text-muted-foreground line-through" data-testid="original-price">
+                                {pkg.original_price || pkg.total_price}€
+                              </span>
+                            )}
                             <div className="text-3xl font-semibold text-foreground" data-testid="discounted-price">
-                              {pkg.discounted_price}€
+                              {pkg.discounted_price || pkg.price}€
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-xs text-muted-foreground">Économie</div>
-                            <div className="text-lg font-semibold text-accent">
-                              {(pkg.original_price || pkg.total_price) - pkg.discounted_price}€
+                          {pkg.discount_percentage > 0 && (
+                            <div className="text-right">
+                              <div className="text-xs text-muted-foreground">Économie</div>
+                              <div className="text-lg font-semibold text-accent">
+                                {(pkg.original_price || pkg.total_price) - pkg.discounted_price}€
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
 
                         <Button
