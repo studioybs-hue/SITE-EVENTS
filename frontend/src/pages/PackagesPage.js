@@ -73,12 +73,50 @@ const PackagesPage = () => {
     }
   };
 
-  const handleBookPackage = (packageId) => {
+  const handleViewPack = async (pkg) => {
+    setSelectedPack(pkg);
+    
+    // Get provider details
+    const providerId = pkg.provider_id || (pkg.providers && pkg.providers[0]?.provider_id);
+    if (providerId) {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/providers/${providerId}`);
+        if (res.ok) {
+          const provider = await res.json();
+          setProviderDetails(provider);
+        }
+      } catch (e) {
+        console.error('Error fetching provider:', e);
+      }
+    }
+    setShowModal(true);
+  };
+
+  const handleContactProvider = () => {
     if (!user) {
-      navigate('/login');
+      navigate('/login', { state: { returnTo: '/packages' } });
       return;
     }
-    navigate('/dashboard', { state: { bookPackage: packageId } });
+    if (providerDetails) {
+      navigate('/messages', { state: { providerId: providerDetails.provider_id } });
+    }
+  };
+
+  const handleBookPack = () => {
+    if (!user) {
+      navigate('/login', { state: { returnTo: '/packages' } });
+      return;
+    }
+    // Navigate to provider page to book
+    if (providerDetails) {
+      navigate(`/search`, { state: { openProvider: providerDetails.provider_id, bookPack: selectedPack } });
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedPack(null);
+    setProviderDetails(null);
   };
 
   return (
