@@ -367,7 +367,7 @@ const AdminPage = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-6 mb-6">
             <TabsTrigger value="dashboard" data-testid="admin-tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
@@ -387,6 +387,10 @@ const AdminPage = () => {
             <TabsTrigger value="bookings" data-testid="admin-tab-bookings">
               <Calendar className="h-4 w-4 mr-2" />
               Réservations
+            </TabsTrigger>
+            <TabsTrigger value="site" data-testid="admin-tab-site">
+              <Globe className="h-4 w-4 mr-2" />
+              Gestion Site
             </TabsTrigger>
           </TabsList>
 
