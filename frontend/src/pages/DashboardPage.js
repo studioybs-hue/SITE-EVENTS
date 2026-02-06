@@ -865,7 +865,7 @@ const DashboardPage = () => {
               {!isProvider && !needsProviderProfile && (
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                   <TabsList className="flex-wrap h-auto gap-1">
-                    <TabsTrigger value="overview" data-testid="tab-overview">Vue d'ensemble</TabsTrigger>
+                    <TabsTrigger value="overview" data-testid="tab-overview">Vue d&apos;ensemble</TabsTrigger>
                     <TabsTrigger value="quotes" data-testid="tab-client-quotes">Mes devis</TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-bookings">Mes réservations</TabsTrigger>
                     <TabsTrigger value="marketplace-offers" data-testid="tab-marketplace-offers" className="flex items-center gap-1">
