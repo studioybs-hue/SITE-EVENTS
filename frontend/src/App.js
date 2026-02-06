@@ -51,6 +51,9 @@ function AppRouter() {
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/payment/success" element={<PaymentSuccessPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/admin" element={<AdminPage />} />
+      <Route path="/admin/login" element={<AdminLoginPage />} />
     </Routes>
   );
 }
