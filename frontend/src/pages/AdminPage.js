@@ -80,6 +80,7 @@ const AdminPage = () => {
       if (activeTab === 'providers') fetchProviders();
       if (activeTab === 'subscriptions') fetchSubscriptions();
       if (activeTab === 'bookings') fetchBookings();
+      if (activeTab === 'site') fetchSiteContent();
     }
   }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage]);
 
