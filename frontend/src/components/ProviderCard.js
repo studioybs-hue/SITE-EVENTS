@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Star, BadgeCheck, Lock, X, Clock, ChevronDown, ChevronUp, Package, Check, Send, Calendar, FileText, Heart, Globe, Plane, Gift, Users, Euro, CreditCard } from 'lucide-react';
 import { Card } from '@/components/ui/card';
