@@ -161,15 +161,15 @@ const PackagesPage = () => {
                       <div className="mb-4">
                         <div className="flex items-center text-sm text-muted-foreground mb-2">
                           <Users className="h-4 w-4 mr-1" />
-                          <span>{pkg.providers.length} prestataires inclus</span>
+                          <span>{(pkg.providers || []).length} prestataires inclus</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {pkg.providers.slice(0, 3).map((provider, i) => (
+                          {(pkg.providers || []).slice(0, 3).map((provider, i) => (
                             <Badge key={i} variant="outline" className="text-xs">
-                              {provider.category}
+                              {provider.category || provider.service_type || 'Prestataire'}
                             </Badge>
                           ))}
-                          {pkg.providers.length > 3 && (
+                          {(pkg.providers || []).length > 3 && (
                             <Badge variant="outline" className="text-xs">
                               +{pkg.providers.length - 3}
                             </Badge>
