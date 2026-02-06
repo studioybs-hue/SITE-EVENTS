@@ -4,231 +4,205 @@ L'utilisateur souhaite créer une plateforme web complète pour les prestataires
 **PRODUCT REQUIREMENTS:**
 - **Types d'utilisateurs:** Clients, Prestataires, Administrateur.
 - **Fonctionnalités Client:**
-    - Afficher les pays où le prestataire se déplace sur sa fiche.
-    - Consulter le portfolio du prestataire (photos et vidéos de type story).
-    - Consulter les avis des anciens clients avec un badge Client vérifié.
-    - Voir et réserver les packs de services proposés par les prestataires.
-    - Sélectionner son pays lors de l'inscription.
+    - Consulter le portfolio du prestataire (photos et vidéos).
+    - Consulter les avis des anciens clients.
+    - Voir et réserver les packs de services.
 - **Fonctionnalités Prestataire:**
-    - Ajouter des photos et des vidéos (jusqu'à 1GB) à un portfolio.
-    - Visualiser une barre de progression lors de l'upload de fichiers volumineux.
-    - Ajouter une photo de profil.
+    - Gérer un portfolio multimédia.
     - Créer et gérer des packs de services.
-    - Sélectionner plusieurs pays d'opération lors de l'inscription.
+    - Sélectionner plusieurs pays d'opération.
+- **Fonctionnalités Administrateur:**
+    - Gérer le contenu de la page d'accueil (textes, images, vidéos).
+    - Gérer les informations de contact du site.
+    - Gérer les avis clients affichés.
+    - Modérer les conversations des utilisateurs en se basant sur des mots-clés et consulter l'historique des conversations signalées.
 - **Fonctionnalités Générales:**
-    - Une page centrale  pour lister tous les packs de tous les prestataires, visible par tous les utilisateurs (y compris les non-connectés).
+    - Une page centrale  pour lister tous les packs de tous les prestataires.
+    - Un système d'abonnements (Gratuit, Pro, Premium) pour les prestataires.
 
 **User's preferred language**: Français
 
 **what currently exists?**
-Une application full-stack (React/FastAPI/MongoDB) fonctionnelle avec authentification, profils, messagerie et paiements Stripe.
+Une application full-stack (React/FastAPI/MongoDB) avec authentification, profils, messagerie et paiements Stripe.
 
-Au cours de cette session, de nombreuses fonctionnalités ont été ajoutées et des bugs critiques corrigés :
-- **Correction du bug de performance (P0) :** Le problème de saisie extrêmement lente dans le formulaire du marketplace a été résolu en optimisant la gestion de l'état dans . La correction a été validée par l'agent de test.
-- **Implémentation du Portfolio Prestataire :** Les prestataires peuvent désormais ajouter des photos et des vidéos (jusqu'à 1GB) sous forme de stories via un nouvel onglet Portfolio dans leur tableau de bord. Une jauge de progression s'affiche lors des uploads.
-- **Implémentation des Packs Prestataire :** Les prestataires peuvent créer des packs de services. Les clients peuvent voir ces packs sur la fiche du prestataire et les réserver via un flux de paiement Stripe.
-- **Implémentation des Avis et Pays :** La fiche publique du prestataire affiche désormais les pays où il se déplace et une section d'avis avec un badge Client vérifié.
-- **Implémentation de la Photo de Profil :** Les prestataires peuvent ajouter une photo de profil qui s'affiche sur leur tableau de bord et sur leur carte publique.
-- **Sélection de Pays à l'Inscription :** Les formulaires d'inscription client et prestataire incluent désormais un champ pour sélectionner le(s) pays.
-- **Support au Déploiement :** L'agent a fourni une assistance approfondie pour mettre à jour l'application sur le VPS de l'utilisateur, notamment en corrigeant la configuration Nginx pour autoriser les uploads de fichiers volumineux.
+Au cours de cette session, l'agent a corrigé des bugs critiques et ajouté des fonctionnalités majeures :
+- **Correction de Bugs :** Le bug de la modale de réservation qui se fermait seule a été corrigé. La page  a été rendue fonctionnelle et affiche désormais tous les types de packs (packs d'événements et packs de prestataires individuels).
+- **Implémentation des Abonnements et de l'Admin :** Un système complet d'abonnements pour les prestataires (Gratuit, Pro, Premium) et un panneau d'administration () ont été créés.
+- **Gestion du Site :** Le panneau d'administration inclut une section Gestion Site pour modifier le contenu de la page d'accueil, les informations de contact et les témoignages.
+- **Modération du Chat :** Un système de modération a été ajouté à l'admin pour signaler les messages contenant des mots-clés inappropriés.
+- **Assistance au Déploiement :** L'agent a fourni un support continu à l'utilisateur pour déployer les modifications sur son VPS, notamment en fournissant des scripts pour peupler la base de données de production (packs, utilisateur admin).
 
 **Last working item**:
-- **Last item agent was working:** L'utilisateur a signalé que la page  (destinée à afficher tous les packs de tous les prestataires) est vide ou ne fonctionne pas car elle n'est pas connectée à la bonne API. L'agent a commencé à enquêter en examinant le fichier  et a confirmé qu'il utilisait un ancien système.
+- **Last item agent was working:** L'utilisateur a demandé de pouvoir consulter l'intégralité de la conversation d'un utilisateur depuis le panneau de modération, et non plus seulement le message signalé. L'agent a commencé à implémenter cette fonctionnalité.
 - **Status**: IN PROGRESS
 - **Agent Testing Done**: N
-- **Which testing method agent to use?** frontend testing agent (pour s'assurer que la page  récupère et affiche correctement tous les packs disponibles pour les utilisateurs connectés et non connectés).
+- **Which testing method agent to use?** frontend testing agent. L'agent de test devra se connecter en tant qu'administrateur, naviguer vers l'onglet Modération, s'assurer qu'un message signalé est présent (il faudra peut-être en créer un), et cliquer sur un nouveau bouton pour voir la conversation complète dans une modale.
 - **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: La page  n'affiche pas les packs (P0)**
-- **Issue 2: Le formulaire de réservation de pack se ferme tout seul (P0)**
-- **Issue 3: La logique de disponibilité des réservations est incomplète (P0)**
-- **Issue 4: Le menu déroulant des pays s'affiche derrière la modale (P1)**
-- **Issue 5: Écran blanc en cliquant sur le statut Disponible dans le matériel (P1)**
-- **Issue 6: Le login Google ne fonctionne pas sur le site déployé (P1)**
+- **Issue 1: Permettre de voir la conversation complète en modération (P0)**
+- **Issue 2: Logique de disponibilité des réservations incomplète (P0)**
+- **Issue 3: Problème de z-index avec le menu déroulant des pays (P1)**
+- **Issue 4: Écran blanc lors du clic sur le statut du matériel (P1)**
+- **Issue 5: Le login Google ne fonctionne pas sur le site déployé (P1)**
 
 **Issues Detail:**
-- **Issue 1: La page  n'affiche pas les packs**
-    - **Description:** La page Packs Événement est censée être une vitrine de tous les packs proposés par tous les prestataires, mais elle est actuellement vide ou utilise une API obsolète.
-    - **Attempted fixes:** L'agent a identifié le fichier  comme étant la source du problème, mais n'a pas encore commencé à coder la solution.
+- **Issue 1: Permettre de voir la conversation complète en modération**
+    - **Description:** L'administrateur doit pouvoir afficher l'historique complet d'une conversation à partir d'un message signalé dans le panneau de modération.
+    - **Attempted fixes:** Un endpoint backend  a été créé dans . Le travail sur le frontend dans  a commencé pour ajouter le bouton et la modale.
     - **Next debug checklist:**
-        1. Créer un nouvel endpoint backend public  dans  qui récupère tous les packs et les informations de base de leurs prestataires respectifs.
-        2. Mettre à jour la page  pour appeler ce nouvel endpoint.
-        3. Créer un composant  réutilisable pour afficher les informations de chaque pack (titre, prix, prestataire, etc.).
-        4. Afficher une grille de  sur la page.
-    - **Why fix this issue and what will be achieved with the fix?** C'est une fonctionnalité de découverte essentielle pour les clients.
+        1. Finaliser l'implémentation de la modale dans  pour afficher l'historique des conversations.
+        2. Assurer la récupération et l'affichage correct des messages (expéditeur, destinataire, contenu, horodatage).
+        3. Ajouter un bouton Voir toutes les conversations de cet utilisateur à côté de chaque message signalé.
+    - **Why fix this issue and what will be achieved with the fix?** Donner aux administrateurs le contexte complet pour prendre des décisions de modération éclairées.
     - **Status:** IN PROGRESS
     - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** frontend
+    - **Should Test frontend/backend/both after fix?** both
 
-- **Issue 2: Le formulaire de réservation de pack se ferme tout seul**
-    - **Description:** Dans la modale de réservation d'un pack, le fait de cliquer sur le champ de date ou d'autres champs de saisie provoque la fermeture immédiate de la modale, empêchant la réservation.
-    - **Attempted fixes:** L'agent a essayé plusieurs solutions : empêcher la propagation des événements, utiliser un input texte simple pour la date, et même remplacer la modale  par une modale CSS personnalisée dans . Le problème persiste.
-    - **Next debug checklist:**
-        1. Examiner le code de la modale personnalisée dans .
-        2. Le problème est probablement dû à une re-render inattendue du composant parent qui annule l'état d'ouverture de la modale.
-        3. Isoler la logique de la modale de réservation et son état dans un composant entièrement séparé, appelé depuis , pour éviter les interférences.
-        4. Utiliser les React DevTools pour inspecter ce qui déclenche la re-render et la fermeture.
-    - **Why fix this issue and what will be achieved with the fix?** Bug bloquant qui empêche les clients de réserver et de payer des packs.
-    - **Status:** IN PROGRESS
-    - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** frontend
-
-- **Issue 3: La logique de disponibilité des réservations est incomplète**
-    - **Description:** Le système autorise la réservation d'un pack même si le prestataire a indiqué ne pas être dans le pays de la prestation à cette date. La vérification ne prend en compte que la capacité journalière totale, et non la présence géographique.
-    - **Attempted fixes:** L'agent a créé un endpoint  mais sa logique est incomplète.
+- **Issue 2: Logique de disponibilité des réservations incomplète**
+    - **Description:** Le système permet de réserver un prestataire même s'il n'est pas présent dans le pays de l'événement à la date demandée.
     - **Next debug checklist:**
         1. Modifier l'endpoint  dans .
-        2. Avant de créer une réservation, il faut récupérer le pays où se déroule l'événement (ce champ doit être ajouté au formulaire de réservation et à l'API).
-        3. Interroger la collection  pour vérifier si le prestataire a une période de présence active dans ce pays à la date demandée.
-        4. Renvoyer une erreur explicite si le prestataire n'est pas disponible dans ce pays à cette date.
-    - **Why fix this issue and what will be achieved with the fix?** Empêche les réservations incorrectes, ce qui est fondamental pour la crédibilité de la plateforme.
+        2. Avant de créer une réservation, interroger la collection  pour vérifier la disponibilité géographique du prestataire à la date demandée.
+        3. Renvoyer une erreur si le prestataire n'est pas disponible.
+    - **Why fix this issue and what will be achieved with the fix?** Corrige une faille critique de la logique métier et renforce la crédibilité de la plateforme.
     - **Status:** NOT STARTED
     - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** backend
 
-- **Issue 4: Le menu déroulant des pays s'affiche derrière la modale**
-    - **Description:** Problème de  hérité du fork précédent. Dans le dashboard prestataire, onglet Déplacements, la liste des pays s'affiche derrière la modale, la rendant inutilisable.
+- **Issue 3: Problème de z-index avec le menu déroulant des pays**
+    - **Description:** Dans le dashboard prestataire, onglet Déplacements, le menu déroulant des pays s'affiche derrière la modale.
     - **Status:** NOT STARTED
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** frontend
 
-- **Issue 5: Écran blanc en cliquant sur le statut Disponible dans le matériel**
-    - **Description:** Hérité du fork précédent. Un clic sur le menu de statut d'un article dans la gestion du matériel provoque un crash.
+- **Issue 4: Écran blanc lors du clic sur le statut du matériel**
+    - **Description:** Un crash se produit en cliquant sur le menu de statut d'un article dans la gestion du matériel (hérité du fork précédent).
     - **Status:** NOT STARTED
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** frontend
 
-- **Issue 6: Le login Google ne fonctionne pas sur le site déployé**
-    - **Description:** Hérité du fork précédent. L'authentification Google échoue en production.
-    - **Next debug checklist:** Demander à l'utilisateur de vérifier que l'URL de redirection  est bien autorisée dans la Google Cloud Console.
+- **Issue 5: Le login Google ne fonctionne pas sur le site déployé**
+    - **Description:** L'authentification Google échoue en production (hérité du fork précédent).
+    - **Next debug checklist:** Demander à l'utilisateur de vérifier que l'URL de redirection correcte est autorisée dans sa console Google Cloud.
     - **Status:** NOT STARTED
     - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** both
 
 **In progress Task List**:
-- **Task 1: Rendre la page  fonctionnelle (P0)**
-    - **Where to resume:** Créer un nouvel endpoint backend et mettre à jour le composant .
-    - **What will be achieved with this?** Les clients pourront parcourir tous les packs de services disponibles sur la plateforme.
+- **Task 1: Finaliser la fonctionnalité Voir la conversation complète (P0)**
+    - **Where to resume:** Dans , terminer l'implémentation de la modale qui affiche l'historique complet des conversations d'un utilisateur.
+    - **What will be achieved with this?** Les administrateurs disposeront d'un outil de modération complet.
     - **Status:** IN PROGRESS
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **P1: Intégration de PayPal:** En tant qu'alternative à Stripe pour les paiements.
-    - **P1: Implémenter les Notifications:** Mettre en place des notifications (email/in-app) pour les messages, devis, réservations, etc.
+    - **P1: Intégration de PayPal pour les abonnements:** Implémenter le flux de paiement des abonnements avec PayPal, en utilisant le playbook déjà obtenu.
+    - **P1: Implémenter les Notifications:** Mettre en place des notifications (email/in-app) pour les messages, réservations, etc.
 - **Future Tasks:**
-    - Finaliser les Abonnements pour les prestataires (logique backend et paiement).
-    - Mettre en place la Commission sur les réservations.
-    - Créer le Panneau d'Administration.
-    - Synchronisation Google Calendar.
+    - Logique de restriction des fonctionnalités basée sur le plan d'abonnement du prestataire.
+    - Mise en place de la commission de la plateforme sur les réservations.
+    - Synchronisation avec Google Calendar pour les disponibilités des prestataires.
 
 **Completed work in this session**
-- **Correction bug critique :** Saisie lente dans le formulaire du Marketplace.
-- **Fonctionnalité :** Portfolio Stories pour les prestataires (photo/vidéo).
-- **Fonctionnalité :** Upload de fichiers volumineux (1GB) avec jauge de progression.
-- **Fonctionnalité :** Création et réservation de Packs de services par les prestataires.
-- **Fonctionnalité :** Affichage des pays de déplacement et des avis clients sur la fiche prestataire.
-- **Fonctionnalité :** Ajout de la photo de profil pour les prestataires.
-- **Fonctionnalité :** Sélection du pays lors de l'inscription client et prestataire.
-- **UI/UX :** Remplacement du bouton de connexion par une icône.
-- **Correction :** Audio activé par défaut sur les vidéos du portfolio.
-- **Correction :** Correction de multiples bugs dans le flux de réservation de pack.
-- **Correction :** Problème de routage d'API () résolu.
-- **Support Déploiement :** Aide à la configuration de Nginx (, timeouts) et des services  sur le VPS de l'utilisateur.
+- **Correction Bug P0:** Le formulaire de réservation de pack qui se fermait seul a été corrigé ().
+- **Correction Bug P0:** La page  affiche maintenant tous les packs (event et provider packs) et propose une modale de détails au lieu d'une redirection.
+- **Fonctionnalité:** Système d'abonnements pour les prestataires (Gratuit, Pro, Premium) avec page de tarification.
+- **Fonctionnalité:** Panneau d'administration complet avec authentification, statistiques, gestion des utilisateurs.
+- **Fonctionnalité:** Section Gestion du site dans l'admin pour modifier le contenu de la page d'accueil.
+- **Fonctionnalité:** Système de modération du chat dans l'admin avec signalement par mots-clés.
+- **Support Déploiement:** Aide au débogage du VPS de l'utilisateur (création d'utilisateur admin, peuplement de la base de données de production).
 
 **Earlier issues found/mentioned but not fixed**
-- Tous les problèmes mentionnés dans **All Pending/In progress Issue list** (Issues 4, 5, 6) étaient déjà présents et n'ont pas été traités dans cette session.
+- Les problèmes 3, 4 et 5 de la liste  sont des problèmes hérités des sessions précédentes qui n'ont pas été abordés.
 
 **Known issue recurrence from previous fork**
-- Les problèmes de  avec les modales et les menus déroulants () sont un problème récurrent et difficile à résoudre de manière stable.
+- Les problèmes de  avec les menus déroulants () et les modales sont un bug récurrent qui nécessite une solution robuste.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Backend:** FastAPI, MongoDB (),  pour le streaming de fichiers.
-- **Frontend:** React, TailwindCSS, ,  avec  pour le suivi de la progression des uploads.
-- **Déploiement:** VPS (IONOS), Nginx, , .
+- **Backend:** FastAPI,  pour la modularité, MongoDB (),  pour le hachage des mots de passe.
+- **Frontend:** React,  pour la correction de la modale, gestion d'état avec /.
+- **Déploiement:** L'utilisateur gère son propre VPS (IONOS) avec Nginx. L'agent fournit une assistance via des commandes .
 
 **key DB schema**
-- **portfolio_items:** (Nouvelle collection) 
-- **event_packages:** (Nouvelle collection, utilisée pour les packs) 
-- **provider_profiles:** (Modifié) ajout de .
-- **reviews:** (Modifié) ajout de .
-- **users:** (Modifié) ajout de  (client) et  (prestataire).
-- **bookings:** (Modifié) ajout de .
+- **admin_users:** (Nouveau) 
+- **subscriptions:** (Nouveau) 
+- **site_content:** (Nouveau)  (pour le contenu du site)
+- **flagged_messages:** (Nouveau) 
 
 **All files of reference**
-- : Fichier central pour l'affichage des prestataires et la réservation de packs, source de plusieurs bugs actuels.
-- : Page à refactoriser pour afficher tous les packs.
-- : Logique d'upload de fichiers avec jauge de progression.
-- : Contient toute la nouvelle logique métier pour les packs, le portfolio et les réservations.
-- : Fichier de configuration Nginx sur le serveur de l'utilisateur, modifié pour les uploads volumineux.
+- : Contient toute la nouvelle logique pour le panneau d'administration, y compris la modération.
+- : Gère toute l'interface du panneau d'administration.
+- : Page refactorisée pour afficher tous les types de packs et une nouvelle modale de détails.
+- : Le point d'entrée du backend, modifié pour inclure les nouveaux modules et le hook de modération.
+- : Fichier où le bug de la modale de réservation a été corrigé.
 
 **Areas that need refactoring**:
--  est devenu un composant tentaculaire. Il gère l'affichage, les favoris, l'ouverture de sa propre modale et de la modale de réservation de pack. La logique de la modale de réservation de pack doit être extraite dans son propre composant autonome pour résoudre les bugs de fermeture et améliorer la maintenabilité.
+-  est toujours un composant très volumineux. Extraire la logique de réservation dans un composant dédié reste une bonne pratique.
+-  et  pourraient être décomposés en sous-composants pour chaque onglet afin d'améliorer la lisibilité.
 
 **key api endpoints**
--  : Ajoute un item au portfolio (gère l'upload de fichier).
--  : Récupère le portfolio d'un prestataire.
--  : Crée un nouveau pack pour un prestataire.
--  : Récupère les packs d'un prestataire.
--  : Met à jour le profil (utilisé pour la photo de profil).
--  : Crée une réservation (pour services ou packs).
--  : Crée une session de paiement Stripe.
--  (client/pro) : Modifié pour accepter le(s) pays.
+- : Connexion de l'administrateur.
+- : Obtenir les statistiques du site.
+- : Gérer le contenu de la page d'accueil.
+- : Gérer les mots-clés de modération.
+- : Obtenir les messages signalés.
+- : **NOUVEAU** - Obtenir toutes les conversations d'un utilisateur.
+- : **NOUVEAU** - Combine les  et .
+- : Obtenir les plans d'abonnement disponibles.
 
 **Critical Info for New Agent**
-- **Priorité aux bugs bloquants :** L'utilisateur est très réactif et teste en production. Les bugs qui empêchent la réservation (formulaire qui se ferme, logique de disponibilité incorrecte) sont critiques et doivent être corrigés avant toute nouvelle fonctionnalité.
-- **Problème de modale persistant :** Le bug de la modale de réservation qui se ferme est récurrent. La solution ne réside probablement pas dans de petits ajustements mais nécessite une refonte de la manière dont la modale est structurée et appelée.
-- **Logique métier incomplète :** La vérification de la disponibilité géographique des prestataires est une faille majeure dans la logique de réservation qui doit être comblée.
-- **Environnement de production :** L'agent doit être prêt à fournir des scripts de déploiement clairs et à aider au débogage de la configuration du serveur (Nginx, systemd), car l'utilisateur déploie lui-même les modifications. Le nom du service backend est .
+- L'utilisateur déploie manuellement sur son propre VPS. Soyez prêt à fournir des commandes  claires et à déboguer des problèmes spécifiques à son environnement de production (ex: base de données vide, fichiers non à jour).
+- Il existe deux types de packs ( et ). Le code doit gérer les deux. La page  les fusionne désormais.
+- Le mot de passe de l'administrateur par défaut est .
+- De nombreux fichiers et une nouvelle architecture modulaire ont été introduits côté backend (, ).
 
 **documents and test reports created in this job**
-- : Rapport de test validant la correction du bug de saisie lente.
-- : Rapport de test validant les fonctionnalités de portfolio et d'avis.
-- : Mis à jour pour refléter les nouvelles fonctionnalités et les corrections.
+- : Rapport de test validant la correction de la page des packs et du bug de la modale.
+- : Rapport de test validant les fonctionnalités d'abonnement et d'administration.
+- : A été mis à jour pour refléter les fonctionnalités achevées.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10.  (Les packs ne sont pas visibles par les non-connectés) -> **Non résolu, tâche en cours.**
-9.   (Ça marche, mais quand on clique sur la date, ça disparaît aussitôt) -> **Non résolu.**
-8.   (Le bouton réserver ce pack ne fonctionne pas) -> **Résolu.**
-7.   (À l'inscription, on devrait pouvoir choisir le pays) -> **Résolu.**
-6.   (Toujours le même problème pour la réservation de pack, on peut sélectionner la date maintenant mais le reste disparaît) -> **Non résolu.**
-5.   (On n'a toujours pas l'image du prestataire qui s'affiche) -> **Résolu.**
-4.   (Quand on clique sur payer, erreur de connexion) -> **Résolu.**
-3.   (Deux choses : la vérification de disponibilité est fausse, et la page Stripe est blanche) -> **Partiellement résolu (Stripe corrigé, disponibilité non).**
-2.   (Toujours une erreur lors de la mise à jour [de la photo de profil]) -> **Résolu.**
-1.   (Le pack que j'ai créé n'apparaît pas pour les clients) -> **Résolu.**
+1.  (Cliquer sur un pack redirige au lieu d'ouvrir les détails). **Status: COMPLETED.**
+2.  (Je veux voir toute la conversation de l'utilisateur). **Status: IN PROGRESS.**
+3.  (Je veux modérer le chat avec des mots-clés). **Status: COMPLETED.**
+4.  (Je veux gérer le contenu du site depuis l'admin). **Status: COMPLETED.**
+5.  (Ça marche mais je ne trouve pas mon pack créé hier). **Status: COMPLETED.**
+6.  (Impossible de voir les packages et de se connecter à l'admin). **Status: COMPLETED.** (Problème de BDD de production).
+7.  (Page blanche sur /packages et chemin admin ?). **Status: COMPLETED.**
+8.  (Les packs ne sont toujours pas visibles). **Status: COMPLETED.** (Problème de BDD de production).
+9.  (Cette commande de déploiement fonctionne-t-elle ?). **Status: COMPLETED.**
+10.  (Comment faire la mise à jour ?). **Status: COMPLETED.**
 
 **Project Health Check:**
 - **Broken:**
-    - Le flux de réservation de packs est inutilisable à cause de la modale qui se ferme.
-    - La logique de réservation n'empêche pas de réserver un prestataire en dehors de sa zone de présence définie.
-    - La page principale de découverte des packs () est non fonctionnelle.
-    - La gestion des périodes de déplacement des prestataires est bloquée par un bug de z-index (hérité).
-    - La gestion du statut du matériel est bloquée par un bug d'écran blanc (hérité).
-    - L'authentification Google en production est cassée (hérité).
+    - Logique de disponibilité des réservations (ne vérifie pas le pays).
+    - Authentification Google en production.
+    - Problème de  sur le menu déroulant des pays.
+    - Crash en cliquant sur le statut du matériel.
 - **Mocked:**
-    - L'intégration de PayPal.
-    - Le système de notifications.
-    - Les abonnements et la commission.
+    - Intégration de PayPal (playbook reçu mais non implémenté).
+    - Système de notifications.
 
 **3rd Party Integrations**
+- **Stripe:** Intégré et fonctionnel pour les paiements.
+- **PayPal:** Playbook pour les abonnements obtenu via . L'implémentation n'est pas commencée.
 - **Google Auth:** Intégrée mais **cassée en production**.
-- **Stripe:** Intégrée et fonctionnelle.
-- **i18next:** Intégrée pour la traduction du frontend.
 
 **Testing status**
-- **Testing agent used after significant changes:** YES (pour le bug de performance et les fonctionnalités de portfolio/avis).
+- **Testing agent used after significant changes:** YES (pour les fonctionnalités d'admin et la correction des bugs de la page packages).
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None
-- **Known regressions:** Aucune nouvelle régression majeure identifiée dans cette session, mais plusieurs bugs critiques persistent.
+- **Known regressions:** Aucune.
 
 **Credentials to test flow:**
 - **Prestataire:**  / 
 - **Client:**  / 
+- **Admin:**  / 
 
 **What agent forgot to execute**
-- L'agent n'a pas traité les bugs hérités de la session précédente (z-index, écran blanc sur statut, Google Login).
-- L'agent n'a pas implémenté la logique complète de vérification de disponibilité (pays + date) lors de la réservation d'un pack, bien que l'utilisateur l'ait explicitement signalé comme une faille.</analysis>
+- L'agent n'a pas corrigé les bugs hérités de la session précédente (logique de disponibilité, z-index, crash matériel, login Google).
+- L'agent n'a pas commencé l'implémentation de l'intégration PayPal après avoir reçu le playbook.</analysis>
