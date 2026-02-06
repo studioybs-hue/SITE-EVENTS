@@ -108,6 +108,11 @@ const AdminPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+  
+  // Commission Settings
+  const [commissionEnabled, setCommissionEnabled] = useState(false);
+  const [commissionRate, setCommissionRate] = useState(5);
+  const [commissionLoading, setCommissionLoading] = useState(false);
 
   useEffect(() => {
     checkAdminAuth();
