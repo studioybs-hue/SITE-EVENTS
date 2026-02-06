@@ -55,6 +55,7 @@ function AppRouter() {
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/login" element={<AdminLoginPage />} />
+      <Route path="/admin/reset-password" element={<AdminResetPasswordPage />} />
     </Routes>
   );
 }
