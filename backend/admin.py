@@ -525,6 +525,79 @@ async def get_all_bookings(
     }
 
 
+# ============ PACKS MANAGEMENT ============
+
+@router.get("/packs")
+async def get_all_packs_admin(
+    admin: dict = Depends(get_admin_user),
+    page: int = 1,
+    limit: int = 20,
+    pack_type: Optional[str] = None
+):
+    """Get all packs (event_packages and provider_packs)"""
+    db = get_db()
+    
+    skip = (page - 1) * limit
+    
+    # Get event packages
+    event_packages = await db.event_packages.find({}, {"_id": 0}).to_list(100)
+    for p in event_packages:
+        p["pack_type"] = "event"
+        p["pack_id"] = p.get("package_id")
+    
+    # Get provider packs
+    provider_packs = await db.provider_packs.find({}, {"_id": 0}).to_list(100)
+    for p in provider_packs:
+        p["pack_type"] = "provider"
+        # Get provider info
+        provider = await db.provider_profiles.find_one(
+            {"provider_id": p.get("provider_id")},
+            {"_id": 0, "business_name": 1}
+        )
+        p["provider_name"] = provider.get("business_name") if provider else "N/A"
+    
+    # Combine and filter
+    all_packs = event_packages + provider_packs
+    
+    if pack_type:
+        all_packs = [p for p in all_packs if p.get("pack_type") == pack_type]
+    
+    # Sort by created_at
+    all_packs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    
+    total = len(all_packs)
+    paged_packs = all_packs[skip:skip + limit]
+    
+    return {
+        "packs": paged_packs,
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit
+    }
+
+
+@router.delete("/packs/{pack_type}/{pack_id}")
+async def delete_pack_admin(
+    pack_type: str,
+    pack_id: str,
+    admin: dict = Depends(get_admin_user)
+):
+    """Delete a pack (event or provider)"""
+    db = get_db()
+    
+    if pack_type == "event":
+        result = await db.event_packages.delete_one({"package_id": pack_id})
+    elif pack_type == "provider":
+        result = await db.provider_packs.delete_one({"pack_id": pack_id})
+    else:
+        raise HTTPException(status_code=400, detail="Type de pack invalide")
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Pack non trouvé")
+    
+    return {"success": True, "message": "Pack supprimé"}
+
+
 # ============ SETUP ============
 
 @router.post("/setup")
