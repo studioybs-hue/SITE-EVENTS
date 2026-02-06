@@ -79,6 +79,12 @@ const AdminPage = () => {
   const [bookingsPage, setBookingsPage] = useState(1);
   const [bookingsTotalPages, setBookingsTotalPages] = useState(1);
 
+  // Packs
+  const [packs, setPacks] = useState([]);
+  const [packsPage, setPacksPage] = useState(1);
+  const [packsTotalPages, setPacksTotalPages] = useState(1);
+  const [packsTypeFilter, setPacksTypeFilter] = useState('all');
+
   useEffect(() => {
     checkAdminAuth();
   }, []);
@@ -88,12 +94,13 @@ const AdminPage = () => {
       if (activeTab === 'dashboard') fetchStats();
       if (activeTab === 'users') fetchUsers();
       if (activeTab === 'providers') fetchProviders();
+      if (activeTab === 'packs') fetchPacks();
       if (activeTab === 'moderation') { fetchFlaggedMessages(); fetchModerationKeywords(); }
       if (activeTab === 'subscriptions') fetchSubscriptions();
       if (activeTab === 'bookings') fetchBookings();
       if (activeTab === 'site') fetchSiteContent();
     }
-  }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage, flaggedPage]);
+  }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage, flaggedPage, packsPage, packsTypeFilter]);
 
   const checkAdminAuth = async () => {
     try {
