@@ -212,25 +212,25 @@ async def reset_password(request: PasswordResetConfirm):
 
 
 @router.post("/change-password")
-async def change_password(request: ChangePasswordRequest, response: Response):
+async def change_password(pwd_request: ChangePasswordRequest, request: Request):
     """Change password for logged in admin"""
     db = get_db()
     
     from admin import get_admin_user_from_cookie
-    admin = await get_admin_user_from_cookie(response)
+    admin = await get_admin_user_from_cookie(request)
     if not admin:
         raise HTTPException(status_code=401, detail="Non authentifié")
     
     # Verify current password
-    if not bcrypt.checkpw(request.current_password.encode(), admin["password_hash"].encode()):
+    if not bcrypt.checkpw(pwd_request.current_password.encode(), admin["password_hash"].encode()):
         raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect")
     
     # Validate new password
-    if len(request.new_password) < 8:
+    if len(pwd_request.new_password) < 8:
         raise HTTPException(status_code=400, detail="Le nouveau mot de passe doit contenir au moins 8 caractères")
     
     # Hash new password
-    password_hash = bcrypt.hashpw(request.new_password.encode(), bcrypt.gensalt()).decode()
+    password_hash = bcrypt.hashpw(pwd_request.new_password.encode(), bcrypt.gensalt()).decode()
     
     # Update password
     await db.admin_users.update_one(
@@ -244,13 +244,13 @@ async def change_password(request: ChangePasswordRequest, response: Response):
 # ============ 2FA FUNCTIONS ============
 
 @router.post("/setup-2fa")
-async def setup_2fa(response: Response, admin_id: str = None):
+async def setup_2fa(request: Request):
     """Generate 2FA secret and QR code"""
     db = get_db()
     
     # Get admin from cookie
     from admin import get_admin_user_from_cookie
-    admin = await get_admin_user_from_cookie(response)
+    admin = await get_admin_user_from_cookie(request)
     if not admin:
         raise HTTPException(status_code=401, detail="Non authentifié")
     
