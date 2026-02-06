@@ -175,6 +175,107 @@ const AdminPage = () => {
     }
   };
 
+  // Site Content Functions
+  const fetchSiteContent = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/site-content`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setSiteContent(data);
+      }
+    } catch (e) {
+      console.error('Error fetching site content:', e);
+    }
+  };
+
+  const saveSiteContent = async () => {
+    setSavingContent(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/site-content`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(siteContent)
+      });
+      if (res.ok) {
+        alert('Contenu sauvegardé !');
+      }
+    } catch (e) {
+      console.error('Error saving site content:', e);
+      alert('Erreur lors de la sauvegarde');
+    } finally {
+      setSavingContent(false);
+    }
+  };
+
+  const addTestimonial = async () => {
+    if (!newTestimonial.client_name || !newTestimonial.comment) {
+      alert('Veuillez remplir le nom et le commentaire');
+      return;
+    }
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/site-content/testimonials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newTestimonial)
+      });
+      if (res.ok) {
+        setNewTestimonial({ client_name: '', event_type: '', rating: 5, comment: '', image: '' });
+        fetchSiteContent();
+      }
+    } catch (e) {
+      console.error('Error adding testimonial:', e);
+    }
+  };
+
+  const deleteTestimonial = async (id) => {
+    if (!window.confirm('Supprimer ce témoignage ?')) return;
+    try {
+      await fetch(`${BACKEND_URL}/api/admin/site-content/testimonials/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      fetchSiteContent();
+    } catch (e) {
+      console.error('Error deleting testimonial:', e);
+    }
+  };
+
+  const addFeaturedImage = async () => {
+    if (!newImage.url) {
+      alert('Veuillez entrer une URL d\'image');
+      return;
+    }
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/site-content/images`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newImage)
+      });
+      if (res.ok) {
+        setNewImage({ url: '', title: '', description: '' });
+        fetchSiteContent();
+      }
+    } catch (e) {
+      console.error('Error adding image:', e);
+    }
+  };
+
+  const deleteFeaturedImage = async (id) => {
+    if (!window.confirm('Supprimer cette image ?')) return;
+    try {
+      await fetch(`${BACKEND_URL}/api/admin/site-content/images/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      fetchSiteContent();
+    } catch (e) {
+      console.error('Error deleting image:', e);
+    }
+  };
+
   const handleBlockUser = async (userId) => {
     if (!window.confirm('Êtes-vous sûr de vouloir bloquer/débloquer cet utilisateur ?')) return;
     
