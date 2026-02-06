@@ -2168,6 +2168,64 @@ const AdminPage = () => {
                 </CardContent>
               </Card>
 
+              {/* Commission Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Euro className="h-5 w-5" />
+                    Commission Plateforme
+                  </CardTitle>
+                  <CardDescription>
+                    Activez une commission sur chaque réservation (payée par le client)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium">Activer la commission</p>
+                      <p className="text-sm text-muted-foreground">
+                        {commissionEnabled 
+                          ? `Commission de ${commissionRate}% active sur les réservations`
+                          : 'Aucune commission prélevée actuellement'
+                        }
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={commissionEnabled}
+                        onChange={(e) => setCommissionEnabled(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                    </label>
+                  </div>
+                  
+                  {commissionEnabled && (
+                    <div className="space-y-2">
+                      <Label>Taux de commission (%)</Label>
+                      <div className="flex items-center gap-4">
+                        <Input
+                          type="number"
+                          min="1"
+                          max="50"
+                          value={commissionRate}
+                          onChange={(e) => setCommissionRate(parseInt(e.target.value) || 0)}
+                          className="w-24"
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          Exemple : Pack 500€ → Client paie {500 + (500 * commissionRate / 100)}€
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <Button onClick={saveCommissionSettings} disabled={commissionLoading}>
+                    {commissionLoading ? 'Sauvegarde...' : 'Sauvegarder'}
+                  </Button>
+                </CardContent>
+              </Card>
+
               {/* 2FA Configuration */}
               <Card>
                 <CardHeader>
