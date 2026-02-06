@@ -824,6 +824,354 @@ const AdminPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Site Content Management Tab */}
+          <TabsContent value="site">
+            <div className="space-y-6">
+              {/* Hero Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Image className="h-5 w-5" />
+                    Section Accueil (Hero)
+                  </CardTitle>
+                  <CardDescription>Personnalisez le titre, sous-titre et l&apos;image/vidéo de fond</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Titre principal</Label>
+                    <Input
+                      value={siteContent?.hero?.title || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        hero: { ...siteContent?.hero, title: e.target.value }
+                      })}
+                      placeholder="Trouvez les meilleurs prestataires..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Sous-titre</Label>
+                    <Textarea
+                      value={siteContent?.hero?.subtitle || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        hero: { ...siteContent?.hero, subtitle: e.target.value }
+                      })}
+                      placeholder="Photographes, DJ, traiteurs..."
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>URL Image de fond</Label>
+                      <Input
+                        value={siteContent?.hero?.background_image || ''}
+                        onChange={(e) => setSiteContent({
+                          ...siteContent,
+                          hero: { ...siteContent?.hero, background_image: e.target.value }
+                        })}
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <div>
+                      <Label>URL Vidéo de fond (optionnel)</Label>
+                      <Input
+                        value={siteContent?.hero?.background_video || ''}
+                        onChange={(e) => setSiteContent({
+                          ...siteContent,
+                          hero: { ...siteContent?.hero, background_video: e.target.value }
+                        })}
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Contact Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Phone className="h-5 w-5" />
+                    Informations de Contact
+                  </CardTitle>
+                  <CardDescription>Coordonnées affichées sur le site</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" /> Email
+                    </Label>
+                    <Input
+                      value={siteContent?.contact?.email || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        contact: { ...siteContent?.contact, email: e.target.value }
+                      })}
+                      placeholder="contact@example.com"
+                    />
+                  </div>
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" /> Téléphone
+                    </Label>
+                    <Input
+                      value={siteContent?.contact?.phone || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        contact: { ...siteContent?.contact, phone: e.target.value }
+                      })}
+                      placeholder="+33 1 23 45 67 89"
+                    />
+                  </div>
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-yellow-500" /> Ligne VIP (urgences)
+                    </Label>
+                    <Input
+                      value={siteContent?.contact?.vip_phone || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        contact: { ...siteContent?.contact, vip_phone: e.target.value }
+                      })}
+                      placeholder="+33 1 23 45 67 90"
+                    />
+                  </div>
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" /> Adresse
+                    </Label>
+                    <Input
+                      value={siteContent?.contact?.address || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        contact: { ...siteContent?.contact, address: e.target.value }
+                      })}
+                      placeholder="Paris, France"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Testimonials */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Quote className="h-5 w-5" />
+                    Avis Clients
+                  </CardTitle>
+                  <CardDescription>Témoignages affichés sur la page d&apos;accueil</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* Add new testimonial form */}
+                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Plus className="h-4 w-4" /> Ajouter un témoignage
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <Input
+                        placeholder="Nom du client"
+                        value={newTestimonial.client_name}
+                        onChange={(e) => setNewTestimonial({...newTestimonial, client_name: e.target.value})}
+                      />
+                      <Input
+                        placeholder="Type d'événement (ex: Mariage)"
+                        value={newTestimonial.event_type}
+                        onChange={(e) => setNewTestimonial({...newTestimonial, event_type: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <Select 
+                        value={String(newTestimonial.rating)} 
+                        onValueChange={(v) => setNewTestimonial({...newTestimonial, rating: parseInt(v)})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Note" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5">⭐⭐⭐⭐⭐ (5)</SelectItem>
+                          <SelectItem value="4">⭐⭐⭐⭐ (4)</SelectItem>
+                          <SelectItem value="3">⭐⭐⭐ (3)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        placeholder="URL photo client (optionnel)"
+                        value={newTestimonial.image}
+                        onChange={(e) => setNewTestimonial({...newTestimonial, image: e.target.value})}
+                      />
+                    </div>
+                    <Textarea
+                      placeholder="Commentaire du client..."
+                      value={newTestimonial.comment}
+                      onChange={(e) => setNewTestimonial({...newTestimonial, comment: e.target.value})}
+                      className="mb-4"
+                    />
+                    <Button onClick={addTestimonial}>
+                      <Plus className="h-4 w-4 mr-2" /> Ajouter
+                    </Button>
+                  </div>
+
+                  {/* Existing testimonials */}
+                  <div className="space-y-4">
+                    {(siteContent?.testimonials || []).map((t) => (
+                      <div key={t.id} className="flex items-start justify-between p-4 border rounded-lg">
+                        <div className="flex gap-4">
+                          {t.image && (
+                            <img src={t.image} alt={t.client_name} className="w-12 h-12 rounded-full object-cover" />
+                          )}
+                          <div>
+                            <div className="font-medium">{t.client_name}</div>
+                            <div className="text-sm text-muted-foreground">{t.event_type}</div>
+                            <div className="text-yellow-500">{'⭐'.repeat(t.rating)}</div>
+                            <p className="text-sm mt-2">{t.comment}</p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => deleteTestimonial(t.id)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ))}
+                    {(!siteContent?.testimonials || siteContent.testimonials.length === 0) && (
+                      <p className="text-center text-muted-foreground py-4">Aucun témoignage ajouté</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Featured Images */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Image className="h-5 w-5" />
+                    Images/Vidéos de la galerie
+                  </CardTitle>
+                  <CardDescription>Images affichées sur la page d&apos;accueil</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* Add new image form */}
+                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Plus className="h-4 w-4" /> Ajouter une image
+                    </h4>
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <Input
+                        placeholder="URL de l'image"
+                        value={newImage.url}
+                        onChange={(e) => setNewImage({...newImage, url: e.target.value})}
+                      />
+                      <Input
+                        placeholder="Titre (optionnel)"
+                        value={newImage.title}
+                        onChange={(e) => setNewImage({...newImage, title: e.target.value})}
+                      />
+                      <Input
+                        placeholder="Description (optionnel)"
+                        value={newImage.description}
+                        onChange={(e) => setNewImage({...newImage, description: e.target.value})}
+                      />
+                    </div>
+                    <Button onClick={addFeaturedImage}>
+                      <Plus className="h-4 w-4 mr-2" /> Ajouter
+                    </Button>
+                  </div>
+
+                  {/* Existing images */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {(siteContent?.featured_images || []).map((img) => (
+                      <div key={img.id} className="relative group">
+                        <img 
+                          src={img.url} 
+                          alt={img.title || 'Image'} 
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => deleteFeaturedImage(img.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        {img.title && (
+                          <p className="text-xs mt-1 truncate">{img.title}</p>
+                        )}
+                      </div>
+                    ))}
+                    {(!siteContent?.featured_images || siteContent.featured_images.length === 0) && (
+                      <p className="col-span-4 text-center text-muted-foreground py-4">Aucune image ajoutée</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Statistiques affichées
+                  </CardTitle>
+                  <CardDescription>Chiffres mis en avant sur la page d&apos;accueil</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Nombre de prestataires</Label>
+                    <Input
+                      value={siteContent?.stats?.providers_count || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        stats: { ...siteContent?.stats, providers_count: e.target.value }
+                      })}
+                      placeholder="500+"
+                    />
+                  </div>
+                  <div>
+                    <Label>Événements réalisés</Label>
+                    <Input
+                      value={siteContent?.stats?.events_count || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        stats: { ...siteContent?.stats, events_count: e.target.value }
+                      })}
+                      placeholder="2000+"
+                    />
+                  </div>
+                  <div>
+                    <Label>Taux de satisfaction</Label>
+                    <Input
+                      value={siteContent?.stats?.satisfaction_rate || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        stats: { ...siteContent?.stats, satisfaction_rate: e.target.value }
+                      })}
+                      placeholder="98%"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Save Button */}
+              <div className="flex justify-end">
+                <Button 
+                  size="lg" 
+                  onClick={saveSiteContent}
+                  disabled={savingContent}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {savingContent ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Sauvegarde...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Sauvegarder toutes les modifications
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
