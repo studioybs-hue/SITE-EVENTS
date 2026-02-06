@@ -186,6 +186,105 @@ const AdminPage = () => {
     }
   };
 
+  // Moderation Functions
+  const fetchFlaggedMessages = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/moderation/flagged?page=${flaggedPage}&limit=20`, { 
+        credentials: 'include' 
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setFlaggedMessages(data.flagged_messages);
+        setFlaggedTotalPages(data.pages);
+      }
+    } catch (e) {
+      console.error('Error fetching flagged messages:', e);
+    }
+  };
+
+  const fetchModerationKeywords = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/moderation/keywords`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setModerationKeywords(data.keywords || []);
+        setModerationEnabled(data.enabled !== false);
+      }
+    } catch (e) {
+      console.error('Error fetching keywords:', e);
+    }
+  };
+
+  const saveModerationKeywords = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/api/admin/moderation/keywords`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ keywords: moderationKeywords, enabled: moderationEnabled })
+      });
+      alert('Mots-clés sauvegardés !');
+    } catch (e) {
+      console.error('Error saving keywords:', e);
+    }
+  };
+
+  const addKeyword = () => {
+    if (newKeyword.trim() && !moderationKeywords.includes(newKeyword.trim().toLowerCase())) {
+      setModerationKeywords([...moderationKeywords, newKeyword.trim().toLowerCase()]);
+      setNewKeyword('');
+    }
+  };
+
+  const removeKeyword = (keyword) => {
+    setModerationKeywords(moderationKeywords.filter(k => k !== keyword));
+  };
+
+  const updateFlagStatus = async (flagId, status, notes = '') => {
+    try {
+      await fetch(`${BACKEND_URL}/api/admin/moderation/flagged/${flagId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status, notes })
+      });
+      fetchFlaggedMessages();
+    } catch (e) {
+      console.error('Error updating flag status:', e);
+    }
+  };
+
+  const viewConversation = async (conversationId) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/moderation/conversation/${conversationId}`, {
+        credentials: 'include'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedConversation(data);
+        setConversationMessages(data.messages);
+      }
+    } catch (e) {
+      console.error('Error fetching conversation:', e);
+    }
+  };
+
+  const blockUserFromModeration = async (userId, reason) => {
+    if (!window.confirm('Bloquer cet utilisateur ?')) return;
+    try {
+      await fetch(`${BACKEND_URL}/api/admin/moderation/block-user/${userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ reason })
+      });
+      alert('Utilisateur bloqué');
+      fetchFlaggedMessages();
+    } catch (e) {
+      console.error('Error blocking user:', e);
+    }
+  };
+
   // Site Content Functions
   const fetchSiteContent = async () => {
     try {
