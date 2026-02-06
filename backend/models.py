@@ -184,7 +184,9 @@ class Booking(BaseModel):
     event_date: str
     event_location: str
     status: str  # pending, confirmed, cancelled, completed
-    total_amount: float
+    base_amount: Optional[float] = None  # Original price before commission
+    platform_commission: Optional[float] = None  # 10% commission
+    total_amount: float  # Total with commission
     deposit_paid: float = 0.0
     deposit_required: float = 0.0  # Usually 30% of total
     payment_status: str  # pending, partial, paid
