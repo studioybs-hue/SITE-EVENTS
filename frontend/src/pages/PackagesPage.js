@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, Users, Star, TrendingDown, Check } from 'lucide-react';
+import { Package, Users, Star, TrendingDown, Check, X, MapPin, Phone, Mail, MessageCircle, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const PackagesPage = () => {
@@ -14,8 +14,12 @@ const PackagesPage = () => {
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [eventTypeFilter, setEventTypeFilter] = React.useState('');
+  const [selectedPack, setSelectedPack] = React.useState(null);
+  const [providerDetails, setProviderDetails] = React.useState(null);
+  const [showModal, setShowModal] = React.useState(false);
 
   const eventTypes = ['Mariage', 'Anniversaire', 'Événement professionnel', 'Autre'];
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   React.useEffect(() => {
     checkAuth();
@@ -24,7 +28,6 @@ const PackagesPage = () => {
 
   const checkAuth = async () => {
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
       const response = await fetch(`${BACKEND_URL}/api/auth/me`, { credentials: 'include' });
       if (response.ok) setUser(await response.json());
     } catch (e) {}
