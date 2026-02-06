@@ -164,7 +164,7 @@ async def admin_login(request: Request, response: Response):
         value=session_token,
         httponly=True,
         secure=True,
-        samesite="none",
+        samesite="lax",
         path="/",
         max_age=12*60*60
     )
