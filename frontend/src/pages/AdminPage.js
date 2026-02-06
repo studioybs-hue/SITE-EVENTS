@@ -46,6 +46,16 @@ const AdminPage = () => {
   const [newTestimonial, setNewTestimonial] = useState({ client_name: '', event_type: '', rating: 5, comment: '', image: '' });
   const [newImage, setNewImage] = useState({ url: '', title: '', description: '' });
   
+  // Moderation
+  const [flaggedMessages, setFlaggedMessages] = useState([]);
+  const [flaggedPage, setFlaggedPage] = useState(1);
+  const [flaggedTotalPages, setFlaggedTotalPages] = useState(1);
+  const [moderationKeywords, setModerationKeywords] = useState([]);
+  const [moderationEnabled, setModerationEnabled] = useState(true);
+  const [newKeyword, setNewKeyword] = useState('');
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [conversationMessages, setConversationMessages] = useState([]);
+  
   // Users
   const [users, setUsers] = useState([]);
   const [usersPage, setUsersPage] = useState(1);
@@ -78,6 +88,7 @@ const AdminPage = () => {
       if (activeTab === 'dashboard') fetchStats();
       if (activeTab === 'users') fetchUsers();
       if (activeTab === 'providers') fetchProviders();
+      if (activeTab === 'moderation') { fetchFlaggedMessages(); fetchModerationKeywords(); };
       if (activeTab === 'subscriptions') fetchSubscriptions();
       if (activeTab === 'bookings') fetchBookings();
       if (activeTab === 'site') fetchSiteContent();
