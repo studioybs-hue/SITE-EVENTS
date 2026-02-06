@@ -225,8 +225,10 @@ const ProviderCard = ({ provider }) => {
           credentials: 'include',
           body: JSON.stringify({
             booking_id: booking.booking_id,
-            amount: selectedPack.price,
-            installments: 1
+            payment_type: 'full',
+            installment_number: 1,
+            total_installments: 1,
+            origin_url: window.location.origin
           })
         });
         
