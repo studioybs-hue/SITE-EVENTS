@@ -852,6 +852,102 @@ async def check_message_for_moderation(message_data: dict):
     return None
 
 
+@router.get("/moderation/user-conversations/{user_id}")
+async def get_user_all_conversations(
+    user_id: str,
+    admin: dict = Depends(get_admin_user)
+):
+    """Get all conversations for a specific user"""
+    db = get_db()
+    
+    # Get user info
+    user = await db.users.find_one(
+        {"user_id": user_id},
+        {"_id": 0, "user_id": 1, "name": 1, "email": 1, "user_type": 1}
+    )
+    
+    # Find all messages where user is sender or receiver
+    messages = await db.messages.find(
+        {"$or": [{"sender_id": user_id}, {"receiver_id": user_id}]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(500)
+    
+    # Group by conversation partner
+    conversations = {}
+    for msg in messages:
+        partner_id = msg["receiver_id"] if msg["sender_id"] == user_id else msg["sender_id"]
+        if partner_id not in conversations:
+            conversations[partner_id] = {
+                "partner_id": partner_id,
+                "messages": [],
+                "last_message": None,
+                "message_count": 0
+            }
+        conversations[partner_id]["messages"].append(msg)
+        conversations[partner_id]["message_count"] += 1
+        if not conversations[partner_id]["last_message"]:
+            conversations[partner_id]["last_message"] = msg
+    
+    # Get partner info for each conversation
+    result = []
+    for partner_id, conv_data in conversations.items():
+        partner = await db.users.find_one(
+            {"user_id": partner_id},
+            {"_id": 0, "user_id": 1, "name": 1, "email": 1, "user_type": 1}
+        )
+        result.append({
+            "partner": partner,
+            "message_count": conv_data["message_count"],
+            "last_message": conv_data["last_message"],
+            "messages": sorted(conv_data["messages"], key=lambda x: x.get("created_at", ""))
+        })
+    
+    return {
+        "user": user,
+        "conversations": result,
+        "total_conversations": len(result),
+        "total_messages": len(messages)
+    }
+
+
+@router.get("/moderation/all-messages")
+async def get_all_recent_messages(
+    admin: dict = Depends(get_admin_user),
+    page: int = 1,
+    limit: int = 50
+):
+    """Get all recent messages for monitoring"""
+    db = get_db()
+    
+    skip = (page - 1) * limit
+    
+    total = await db.messages.count_documents({})
+    messages = await db.messages.find(
+        {},
+        {"_id": 0}
+    ).skip(skip).limit(limit).sort("created_at", -1).to_list(limit)
+    
+    # Enrich with user info
+    for msg in messages:
+        sender = await db.users.find_one(
+            {"user_id": msg.get("sender_id")},
+            {"_id": 0, "name": 1, "email": 1, "user_type": 1}
+        )
+        receiver = await db.users.find_one(
+            {"user_id": msg.get("receiver_id")},
+            {"_id": 0, "name": 1, "email": 1, "user_type": 1}
+        )
+        msg["sender"] = sender
+        msg["receiver"] = receiver
+    
+    return {
+        "messages": messages,
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit
+    }
+
+
 @router.put("/site-content")
 async def update_site_content(request: Request, admin: dict = Depends(get_admin_user)):
     """Update site content settings"""
