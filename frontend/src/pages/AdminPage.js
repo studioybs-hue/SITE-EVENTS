@@ -495,7 +495,7 @@ const AdminPage = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7 mb-6">
+          <TabsList className="grid w-full grid-cols-8 mb-6">
             <TabsTrigger value="dashboard" data-testid="admin-tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
@@ -507,6 +507,10 @@ const AdminPage = () => {
             <TabsTrigger value="providers" data-testid="admin-tab-providers">
               <Settings className="h-4 w-4 mr-2" />
               Prestataires
+            </TabsTrigger>
+            <TabsTrigger value="packs" data-testid="admin-tab-packs">
+              <Package className="h-4 w-4 mr-2" />
+              Packs
             </TabsTrigger>
             <TabsTrigger value="moderation" data-testid="admin-tab-moderation">
               <AlertTriangle className="h-4 w-4 mr-2" />
@@ -522,7 +526,7 @@ const AdminPage = () => {
             </TabsTrigger>
             <TabsTrigger value="site" data-testid="admin-tab-site">
               <Globe className="h-4 w-4 mr-2" />
-              Gestion Site
+              Site
             </TabsTrigger>
           </TabsList>
 
