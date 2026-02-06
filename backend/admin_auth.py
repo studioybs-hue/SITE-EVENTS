@@ -449,7 +449,7 @@ async def update_email_config(config: EmailConfigUpdate, request: Request):
 async def test_email(request: Request):
     """Send a test email"""
     from admin import get_admin_user
-    await get_admin_user(response)  # Verify auth
+    await get_admin_user(request)  # Verify auth
     
     config = await get_email_config()
     
