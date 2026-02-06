@@ -1028,6 +1028,110 @@ const AdminPage = () => {
                   </div>
                 </div>
               )}
+
+              {/* All User Conversations Modal */}
+              {selectedUserForChat && userConversations && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setSelectedUserForChat(null); setUserConversations(null); }}>
+                  <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                    <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+                      <div>
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <MessageCircle className="h-5 w-5 text-blue-500" />
+                          Toutes les conversations de {userConversations.user?.name || 'Utilisateur'}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {userConversations.total_conversations} conversation(s) • {userConversations.total_messages} message(s) total
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => { setSelectedUserForChat(null); setUserConversations(null); }}>
+                        <X className="h-5 w-5" />
+                      </Button>
+                    </div>
+                    
+                    <div className="p-4 overflow-y-auto max-h-[70vh]">
+                      {userConversations.conversations?.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                          <p>Aucune conversation trouvée</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          {userConversations.conversations?.map((conv, idx) => (
+                            <div key={idx} className="border rounded-lg overflow-hidden">
+                              {/* Conversation Header */}
+                              <div className="bg-gray-100 p-3 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <Users className="h-5 w-5 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">{conv.partner?.name || 'Utilisateur supprimé'}</p>
+                                    <p className="text-xs text-muted-foreground">{conv.partner?.email}</p>
+                                  </div>
+                                </div>
+                                <Badge variant="outline">
+                                  {conv.message_count} message(s)
+                                </Badge>
+                              </div>
+                              
+                              {/* Messages List */}
+                              <div className="p-3 space-y-2 max-h-64 overflow-y-auto bg-gray-50/50">
+                                {conv.messages?.map((msg, msgIdx) => {
+                                  const isFromTargetUser = msg.sender_id === selectedUserForChat.userId;
+                                  return (
+                                    <div 
+                                      key={msgIdx} 
+                                      className={`p-2 rounded-lg text-sm ${
+                                        isFromTargetUser 
+                                          ? 'bg-blue-100 ml-8' 
+                                          : 'bg-white border mr-8'
+                                      }`}
+                                    >
+                                      <div className="flex justify-between items-center mb-1">
+                                        <span className={`font-medium text-xs ${isFromTargetUser ? 'text-blue-700' : 'text-gray-700'}`}>
+                                          {isFromTargetUser ? userConversations.user?.name : conv.partner?.name}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">
+                                          {new Date(msg.created_at).toLocaleString('fr-FR')}
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-800">{msg.content}</p>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="p-4 border-t bg-gray-50 flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">
+                        Email: {userConversations.user?.email}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => {
+                            if (window.confirm(`Bloquer ${userConversations.user?.name} ?`)) {
+                              blockUserFromModeration(selectedUserForChat.userId, 'Comportement inapproprié');
+                              setSelectedUserForChat(null);
+                              setUserConversations(null);
+                            }
+                          }}
+                        >
+                          <Ban className="h-4 w-4 mr-1" /> Bloquer cet utilisateur
+                        </Button>
+                        <Button variant="outline" onClick={() => { setSelectedUserForChat(null); setUserConversations(null); }}>
+                          Fermer
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
