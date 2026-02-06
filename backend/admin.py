@@ -20,10 +20,16 @@ def get_db():
 
 async def get_admin_user(request: Request):
     """Verify admin authentication"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     db = get_db()
     
     # Check admin session token
     admin_token = request.cookies.get('admin_session_token')
+    logger.info(f"Admin token from cookie: {admin_token}")
+    logger.info(f"All cookies: {request.cookies}")
+    
     if not admin_token:
         auth_header = request.headers.get('Authorization')
         if auth_header and auth_header.startswith('Bearer '):
