@@ -863,9 +863,13 @@ const ProviderCard = ({ provider }) => {
         </div>
       </Card>
       
-      {/* Pack Booking Modal - Custom implementation to avoid focus issues */}
-      {packBookingOpen && selectedPack && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      {/* Pack Booking Modal - Using Portal to render outside parent tree */}
+      {packBookingOpen && selectedPack && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/50"
@@ -876,6 +880,7 @@ const ProviderCard = ({ provider }) => {
           <div 
             className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -884,6 +889,7 @@ const ProviderCard = ({ provider }) => {
                 Réserver le pack
               </h2>
               <button 
+                type="button"
                 onClick={() => setPackBookingOpen(false)}
                 className="p-1 hover:bg-gray-100 rounded"
               >
@@ -912,14 +918,18 @@ const ProviderCard = ({ provider }) => {
                 )}
               </div>
 
-              <div>
+              <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
                 <Label>Date de l'événement *</Label>
                 <Input
                   type="text"
                   required
                   placeholder="JJ/MM/AAAA"
+                  data-testid="pack-booking-date"
                   value={packBookingForm.event_date}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
                   onChange={(e) => {
+                    e.stopPropagation();
                     let value = e.target.value.replace(/[^\d/]/g, '');
                     if (value.length === 2 && !value.includes('/')) {
                       value += '/';
@@ -934,23 +944,35 @@ const ProviderCard = ({ provider }) => {
                 <p className="text-xs text-muted-foreground mt-1">Format: JJ/MM/AAAA</p>
               </div>
 
-              <div>
+              <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
                 <Label>Lieu *</Label>
                 <Input
                   required
                   placeholder="Ville ou adresse"
+                  data-testid="pack-booking-location"
                   value={packBookingForm.event_location}
-                  onChange={(e) => setPackBookingForm({ ...packBookingForm, event_location: e.target.value })}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setPackBookingForm({ ...packBookingForm, event_location: e.target.value });
+                  }}
                 />
               </div>
 
-              <div>
+              <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
                 <Label>Message (optionnel)</Label>
                 <Textarea
                   rows={2}
                   placeholder="Précisions sur votre événement..."
+                  data-testid="pack-booking-message"
                   value={packBookingForm.message}
-                  onChange={(e) => setPackBookingForm({ ...packBookingForm, message: e.target.value })}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setPackBookingForm({ ...packBookingForm, message: e.target.value });
+                  }}
                 />
               </div>
 
@@ -958,7 +980,7 @@ const ProviderCard = ({ provider }) => {
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setPackBookingOpen(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" className="flex-1" disabled={submitting}>
+                <Button type="submit" className="flex-1" disabled={submitting} data-testid="pack-booking-submit">
                   {submitting ? (
                     <span className="flex items-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -974,7 +996,8 @@ const ProviderCard = ({ provider }) => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
