@@ -3301,6 +3301,36 @@ async def get_provider_packs(provider_id: str):
     ).sort("created_at", -1).to_list(length=50)
     return packs
 
+@api_router.get("/packs")
+async def get_all_packs(event_type: str = None):
+    """Get all packs from all providers (public endpoint)"""
+    query = {"is_active": True}
+    if event_type and event_type != 'all':
+        # Map French event types to internal values
+        event_type_map = {
+            'Mariage': 'wedding',
+            'Anniversaire': 'birthday',
+            'Événement professionnel': 'corporate',
+            'Autre': 'other'
+        }
+        internal_type = event_type_map.get(event_type, event_type)
+        query["event_type"] = internal_type
+    
+    packs = await db.provider_packs.find(query, {"_id": 0}).sort("created_at", -1).to_list(length=100)
+    
+    # Enrich with provider info
+    result = []
+    for pack in packs:
+        provider = await db.provider_profiles.find_one(
+            {"provider_id": pack["provider_id"]}, 
+            {"_id": 0, "business_name": 1, "category": 1, "location": 1, "profile_image": 1, "rating": 1, "verified": 1}
+        )
+        if provider:
+            pack["provider"] = provider
+            result.append(pack)
+    
+    return result
+
 @api_router.post("/providers/{provider_id}/packs")
 async def create_provider_pack(
     provider_id: str,
