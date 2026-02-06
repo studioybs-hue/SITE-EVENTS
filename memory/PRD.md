@@ -227,6 +227,12 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 
 ## Historique des versions
 
+### 06/02/2025 - v2.5 - Modération & Contact Client
+- ✅ **Modale "Toutes les conversations"** : L'admin peut voir l'historique complet des conversations d'un utilisateur depuis le panneau de modération
+- ✅ **Bouton "Contacter" sur réservations** : Les prestataires peuvent contacter directement un client depuis la fiche de réservation
+- ✅ **Affichage nom du client** : Le nom du client est affiché sur chaque réservation du prestataire
+- ✅ **Modération API REST** : Les messages envoyés via l'API REST sont aussi vérifiés par le système de modération
+
 ### 06/02/2025 - v2.4 - Abonnements & Administration
 - ✅ **Page Tarifs `/pricing`** : Affichage des 3 formules (Gratuit 0€, Pro 15€/mois, Premium 19€/mois)
 - ✅ **Toggle mensuel/annuel** : Annuel à 150€ et 190€ (2 mois offerts)
@@ -261,3 +267,4 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - Système de favoris
 - Page de profil et paramètres
 - Améliorations UX mobile
+
