@@ -120,6 +120,8 @@ Plateforme web complète pour les prestataires événementiels et de mariage, pe
 - [x] ~~Saisie lente dans le formulaire Marketplace~~ (Corrigé 05/02/2025 - useCallback)
 - [x] ~~Page /packages n'affichait pas les packs~~ (Corrigé 06/02/2025 - API fonctionnelle)
 - [x] ~~Modale de réservation de pack se fermait toute seule~~ (Corrigé 06/02/2025 - createPortal)
+- [x] ~~Voir conversation complète en modération~~ (Corrigé 06/02/2025 - Modale ajoutée)
+- [x] ~~Contacter client depuis fiche réservation~~ (Corrigé 06/02/2025 - Bouton ajouté)
 - [ ] Écran blanc en cliquant sur le statut "Disponible" (menu déroulant - erreur JS)
 - [ ] Problèmes de chevauchement UI (z-index) sur sélecteur de pays dans modale "Ajouter une période"
 - [ ] Logique de disponibilité incomplète (ne vérifie pas le pays du prestataire)
