@@ -572,3 +572,168 @@ async def setup_admin_account(request: Request):
         "message": "Compte administrateur créé",
         "admin_id": admin_id
     }
+
+
+# ============ SITE CONTENT MANAGEMENT ============
+
+@router.get("/site-content")
+async def get_site_content(admin: dict = Depends(get_admin_user)):
+    """Get all site content settings"""
+    db = get_db()
+    
+    content = await db.site_content.find_one({"type": "homepage"}, {"_id": 0})
+    
+    if not content:
+        # Return default content
+        content = {
+            "type": "homepage",
+            "hero": {
+                "title": "Trouvez les meilleurs prestataires pour vos événements",
+                "subtitle": "Photographes, DJ, traiteurs, décorateurs... Tous les professionnels réunis sur une seule plateforme",
+                "background_image": "",
+                "background_video": ""
+            },
+            "contact": {
+                "email": "contact@lumiere-events.com",
+                "phone": "+33 1 23 45 67 89",
+                "vip_phone": "+33 1 23 45 67 90",
+                "address": "Paris, France"
+            },
+            "testimonials": [],
+            "featured_images": [],
+            "stats": {
+                "providers_count": "500+",
+                "events_count": "2000+",
+                "satisfaction_rate": "98%"
+            }
+        }
+    
+    return content
+
+
+@router.put("/site-content")
+async def update_site_content(request: Request, admin: dict = Depends(get_admin_user)):
+    """Update site content settings"""
+    db = get_db()
+    body = await request.json()
+    
+    body["type"] = "homepage"
+    body["updated_at"] = datetime.now(timezone.utc).isoformat()
+    body["updated_by"] = admin["admin_id"]
+    
+    await db.site_content.update_one(
+        {"type": "homepage"},
+        {"$set": body},
+        upsert=True
+    )
+    
+    return {"success": True, "message": "Contenu mis à jour"}
+
+
+@router.post("/site-content/testimonials")
+async def add_testimonial(request: Request, admin: dict = Depends(get_admin_user)):
+    """Add a client testimonial"""
+    db = get_db()
+    body = await request.json()
+    
+    testimonial = {
+        "id": f"testimonial_{uuid.uuid4().hex[:8]}",
+        "client_name": body.get("client_name", ""),
+        "event_type": body.get("event_type", ""),
+        "rating": body.get("rating", 5),
+        "comment": body.get("comment", ""),
+        "image": body.get("image", ""),
+        "date": body.get("date", datetime.now(timezone.utc).strftime("%Y-%m-%d")),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.site_content.update_one(
+        {"type": "homepage"},
+        {"$push": {"testimonials": testimonial}},
+        upsert=True
+    )
+    
+    return {"success": True, "testimonial": testimonial}
+
+
+@router.delete("/site-content/testimonials/{testimonial_id}")
+async def delete_testimonial(testimonial_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete a client testimonial"""
+    db = get_db()
+    
+    await db.site_content.update_one(
+        {"type": "homepage"},
+        {"$pull": {"testimonials": {"id": testimonial_id}}}
+    )
+    
+    return {"success": True, "message": "Témoignage supprimé"}
+
+
+@router.post("/site-content/images")
+async def add_featured_image(request: Request, admin: dict = Depends(get_admin_user)):
+    """Add a featured image"""
+    db = get_db()
+    body = await request.json()
+    
+    image = {
+        "id": f"img_{uuid.uuid4().hex[:8]}",
+        "url": body.get("url", ""),
+        "title": body.get("title", ""),
+        "description": body.get("description", ""),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.site_content.update_one(
+        {"type": "homepage"},
+        {"$push": {"featured_images": image}},
+        upsert=True
+    )
+    
+    return {"success": True, "image": image}
+
+
+@router.delete("/site-content/images/{image_id}")
+async def delete_featured_image(image_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete a featured image"""
+    db = get_db()
+    
+    await db.site_content.update_one(
+        {"type": "homepage"},
+        {"$pull": {"featured_images": {"id": image_id}}}
+    )
+    
+    return {"success": True, "message": "Image supprimée"}
+
+
+# Public endpoint to get site content (no auth required)
+@router.get("/public/site-content")
+async def get_public_site_content():
+    """Get site content for public display (no auth)"""
+    db = get_db()
+    
+    content = await db.site_content.find_one({"type": "homepage"}, {"_id": 0, "updated_by": 0})
+    
+    if not content:
+        content = {
+            "hero": {
+                "title": "Trouvez les meilleurs prestataires pour vos événements",
+                "subtitle": "Photographes, DJ, traiteurs, décorateurs... Tous les professionnels réunis sur une seule plateforme",
+                "background_image": "",
+                "background_video": ""
+            },
+            "contact": {
+                "email": "contact@lumiere-events.com",
+                "phone": "+33 1 23 45 67 89",
+                "vip_phone": "+33 1 23 45 67 90",
+                "address": "Paris, France"
+            },
+            "testimonials": [],
+            "featured_images": [],
+            "stats": {
+                "providers_count": "500+",
+                "events_count": "2000+",
+                "satisfaction_rate": "98%"
+            }
+        }
+    
+    return content
