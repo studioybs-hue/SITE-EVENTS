@@ -558,6 +558,10 @@ const DashboardPage = () => {
                       Matériel
                     </TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-provider-bookings">Réservations</TabsTrigger>
+                    <TabsTrigger value="subscription" data-testid="tab-subscription" className="flex items-center gap-1">
+                      <CreditCard className="h-3 w-3" />
+                      Abonnement
+                    </TabsTrigger>
                   </TabsList>
 
                   {/* Calendar Tab */}
