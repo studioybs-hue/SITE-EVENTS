@@ -47,6 +47,8 @@ const DashboardPage = () => {
   const [pendingQuotes, setPendingQuotes] = useState(0);
   const [subscription, setSubscription] = useState(null);
   const [subscriptionPlan, setSubscriptionPlan] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [customCategory, setCustomCategory] = useState('');
   const [profileData, setProfileData] = useState({
     business_name: '',
     category: '',
@@ -57,11 +59,6 @@ const DashboardPage = () => {
     pricing_range: '',
     phone: '',
   });
-
-  const categories = [
-    'DJ', 'Photographe', 'Vidéaste', 'Traiteur', 'Décorateur',
-    'Wedding Planner', 'Fleuriste', 'Animateur', 'Loueur de matériel'
-  ];
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
