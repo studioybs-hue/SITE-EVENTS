@@ -94,11 +94,57 @@ def get_db():
 
 @router.get("/plans")
 async def get_subscription_plans():
-    """Get all available subscription plans"""
+    """Get all available subscription plans from database or defaults"""
+    db = get_db()
+    
+    # Try to get plans from database
+    plans_doc = await db.site_settings.find_one({"key": "subscription_plans"}, {"_id": 0})
+    
+    if plans_doc and plans_doc.get("value"):
+        plans = plans_doc["value"]
+    else:
+        # Use default plans
+        plans = list(SUBSCRIPTION_PLANS.values())
+    
     return {
-        "plans": list(SUBSCRIPTION_PLANS.values()),
+        "plans": plans,
         "currency": "EUR"
     }
+
+
+# Admin endpoints for managing subscription plans
+@router.get("/admin/plans")
+async def admin_get_plans(request: Request):
+    """Admin: Get all subscription plans for editing"""
+    from admin import get_admin_user
+    admin = await get_admin_user(request)
+    
+    db = get_db()
+    plans_doc = await db.site_settings.find_one({"key": "subscription_plans"}, {"_id": 0})
+    
+    if plans_doc and plans_doc.get("value"):
+        return {"plans": plans_doc["value"]}
+    else:
+        return {"plans": list(SUBSCRIPTION_PLANS.values())}
+
+
+@router.post("/admin/plans")
+async def admin_update_plans(request: Request):
+    """Admin: Update subscription plans"""
+    from admin import get_admin_user
+    admin = await get_admin_user(request)
+    
+    db = get_db()
+    body = await request.json()
+    plans = body.get("plans", [])
+    
+    await db.site_settings.update_one(
+        {"key": "subscription_plans"},
+        {"$set": {"key": "subscription_plans", "value": plans}},
+        upsert=True
+    )
+    
+    return {"message": "Plans mis à jour avec succès"}
 
 
 @router.get("/my-subscription")
