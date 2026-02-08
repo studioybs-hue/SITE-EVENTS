@@ -24,7 +24,7 @@ const ModeSelectionPage = () => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="h-10 w-10 text-yellow-400" />
             <h1 className="text-4xl md:text-5xl font-bold text-white">
-              Lumière
+              Je Suis
             </h1>
           </div>
           <p className="text-xl text-gray-300">

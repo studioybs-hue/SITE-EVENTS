@@ -327,7 +327,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-heading font-medium tracking-tight text-foreground mb-4">
-              Pourquoi choisir Lumière {isEvents ? 'Events' : 'Pro'} ?
+              Pourquoi choisir Je Suis {isEvents ? 'Events' : 'Pro'} ?
             </h2>
           </div>
 
@@ -451,7 +451,7 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <h3 className="text-xl font-heading font-semibold">
-                Lumière {isEvents ? 'Events' : 'Pro'}
+                Je Suis {isEvents ? 'Events' : 'Pro'}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {currentContent.footerDescription}
@@ -480,7 +480,7 @@ const HomePage = () => {
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            <p>© 2026 Lumière {isEvents ? 'Events' : 'Pro'}. Tous droits réservés.</p>
+            <p>© 2026 Je Suis {isEvents ? 'Events' : 'Pro'}. Tous droits réservés.</p>
           </div>
         </div>
       </footer>

@@ -52,7 +52,7 @@ const Navbar = ({ user, onLogout }) => {
           {/* Logo */}
           <Link to="/home" className="flex items-center space-x-2" data-testid="nav-logo">
             <div className={`text-2xl font-heading font-semibold ${isPro ? 'text-blue-600' : 'text-primary'}`}>
-              Lumière {isEvents ? 'Events' : 'Pro'}
+              Je Suis {isEvents ? 'Events' : 'Pro'}
             </div>
           </Link>
           
