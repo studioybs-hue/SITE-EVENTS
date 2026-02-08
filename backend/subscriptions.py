@@ -240,7 +240,7 @@ async def create_subscription_checkout(request: Request):
         amount = plan.get("price_yearly", 0)
         interval = "year"
     else:
-        amount = plan["price_monthly"]
+        amount = plan.get("price_monthly", 0)
         interval = "month"
     
     try:
@@ -253,8 +253,8 @@ async def create_subscription_checkout(request: Request):
                 "price_data": {
                     "currency": "eur",
                     "product_data": {
-                        "name": f"Abonnement {plan['name']} - Lumière Events",
-                        "description": plan["description"]
+                        "name": f"Abonnement {plan.get('name', plan_id)} - Je Suis",
+                        "description": plan.get("description", "")
                     },
                     "unit_amount": int(amount * 100),
                     "recurring": {
