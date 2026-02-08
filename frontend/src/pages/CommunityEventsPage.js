@@ -161,6 +161,41 @@ const CommunityEventsPage = () => {
     }
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image trop grande (max 5MB)');
+      return;
+    }
+    
+    setUploadingImage(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/events/upload-image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ image: event.target.result })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setNewEvent({ ...newEvent, image_url: data.image_url });
+          toast.success('Image uploadée !');
+        } else {
+          toast.error('Erreur lors de l\'upload');
+        }
+      } catch (err) {
+        toast.error('Erreur de connexion');
+      } finally {
+        setUploadingImage(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleCreateEvent = async () => {
     if (!newEvent.title || !newEvent.event_date || !newEvent.location) {
       toast.error('Remplissez les champs obligatoires');
