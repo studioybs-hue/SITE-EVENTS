@@ -131,7 +131,7 @@ async def get_public_categories(mode: str):
             {"id": "caterer", "name": "Traiteur", "icon": "🍽️"},
             {"id": "florist", "name": "Fleuriste", "icon": "💐"},
             {"id": "decorator", "name": "Décorateur", "icon": "✨"},
-            {"id": "makeup", "name": "Maquilleur / Coiffeur", "icon": "💄"},
+            {"id": "beauty", "name": "Mise en beauté", "icon": "💄"},
             {"id": "venue", "name": "Salle / Lieu", "icon": "🏰"},
             {"id": "animator", "name": "Animateur", "icon": "🎤"},
             {"id": "wedding_planner", "name": "Wedding Planner", "icon": "📋"}
