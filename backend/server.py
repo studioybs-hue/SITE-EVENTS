@@ -3771,9 +3771,11 @@ app.include_router(api_router)
 from subscriptions import router as subscriptions_router
 from admin import router as admin_router
 from admin_auth import router as admin_auth_router
+from events import router as events_router
 app.include_router(subscriptions_router)
 app.include_router(admin_router)
 app.include_router(admin_auth_router)
+app.include_router(events_router)
 
 app.add_middleware(
     CORSMiddleware,
