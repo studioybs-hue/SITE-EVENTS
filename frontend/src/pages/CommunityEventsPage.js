@@ -522,7 +522,7 @@ const CommunityEventsPage = () => {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             {selectedEvent.image_url && (
               <img 
-                src={selectedEvent.image_url} 
+                src={selectedEvent.image_url.startsWith('/api') ? `${BACKEND_URL}${selectedEvent.image_url}` : selectedEvent.image_url} 
                 alt={selectedEvent.title}
                 className="w-full h-64 object-cover rounded-lg mb-4"
               />
