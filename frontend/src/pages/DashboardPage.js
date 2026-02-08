@@ -59,6 +59,15 @@ const DashboardPage = () => {
     pricing_range: '',
     phone: '',
   });
+  
+  // My Events (provider)
+  const [myEvents, setMyEvents] = useState([]);
+  const [myEventsLoading, setMyEventsLoading] = useState(false);
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    title: '', description: '', event_date: '', event_time: '',
+    location: '', address: '', image_url: '', ticket_link: '', price_info: ''
+  });
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
