@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Heart, MessageCircle, MapPin, Calendar, Clock, ExternalLink, Plus, Send, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, MessageCircle, MapPin, Calendar, Clock, ExternalLink, Plus, Send, Trash2, ChevronLeft, ChevronRight, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
