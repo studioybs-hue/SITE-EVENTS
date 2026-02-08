@@ -902,7 +902,7 @@ const AdminPage = () => {
             </TabsTrigger>
             <TabsTrigger value="users" data-testid="admin-tab-users">
               <Users className="h-4 w-4 mr-1" />
-              <span className="hidden xl:inline">Utilisateurs</span>
+              <span className="hidden xl:inline">Clients</span>
             </TabsTrigger>
             <TabsTrigger value="providers" data-testid="admin-tab-providers">
               <Settings className="h-4 w-4 mr-1" />
