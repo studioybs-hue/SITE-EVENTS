@@ -225,6 +225,88 @@ const AdminPage = () => {
     }
   };
 
+  // Subscription Plans Management Functions
+  const fetchSubscriptionPlans = async () => {
+    try {
+      setPlansLoading(true);
+      const res = await fetch(`${BACKEND_URL}/api/subscriptions/admin/plans`, { 
+        credentials: 'include' 
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSubscriptionPlans(data.plans);
+      }
+    } catch (e) {
+      console.error('Error fetching plans:', e);
+    } finally {
+      setPlansLoading(false);
+    }
+  };
+
+  const saveSubscriptionPlans = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/subscriptions/admin/plans`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ plans: subscriptionPlans })
+      });
+      if (res.ok) {
+        toast.success('Plans d\'abonnement mis à jour !');
+        setEditingPlan(null);
+      } else {
+        toast.error('Erreur lors de la mise à jour');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const updatePlanField = (planId, field, value) => {
+    setSubscriptionPlans(plans => 
+      plans.map(plan => 
+        plan.plan_id === planId 
+          ? { ...plan, [field]: value }
+          : plan
+      )
+    );
+  };
+
+  const updatePlanFeature = (planId, featureIndex, value) => {
+    setSubscriptionPlans(plans => 
+      plans.map(plan => {
+        if (plan.plan_id === planId) {
+          const newFeatures = [...plan.features];
+          newFeatures[featureIndex] = value;
+          return { ...plan, features: newFeatures };
+        }
+        return plan;
+      })
+    );
+  };
+
+  const addPlanFeature = (planId) => {
+    setSubscriptionPlans(plans => 
+      plans.map(plan => 
+        plan.plan_id === planId 
+          ? { ...plan, features: [...plan.features, 'Nouvelle fonctionnalité'] }
+          : plan
+      )
+    );
+  };
+
+  const removePlanFeature = (planId, featureIndex) => {
+    setSubscriptionPlans(plans => 
+      plans.map(plan => {
+        if (plan.plan_id === planId) {
+          const newFeatures = plan.features.filter((_, idx) => idx !== featureIndex);
+          return { ...plan, features: newFeatures };
+        }
+        return plan;
+      })
+    );
+  };
+
   const fetchBookings = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/admin/bookings?page=${bookingsPage}&limit=10`, { 
