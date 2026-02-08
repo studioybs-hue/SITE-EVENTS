@@ -1105,6 +1105,182 @@ const DashboardPage = () => {
                     </Card>
                   </TabsContent>
 
+                  {/* Payment Settings Tab */}
+                  <TabsContent value="payment-settings">
+                    <Card className="p-6">
+                      <h2 className="text-2xl font-heading font-semibold mb-2">Configuration des paiements</h2>
+                      <p className="text-muted-foreground mb-6">Configurez comment vous souhaitez recevoir vos paiements</p>
+
+                      {paymentSettingsLoading ? (
+                        <div className="text-center py-12">
+                          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          {/* Payment Method Selection */}
+                          <div>
+                            <Label className="text-base font-semibold">Mode de paiement préféré</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                              <button
+                                type="button"
+                                onClick={() => setPaymentSettings({ ...paymentSettings, payment_method: 'stripe' })}
+                                className={`p-4 border-2 rounded-lg text-left transition-all ${
+                                  paymentSettings.payment_method === 'stripe' 
+                                    ? 'border-purple-500 bg-purple-50' 
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
+                                  <div>
+                                    <div className="font-semibold">Stripe</div>
+                                    <div className="text-sm text-muted-foreground">Cartes bancaires</div>
+                                  </div>
+                                </div>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setPaymentSettings({ ...paymentSettings, payment_method: 'paypal' })}
+                                className={`p-4 border-2 rounded-lg text-left transition-all ${
+                                  paymentSettings.payment_method === 'paypal' 
+                                    ? 'border-blue-500 bg-blue-50' 
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+                                  <div>
+                                    <div className="font-semibold">PayPal</div>
+                                    <div className="text-sm text-muted-foreground">Compte PayPal</div>
+                                  </div>
+                                </div>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setPaymentSettings({ ...paymentSettings, payment_method: 'bank' })}
+                                className={`p-4 border-2 rounded-lg text-left transition-all ${
+                                  paymentSettings.payment_method === 'bank' 
+                                    ? 'border-green-500 bg-green-50' 
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold">€</div>
+                                  <div>
+                                    <div className="font-semibold">Virement</div>
+                                    <div className="text-sm text-muted-foreground">IBAN/BIC</div>
+                                  </div>
+                                </div>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Stripe Settings */}
+                          {paymentSettings.payment_method === 'stripe' && (
+                            <div className="p-6 border rounded-lg bg-purple-50/50">
+                              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center text-white font-bold text-sm">S</div>
+                                Configuration Stripe
+                              </h3>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>ID du compte Stripe Connect</Label>
+                                  <Input
+                                    value={paymentSettings.stripe_account_id}
+                                    onChange={(e) => setPaymentSettings({ ...paymentSettings, stripe_account_id: e.target.value })}
+                                    placeholder="acct_xxxxxxxxxx"
+                                    className="mt-1"
+                                  />
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    Vous pouvez obtenir votre ID de compte sur <a href="https://dashboard.stripe.com/settings/account" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">dashboard.stripe.com</a>
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* PayPal Settings */}
+                          {paymentSettings.payment_method === 'paypal' && (
+                            <div className="p-6 border rounded-lg bg-blue-50/50">
+                              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-sm">P</div>
+                                Configuration PayPal
+                              </h3>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Email PayPal</Label>
+                                  <Input
+                                    type="email"
+                                    value={paymentSettings.paypal_email}
+                                    onChange={(e) => setPaymentSettings({ ...paymentSettings, paypal_email: e.target.value })}
+                                    placeholder="votre-email@paypal.com"
+                                    className="mt-1"
+                                  />
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    L'adresse email associée à votre compte PayPal Business
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Bank Transfer Settings */}
+                          {paymentSettings.payment_method === 'bank' && (
+                            <div className="p-6 border rounded-lg bg-green-50/50">
+                              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center text-white font-bold text-sm">€</div>
+                                Coordonnées bancaires
+                              </h3>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Nom du titulaire</Label>
+                                  <Input
+                                    value={paymentSettings.bank_holder_name}
+                                    onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_holder_name: e.target.value })}
+                                    placeholder="Jean Dupont"
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <Label>IBAN</Label>
+                                    <Input
+                                      value={paymentSettings.bank_iban}
+                                      onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_iban: e.target.value })}
+                                      placeholder="FR76 1234 5678 9012 3456 7890 123"
+                                      className="mt-1"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label>BIC/SWIFT</Label>
+                                    <Input
+                                      value={paymentSettings.bank_bic}
+                                      onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_bic: e.target.value })}
+                                      placeholder="BNPAFRPP"
+                                      className="mt-1"
+                                    />
+                                  </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  Les virements seront effectués sous 3-5 jours ouvrés après validation de la réservation.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Save Button */}
+                          <div className="flex justify-end pt-4 border-t">
+                            <Button onClick={savePaymentSettings} className="px-8">
+                              Enregistrer les paramètres
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+                  </TabsContent>
+
                   {/* Provider Bookings Tab */}
                   <TabsContent value="bookings">
                     <Card className="p-6">
