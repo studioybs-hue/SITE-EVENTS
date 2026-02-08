@@ -98,6 +98,8 @@ const SearchPage = () => {
       if (filters.country && filters.country !== 'all') params.append('country', filters.country);
       if (filters.event_date) params.append('event_date', filters.event_date);
       if (filters.search) params.append('search', filters.search);
+      // Filter providers by mode (events or pro)
+      if (mode) params.append('mode', mode);
 
       const response = await fetch(`${BACKEND_URL}/api/providers?${params}`);
       const data = await response.json();
