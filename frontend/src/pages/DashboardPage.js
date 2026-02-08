@@ -281,6 +281,65 @@ const DashboardPage = () => {
     }
   };
 
+  // My Events Functions
+  const fetchMyEvents = async () => {
+    try {
+      setMyEventsLoading(true);
+      const res = await fetch(`${BACKEND_URL}/api/events/my/events`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setMyEvents(data);
+      }
+    } catch (e) {
+      console.error('Error fetching my events:', e);
+    } finally {
+      setMyEventsLoading(false);
+    }
+  };
+
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+    if (!newEvent.title || !newEvent.event_date || !newEvent.location) {
+      toast.error('Remplissez les champs obligatoires (titre, date, lieu)');
+      return;
+    }
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newEvent)
+      });
+      if (res.ok) {
+        toast.success('Événement créé !');
+        setShowCreateEvent(false);
+        setNewEvent({ title: '', description: '', event_date: '', event_time: '', location: '', address: '', image_url: '', ticket_link: '', price_info: '' });
+        fetchMyEvents();
+      } else {
+        const error = await res.json();
+        toast.error(error.detail || 'Erreur');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    if (!window.confirm('Supprimer cet événement ?')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/events/${eventId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        toast.success('Événement supprimé');
+        fetchMyEvents();
+      }
+    } catch (e) {
+      toast.error('Erreur');
+    }
+  };
+
   const getStatusBadge = (status) => {
     const configs = {
       confirmed: { class: 'bg-emerald-100 text-emerald-700', icon: CheckCircle, label: 'Confirmé' },
