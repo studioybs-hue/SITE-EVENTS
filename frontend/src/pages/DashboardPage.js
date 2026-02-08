@@ -1014,13 +1014,76 @@ const DashboardPage = () => {
                                   rows={3}
                                 />
                               </div>
-                              <div>
-                                <Label>URL de l'image</Label>
-                                <Input
-                                  value={newEvent.image_url}
-                                  onChange={(e) => setNewEvent({ ...newEvent, image_url: e.target.value })}
-                                  placeholder="https://..."
-                                />
+                              <div className="md:col-span-2">
+                                <Label>Image de l'événement</Label>
+                                <div className="mt-2">
+                                  {newEvent.image_url ? (
+                                    <div className="relative">
+                                      <img 
+                                        src={newEvent.image_url.startsWith('/api') ? `${BACKEND_URL}${newEvent.image_url}` : newEvent.image_url}
+                                        alt="Preview" 
+                                        className="w-full h-48 object-cover rounded-lg"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        className="absolute top-2 right-2"
+                                        onClick={() => setNewEvent({ ...newEvent, image_url: '' })}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
+                                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <svg className="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p className="mb-2 text-sm text-gray-500">
+                                          <span className="font-semibold">Cliquez pour uploader</span> ou glissez-déposez
+                                        </p>
+                                        <p className="text-xs text-gray-500">PNG, JPG jusqu'à 5MB</p>
+                                      </div>
+                                      <input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                          const file = e.target.files[0];
+                                          if (!file) return;
+                                          
+                                          if (file.size > 5 * 1024 * 1024) {
+                                            toast.error('Image trop grande (max 5MB)');
+                                            return;
+                                          }
+                                          
+                                          const reader = new FileReader();
+                                          reader.onload = async (event) => {
+                                            try {
+                                              const res = await fetch(`${BACKEND_URL}/api/events/upload-image`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                credentials: 'include',
+                                                body: JSON.stringify({ image: event.target.result })
+                                              });
+                                              if (res.ok) {
+                                                const data = await res.json();
+                                                setNewEvent({ ...newEvent, image_url: data.image_url });
+                                                toast.success('Image uploadée !');
+                                              } else {
+                                                toast.error('Erreur lors de l\'upload');
+                                              }
+                                            } catch (err) {
+                                              toast.error('Erreur de connexion');
+                                            }
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }}
+                                      />
+                                    </label>
+                                  )}
+                                </div>
                               </div>
                               <div>
                                 <Label>Info prix</Label>
