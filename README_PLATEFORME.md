@@ -64,7 +64,7 @@ Plateforme web complète pour connecter clients et prestataires événementiels 
 ## 🚀 Démarrage
 
 Les services sont déjà configurés et lancés :
-- Frontend : https://weddingspot-1.preview.emergentagent.com
+- Frontend : https://servicehub-213.preview.emergentagent.com
 - Backend : Port 8001 (interne)
 - MongoDB : localhost:27017
 
