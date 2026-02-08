@@ -24,6 +24,7 @@ const HomePage = () => {
     florist: 'https://images.unsplash.com/photo-1561459821-7b58693c171a?crop=entropy&cs=srgb&fm=jpg&q=85',
     decorator: 'https://images.unsplash.com/photo-1478146059778-58e4e2d9f926?crop=entropy&cs=srgb&fm=jpg&q=85',
     makeup: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?crop=entropy&cs=srgb&fm=jpg&q=85',
+    beauty: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?crop=entropy&cs=srgb&fm=jpg&q=85',
     venue: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?crop=entropy&cs=srgb&fm=jpg&q=85',
     animator: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?crop=entropy&cs=srgb&fm=jpg&q=85',
     wedding_planner: 'https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=srgb&fm=jpg&q=85',
