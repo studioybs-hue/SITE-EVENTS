@@ -1,12 +1,16 @@
-# Lumière Events - Plateforme Événementielle
+# Lumière - Plateforme de Services (Événements & Professionnels)
 
 ## Vision Produit
-Plateforme web complète pour les prestataires événementiels et de mariage, permettant aux clients de rechercher, réserver et payer des prestataires, et aux prestataires de gérer leur activité.
+Plateforme web complète pour les prestataires de services, opérant en deux modes distincts :
+- **Mode Événements** : Prestataires événementiels et de mariage (photographes, DJ, traiteurs, etc.)
+- **Mode Professionnels** : Artisans du bâtiment (électriciens, plombiers, serruriers, etc.)
+
+Les clients peuvent rechercher, réserver et payer des prestataires, et les prestataires peuvent gérer leur activité.
 
 ## Types d'utilisateurs
-- **Clients** : Recherche et réservation de prestataires
+- **Clients** : Recherche et réservation de prestataires (événements ou artisans)
 - **Prestataires** : Gestion de profil, planning, réservations
-- **Administrateur** : Modération et statistiques
+- **Administrateur** : Modération, statistiques et gestion des catégories par mode
 
 ## Stack Technique
 - **Frontend** : React + TailwindCSS + Shadcn/UI
