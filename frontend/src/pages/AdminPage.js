@@ -151,8 +151,9 @@ const AdminPage = () => {
       if (activeTab === 'site') fetchSiteContent();
       if (activeTab === 'security') { fetchEmailConfig(); fetch2FAStatus(); fetchCommissionSettings(); }
       if (activeTab === 'categories') { fetchCategories(); fetchCategorySuggestions(); }
+      if (activeTab === 'events') fetchCommunityEvents();
     }
-  }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage, flaggedPage, packsPage, packsTypeFilter]);
+  }, [admin, activeTab, usersPage, usersSearch, usersTypeFilter, providersPage, providersSearch, subscriptionsPage, bookingsPage, flaggedPage, packsPage, packsTypeFilter, eventsPage]);
 
   const checkAdminAuth = async () => {
     try {
