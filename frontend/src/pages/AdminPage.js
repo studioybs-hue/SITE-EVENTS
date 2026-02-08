@@ -86,6 +86,11 @@ const AdminPage = () => {
   const [packsTotalPages, setPacksTotalPages] = useState(1);
   const [packsTypeFilter, setPacksTypeFilter] = useState('all');
 
+  // Community Events
+  const [communityEvents, setCommunityEvents] = useState([]);
+  const [eventsPage, setEventsPage] = useState(1);
+  const [eventsTotalPages, setEventsTotalPages] = useState(1);
+
   // Security - Email Config
   const [emailConfig, setEmailConfig] = useState({
     smtp_host: 'smtp.ionos.fr',
