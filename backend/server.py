@@ -898,6 +898,47 @@ async def update_my_provider_profile(
     
     return {"success": True}
 
+
+# ============ PROVIDER PAYMENT SETTINGS ============
+
+@api_router.get("/provider/payment-settings")
+async def get_payment_settings(current_user: User = Depends(get_current_user)):
+    """Get provider payment settings"""
+    settings = await db.provider_payment_settings.find_one(
+        {"user_id": current_user.user_id},
+        {"_id": 0}
+    )
+    return settings or {}
+
+
+@api_router.post("/provider/payment-settings")
+async def save_payment_settings(request: Request, current_user: User = Depends(get_current_user)):
+    """Save provider payment settings"""
+    if current_user.user_type != "provider":
+        raise HTTPException(status_code=403, detail="Réservé aux prestataires")
+    
+    body = await request.json()
+    
+    settings = {
+        "user_id": current_user.user_id,
+        "payment_method": body.get("payment_method", "stripe"),
+        "stripe_account_id": body.get("stripe_account_id", ""),
+        "paypal_email": body.get("paypal_email", ""),
+        "bank_iban": body.get("bank_iban", ""),
+        "bank_bic": body.get("bank_bic", ""),
+        "bank_holder_name": body.get("bank_holder_name", ""),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.provider_payment_settings.update_one(
+        {"user_id": current_user.user_id},
+        {"$set": settings},
+        upsert=True
+    )
+    
+    return {"success": True}
+
+
 @api_router.get("/providers/{provider_id}", response_model=ProviderProfile)
 async def get_provider(provider_id: str):
     provider = await db.provider_profiles.find_one(
