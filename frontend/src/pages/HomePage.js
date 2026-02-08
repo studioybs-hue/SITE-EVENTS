@@ -309,7 +309,7 @@ const HomePage = () => {
           )}
           
           {/* View all categories button */}
-          <div className="text-center mt-12">
+          <div className="text-center mt-12 flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               variant="outline"
               onClick={() => navigate('/search')}
@@ -319,6 +319,16 @@ const HomePage = () => {
               Voir toutes les catégories
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
+            {isEvents && (
+              <Button
+                onClick={() => navigate('/community-events')}
+                className="rounded-full px-8 bg-gradient-to-r from-pink-500 to-orange-500 text-white hover:opacity-90"
+                data-testid="view-events-btn"
+              >
+                🎉 Événements à venir
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            )}
           </div>
         </div>
       </section>
