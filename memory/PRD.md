@@ -245,6 +245,17 @@ Les clients peuvent rechercher, réserver et payer des prestataires, et les pres
 
 ## Historique des versions
 
+### 08/02/2025 - v2.6 - Double Mode "Événements" / "Professionnels"
+- ✅ **Page de sélection `/welcome`** : L'utilisateur choisit entre "Événements" et "Professionnels" à l'entrée du site
+- ✅ **Thèmes visuels distincts** : Or/Doré pour Événements, Bleu pour Professionnels
+- ✅ **Contenu adaptatif** : HomePage et SearchPage s'adaptent au mode (textes, images, catégories)
+- ✅ **Navbar dynamique** : "Lumière Events" ou "Lumière Pro" selon le mode
+- ✅ **Indicateur de mode** : Badge cliquable dans la navbar pour changer de mode
+- ✅ **Catégories dynamiques** : 10 catégories événementielles et 10 catégories professionnelles
+- ✅ **Pills de catégories** : Filtres visuels sur la page de recherche adaptés au mode
+- ✅ **API `/api/categories/{mode}`** : Endpoint public pour récupérer les catégories
+- ✅ **Gestion admin** : Onglet "Catégories" pour ajouter/supprimer des catégories par mode
+
 ### 06/02/2025 - v2.5 - Modération & Contact Client
 - ✅ **Modale "Toutes les conversations"** : L'admin peut voir l'historique complet des conversations d'un utilisateur depuis le panneau de modération
 - ✅ **Bouton "Contacter" sur réservations** : Les prestataires peuvent contacter directement un client depuis la fiche de réservation
