@@ -529,7 +529,13 @@ const DashboardPage = () => {
                         <Label htmlFor="category">Catégorie *</Label>
                         <Select
                           value={profileData.category}
-                          onValueChange={(value) => setProfileData({ ...profileData, category: value })}
+                          onValueChange={(value) => {
+                            if (value === 'Autre') {
+                              setProfileData({ ...profileData, category: '' });
+                            } else {
+                              setProfileData({ ...profileData, category: value });
+                            }
+                          }}
                         >
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Sélectionnez votre métier" />
@@ -540,6 +546,35 @@ const DashboardPage = () => {
                             ))}
                           </SelectContent>
                         </Select>
+                        
+                        {/* Custom category field when "Autre" is selected */}
+                        {(profileData.category === '' || profileData.category === 'Autre' || !categories.includes(profileData.category)) && (
+                          <div className="mt-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <Label className="text-yellow-800">Proposer un nouveau métier</Label>
+                            <div className="flex gap-2 mt-2">
+                              <Input
+                                value={customCategory || profileData.category}
+                                onChange={(e) => {
+                                  setCustomCategory(e.target.value);
+                                  setProfileData({ ...profileData, category: e.target.value });
+                                }}
+                                placeholder="Ex: Décorateur floral, Coach vocal..."
+                                className="flex-1"
+                              />
+                              <Button 
+                                type="button" 
+                                variant="outline"
+                                onClick={submitCategorySuggestion}
+                                className="border-yellow-500 text-yellow-700 hover:bg-yellow-100"
+                              >
+                                Suggérer
+                              </Button>
+                            </div>
+                            <p className="text-xs text-yellow-600 mt-2">
+                              Votre suggestion sera envoyée à l'administrateur pour validation.
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       <div>
