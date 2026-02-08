@@ -120,6 +120,10 @@ const AdminPage = () => {
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryIcon, setNewCategoryIcon] = useState('🔹');
   const [categoryMode, setCategoryMode] = useState('events');
+  
+  // Category Suggestions
+  const [categorySuggestions, setCategorySuggestions] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
 
   useEffect(() => {
     checkAdminAuth();
