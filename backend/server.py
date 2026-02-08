@@ -153,6 +153,34 @@ async def get_public_categories(mode: str):
         ]
 
 
+# ============ CATEGORY SUGGESTIONS ============
+
+@api_router.post("/category-suggestions")
+async def submit_category_suggestion(request: Request):
+    """Submit a new category/job suggestion when provider selects 'Autre'"""
+    body = await request.json()
+    suggestion = body.get('suggestion')
+    mode = body.get('mode')  # 'events' or 'pro'
+    provider_id = body.get('provider_id')
+    provider_email = body.get('provider_email')
+    
+    if not suggestion or not mode:
+        raise HTTPException(status_code=400, detail="Suggestion and mode required")
+    
+    # Save suggestion
+    doc = {
+        "suggestion": suggestion,
+        "mode": mode,
+        "provider_id": provider_id,
+        "provider_email": provider_email,
+        "status": "pending",  # pending, approved, rejected
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.category_suggestions.insert_one(doc)
+    
+    return {"success": True, "message": "Suggestion soumise avec succès"}
+
+
 # ============ AUTH ROUTES ============
 
 @api_router.post("/auth/register")
