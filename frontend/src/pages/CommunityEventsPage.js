@@ -331,12 +331,52 @@ const CommunityEventsPage = () => {
                       />
                     </div>
                     <div>
-                      <Label>URL de l'image</Label>
-                      <Input
-                        value={newEvent.image_url}
-                        onChange={(e) => setNewEvent({ ...newEvent, image_url: e.target.value })}
-                        placeholder="https://..."
-                      />
+                      <Label>Image de l'événement</Label>
+                      <div className="mt-2">
+                        {newEvent.image_url ? (
+                          <div className="relative">
+                            <img 
+                              src={newEvent.image_url.startsWith('/api') ? `${BACKEND_URL}${newEvent.image_url}` : newEvent.image_url}
+                              alt="Preview" 
+                              className="w-full h-40 object-cover rounded-lg"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-2 right-2"
+                              onClick={() => setNewEvent({ ...newEvent, image_url: '' })}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
+                            {uploadingImage ? (
+                              <div className="flex flex-col items-center">
+                                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+                                <p className="text-sm text-gray-500">Upload en cours...</p>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center py-4">
+                                <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                                <p className="text-sm text-gray-500">
+                                  <span className="font-semibold">Cliquez pour uploader</span>
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">PNG, JPG (max 5MB)</p>
+                              </div>
+                            )}
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              disabled={uploadingImage}
+                              data-testid="event-image-upload"
+                            />
+                          </label>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <Label>Lien billetterie</Label>
