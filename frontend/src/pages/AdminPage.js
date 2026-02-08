@@ -363,6 +363,59 @@ const AdminPage = () => {
     }
   };
 
+  // Community Events Functions
+  const fetchCommunityEvents = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/community-events?page=${eventsPage}&limit=20`, { 
+        credentials: 'include' 
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCommunityEvents(data.events);
+        setEventsTotalPages(data.pages);
+      }
+    } catch (e) {
+      console.error('Error fetching community events:', e);
+    }
+  };
+
+  const deleteCommunityEvent = async (eventId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/community-events/${eventId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        toast.success('Événement supprimé');
+        fetchCommunityEvents();
+      } else {
+        toast.error('Erreur lors de la suppression');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const updateEventStatus = async (eventId, newStatus) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/community-events/${eventId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        toast.success(`Statut mis à jour: ${newStatus}`);
+        fetchCommunityEvents();
+      } else {
+        toast.error('Erreur lors de la mise à jour');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
   // Security Functions
   const fetchEmailConfig = async () => {
     try {
