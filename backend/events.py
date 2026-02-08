@@ -2,12 +2,18 @@
 Events Module - Publication d'événements par les prestataires
 Les prestataires peuvent publier des événements, les utilisateurs peuvent liker et commenter
 """
-from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi import APIRouter, HTTPException, Request, Query, UploadFile, File
 from datetime import datetime, timezone
 from typing import Optional
 import uuid
+import os
+import base64
 
 router = APIRouter(prefix="/api/events", tags=["events"])
+
+# Directory for uploaded images
+UPLOAD_DIR = "/app/backend/uploads/events"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 def get_db():
@@ -23,6 +29,62 @@ async def get_current_user_optional(request: Request):
         return await get_current_user(request)
     except:
         return None
+
+
+# ============ IMAGE UPLOAD ============
+
+@router.post("/upload-image")
+async def upload_event_image(request: Request):
+    """Upload an image for an event"""
+    from server import get_current_user
+    
+    current_user = await get_current_user(request)
+    
+    if current_user.user_type != "provider":
+        raise HTTPException(status_code=403, detail="Réservé aux prestataires")
+    
+    body = await request.json()
+    image_data = body.get("image")  # Base64 encoded image
+    
+    if not image_data:
+        raise HTTPException(status_code=400, detail="Image requise")
+    
+    try:
+        # Remove data URL prefix if present
+        if "base64," in image_data:
+            image_data = image_data.split("base64,")[1]
+        
+        # Decode base64
+        image_bytes = base64.b64decode(image_data)
+        
+        # Generate unique filename
+        filename = f"{uuid.uuid4()}.jpg"
+        filepath = os.path.join(UPLOAD_DIR, filename)
+        
+        # Save file
+        with open(filepath, "wb") as f:
+            f.write(image_bytes)
+        
+        # Return URL
+        image_url = f"/api/events/images/{filename}"
+        
+        return {"image_url": image_url, "filename": filename}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'upload: {str(e)}")
+
+
+@router.get("/images/{filename}")
+async def get_event_image(filename: str):
+    """Serve an uploaded event image"""
+    from fastapi.responses import FileResponse
+    
+    filepath = os.path.join(UPLOAD_DIR, filename)
+    
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail="Image non trouvée")
+    
+    return FileResponse(filepath, media_type="image/jpeg")
 
 
 # ============ EVENTS CRUD ============
