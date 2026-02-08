@@ -351,6 +351,49 @@ const DashboardPage = () => {
     }
   };
 
+  // Payment Settings Functions
+  const fetchPaymentSettings = async () => {
+    try {
+      setPaymentSettingsLoading(true);
+      const res = await fetch(`${BACKEND_URL}/api/provider/payment-settings`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data) {
+          setPaymentSettings({
+            payment_method: data.payment_method || 'stripe',
+            stripe_account_id: data.stripe_account_id || '',
+            paypal_email: data.paypal_email || '',
+            bank_iban: data.bank_iban || '',
+            bank_bic: data.bank_bic || '',
+            bank_holder_name: data.bank_holder_name || ''
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching payment settings:', e);
+    } finally {
+      setPaymentSettingsLoading(false);
+    }
+  };
+
+  const savePaymentSettings = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/provider/payment-settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(paymentSettings)
+      });
+      if (res.ok) {
+        toast.success('Paramètres de paiement enregistrés !');
+      } else {
+        toast.error('Erreur lors de la sauvegarde');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
   const getStatusBadge = (status) => {
     const configs = {
       confirmed: { class: 'bg-emerald-100 text-emerald-700', icon: CheckCircle, label: 'Confirmé' },
