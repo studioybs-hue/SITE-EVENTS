@@ -148,7 +148,8 @@ async def get_public_categories(mode: str):
             {"id": "hvac", "name": "Climatisation / Chauffage", "icon": "❄️"},
             {"id": "cleaning", "name": "Nettoyage / Ménage", "icon": "🧹"},
             {"id": "mason", "name": "Maçonnerie", "icon": "🏗️"},
-            {"id": "mover", "name": "Déménagement", "icon": "📦"}
+            {"id": "mover", "name": "Déménagement", "icon": "📦"},
+            {"id": "other", "name": "Autre", "icon": "➕"}
         ]
 
 
