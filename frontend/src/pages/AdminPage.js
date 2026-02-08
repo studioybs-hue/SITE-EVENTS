@@ -1062,6 +1062,10 @@ const AdminPage = () => {
               <Package className="h-4 w-4 mr-1" />
               <span className="hidden xl:inline">Packs</span>
             </TabsTrigger>
+            <TabsTrigger value="events" data-testid="admin-tab-events">
+              <Calendar className="h-4 w-4 mr-1" />
+              <span className="hidden xl:inline">Événements</span>
+            </TabsTrigger>
             <TabsTrigger value="moderation" data-testid="admin-tab-moderation">
               <AlertTriangle className="h-4 w-4 mr-1" />
               <span className="hidden xl:inline">Modération</span>
