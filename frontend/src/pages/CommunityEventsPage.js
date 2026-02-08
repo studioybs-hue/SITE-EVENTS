@@ -427,7 +427,7 @@ const CommunityEventsPage = () => {
                     {event.image_url && (
                       <div className="h-48 overflow-hidden">
                         <img 
-                          src={event.image_url} 
+                          src={event.image_url.startsWith('/api') ? `${BACKEND_URL}${event.image_url}` : event.image_url} 
                           alt={event.title}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
