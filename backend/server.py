@@ -108,6 +108,49 @@ async def get_current_user_optional(request: Request) -> Optional[User]:
     except HTTPException:
         return None
 
+# ============ PUBLIC ROUTES ============
+
+@api_router.get("/categories/{mode}")
+async def get_public_categories(mode: str):
+    """Get categories for a specific mode (events or pro)"""
+    if mode not in ["events", "pro"]:
+        raise HTTPException(status_code=400, detail="Mode invalide")
+    
+    key = f"categories_{mode}"
+    doc = await db.site_settings.find_one({"key": key}, {"_id": 0})
+    
+    if doc:
+        return doc.get("value", [])
+    
+    # Default categories
+    if mode == "events":
+        return [
+            {"id": "photographer", "name": "Photographe", "icon": "📸"},
+            {"id": "videographer", "name": "Vidéaste", "icon": "🎬"},
+            {"id": "dj", "name": "DJ / Musique", "icon": "🎵"},
+            {"id": "caterer", "name": "Traiteur", "icon": "🍽️"},
+            {"id": "florist", "name": "Fleuriste", "icon": "💐"},
+            {"id": "decorator", "name": "Décorateur", "icon": "✨"},
+            {"id": "makeup", "name": "Maquilleur / Coiffeur", "icon": "💄"},
+            {"id": "venue", "name": "Salle / Lieu", "icon": "🏰"},
+            {"id": "animator", "name": "Animateur", "icon": "🎤"},
+            {"id": "wedding_planner", "name": "Wedding Planner", "icon": "📋"}
+        ]
+    else:
+        return [
+            {"id": "electrician", "name": "Électricien", "icon": "🔌"},
+            {"id": "plumber", "name": "Plombier", "icon": "🔧"},
+            {"id": "locksmith", "name": "Serrurier", "icon": "🔑"},
+            {"id": "painter", "name": "Peintre", "icon": "🎨"},
+            {"id": "carpenter", "name": "Menuisier", "icon": "🪚"},
+            {"id": "gardener", "name": "Jardinier / Paysagiste", "icon": "🌳"},
+            {"id": "hvac", "name": "Climatisation / Chauffage", "icon": "❄️"},
+            {"id": "cleaning", "name": "Nettoyage / Ménage", "icon": "🧹"},
+            {"id": "mason", "name": "Maçonnerie", "icon": "🏗️"},
+            {"id": "mover", "name": "Déménagement", "icon": "📦"}
+        ]
+
+
 # ============ AUTH ROUTES ============
 
 @api_router.post("/auth/register")
