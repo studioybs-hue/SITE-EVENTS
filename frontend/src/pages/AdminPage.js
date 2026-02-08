@@ -828,42 +828,46 @@ const AdminPage = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-9 mb-6">
+          <TabsList className="grid w-full grid-cols-10 mb-6">
             <TabsTrigger value="dashboard" data-testid="admin-tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Dashboard</span>
+              <span className="hidden xl:inline">Dashboard</span>
             </TabsTrigger>
             <TabsTrigger value="users" data-testid="admin-tab-users">
               <Users className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Utilisateurs</span>
+              <span className="hidden xl:inline">Utilisateurs</span>
             </TabsTrigger>
             <TabsTrigger value="providers" data-testid="admin-tab-providers">
               <Settings className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Prestataires</span>
+              <span className="hidden xl:inline">Prestataires</span>
+            </TabsTrigger>
+            <TabsTrigger value="categories" data-testid="admin-tab-categories">
+              <Package className="h-4 w-4 mr-1" />
+              <span className="hidden xl:inline">Catégories</span>
             </TabsTrigger>
             <TabsTrigger value="packs" data-testid="admin-tab-packs">
               <Package className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Packs</span>
+              <span className="hidden xl:inline">Packs</span>
             </TabsTrigger>
             <TabsTrigger value="moderation" data-testid="admin-tab-moderation">
               <AlertTriangle className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Modération</span>
+              <span className="hidden xl:inline">Modération</span>
             </TabsTrigger>
             <TabsTrigger value="subscriptions" data-testid="admin-tab-subscriptions">
               <CreditCard className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Abonnements</span>
+              <span className="hidden xl:inline">Abonnements</span>
             </TabsTrigger>
             <TabsTrigger value="bookings" data-testid="admin-tab-bookings">
               <Calendar className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Réservations</span>
+              <span className="hidden xl:inline">Réservations</span>
             </TabsTrigger>
             <TabsTrigger value="site" data-testid="admin-tab-site">
               <Globe className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Site</span>
+              <span className="hidden xl:inline">Site</span>
             </TabsTrigger>
             <TabsTrigger value="security" data-testid="admin-tab-security">
               <Shield className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Sécurité</span>
+              <span className="hidden xl:inline">Sécurité</span>
             </TabsTrigger>
           </TabsList>
 
