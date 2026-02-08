@@ -27,10 +27,19 @@ Les clients peuvent rechercher, réserver et payer des prestataires, et les pres
 - **Thèmes visuels distincts** : Doré/Or pour Événements, Bleu pour Professionnels
 - **Catégories dynamiques** : 10 catégories par mode, chargées depuis l'API
 - **Contenu adaptatif** : Textes, images, et labels adaptés au mode
-- **Navbar adaptée** : "Lumière Events" ou "Lumière Pro" selon le mode
+- **Navbar adaptée** : "Je Suis Events" ou "Je Suis Pro" selon le mode
 - **Indicateur de mode** : Badge cliquable dans la navbar pour changer de mode
 - **Persistance** : Mode sauvegardé dans localStorage
 - **Gestion admin** : Onglet "Catégories" pour ajouter/supprimer les catégories par mode
+
+### ✅ Événements Communautaires avec Upload d'Images (Nouveau - 08/02/2025)
+- **Page `/community-events`** : Fil d'actualité des événements organisés par les prestataires
+- **Création d'événements** : Les prestataires peuvent publier des événements (titre, date, lieu, description)
+- **Upload d'images** : Téléversement d'images locales (PNG, JPG, max 5MB) via base64
+- **Endpoint `/api/events/upload-image`** : Upload et stockage des images côté serveur
+- **Endpoint `/api/events/images/{filename}`** : Service des images uploadées
+- **Interactions sociales** : Likes et commentaires sur les événements
+- **Dashboard prestataire** : Onglet "Mes événements" pour gérer ses publications
 
 ### ✅ Authentification (Complète)
 - Inscription/Connexion par email et mot de passe
