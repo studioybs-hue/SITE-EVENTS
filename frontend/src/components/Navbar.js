@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, MessageSquare, LayoutDashboard, Settings, Building, Heart, ChevronDown } from 'lucide-react';
+import { User, LogOut, MessageSquare, LayoutDashboard, Settings, Building, Heart, ChevronDown, Sparkles, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,10 +12,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import LanguageSelector from './LanguageSelector';
+import { useSiteMode } from '@/contexts/SiteModeContext';
 
 const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { mode, isEvents, isPro, clearMode } = useSiteMode();
 
   const handleLogout = async () => {
     try {
