@@ -610,6 +610,111 @@ async def update_commission_settings(request: Request, admin: dict = Depends(get
     return {"message": "Paramètres de commission mis à jour", "enabled": enabled, "rate": rate}
 
 
+# ============ CATEGORIES MANAGEMENT ============
+
+@router.get("/categories")
+async def get_all_categories(admin: dict = Depends(get_admin_user)):
+    """Get all categories for both modes"""
+    db = get_db()
+    
+    # Get events categories
+    events_doc = await db.site_settings.find_one({"key": "categories_events"}, {"_id": 0})
+    events_categories = events_doc.get("value", []) if events_doc else [
+        {"id": "photographer", "name": "Photographe", "icon": "📸"},
+        {"id": "videographer", "name": "Vidéaste", "icon": "🎬"},
+        {"id": "dj", "name": "DJ / Musique", "icon": "🎵"},
+        {"id": "caterer", "name": "Traiteur", "icon": "🍽️"},
+        {"id": "florist", "name": "Fleuriste", "icon": "💐"},
+        {"id": "decorator", "name": "Décorateur", "icon": "✨"},
+        {"id": "makeup", "name": "Maquilleur / Coiffeur", "icon": "💄"},
+        {"id": "venue", "name": "Salle / Lieu", "icon": "🏰"},
+        {"id": "animator", "name": "Animateur", "icon": "🎤"},
+        {"id": "wedding_planner", "name": "Wedding Planner", "icon": "📋"}
+    ]
+    
+    # Get pro categories
+    pro_doc = await db.site_settings.find_one({"key": "categories_pro"}, {"_id": 0})
+    pro_categories = pro_doc.get("value", []) if pro_doc else [
+        {"id": "electrician", "name": "Électricien", "icon": "🔌"},
+        {"id": "plumber", "name": "Plombier", "icon": "🔧"},
+        {"id": "locksmith", "name": "Serrurier", "icon": "🔑"},
+        {"id": "painter", "name": "Peintre", "icon": "🎨"},
+        {"id": "carpenter", "name": "Menuisier", "icon": "🪚"},
+        {"id": "gardener", "name": "Jardinier / Paysagiste", "icon": "🌳"},
+        {"id": "hvac", "name": "Climatisation / Chauffage", "icon": "❄️"},
+        {"id": "cleaning", "name": "Nettoyage / Ménage", "icon": "🧹"},
+        {"id": "mason", "name": "Maçonnerie", "icon": "🏗️"},
+        {"id": "mover", "name": "Déménagement", "icon": "📦"}
+    ]
+    
+    return {
+        "events": events_categories,
+        "pro": pro_categories
+    }
+
+
+@router.post("/categories/{mode}")
+async def add_category(mode: str, request: Request, admin: dict = Depends(get_admin_user)):
+    """Add a new category"""
+    db = get_db()
+    body = await request.json()
+    
+    if mode not in ["events", "pro"]:
+        raise HTTPException(status_code=400, detail="Mode invalide")
+    
+    key = f"categories_{mode}"
+    
+    # Get existing categories
+    doc = await db.site_settings.find_one({"key": key}, {"_id": 0})
+    categories = doc.get("value", []) if doc else []
+    
+    # Generate ID from name
+    import re
+    cat_id = re.sub(r'[^a-z0-9]', '_', body.get("name", "").lower().strip())
+    
+    new_category = {
+        "id": cat_id,
+        "name": body.get("name"),
+        "icon": body.get("icon", "🔹")
+    }
+    
+    categories.append(new_category)
+    
+    await db.site_settings.update_one(
+        {"key": key},
+        {"$set": {"key": key, "value": categories}},
+        upsert=True
+    )
+    
+    return {"message": "Catégorie ajoutée", "category": new_category}
+
+
+@router.delete("/categories/{mode}/{category_id}")
+async def delete_category(mode: str, category_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete a category"""
+    db = get_db()
+    
+    if mode not in ["events", "pro"]:
+        raise HTTPException(status_code=400, detail="Mode invalide")
+    
+    key = f"categories_{mode}"
+    
+    # Get existing categories
+    doc = await db.site_settings.find_one({"key": key}, {"_id": 0})
+    categories = doc.get("value", []) if doc else []
+    
+    # Remove category
+    categories = [c for c in categories if c.get("id") != category_id]
+    
+    await db.site_settings.update_one(
+        {"key": key},
+        {"$set": {"key": key, "value": categories}},
+        upsert=True
+    )
+    
+    return {"message": "Catégorie supprimée"}
+
+
 # ============ PACKS MANAGEMENT ============
 
 @router.get("/packs")
