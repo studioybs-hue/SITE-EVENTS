@@ -217,13 +217,14 @@ async def create_subscription_checkout(request: Request):
     billing_cycle = body.get("billing_cycle", "monthly")
     origin_url = body.get("origin_url", "")
     
-    if plan_id not in SUBSCRIPTION_PLANS:
-        raise HTTPException(status_code=400, detail="Plan invalide")
-    
     if plan_id == "free":
         raise HTTPException(status_code=400, detail="Le plan gratuit ne nécessite pas de paiement")
     
-    plan = SUBSCRIPTION_PLANS[plan_id]
+    # Get plan from database or defaults
+    plan = await get_plan_by_id(plan_id)
+    
+    if not plan:
+        raise HTTPException(status_code=400, detail="Plan invalide")
     
     # Get provider profile
     provider = await db.provider_profiles.find_one(
@@ -232,11 +233,11 @@ async def create_subscription_checkout(request: Request):
     )
     
     if not provider:
-        raise HTTPException(status_code=404, detail="Profil prestataire non trouvé")
+        raise HTTPException(status_code=404, detail="Profil prestataire non trouvé. Veuillez d'abord créer votre profil.")
     
     # Determine price
     if billing_cycle == "yearly":
-        amount = plan["price_yearly"]
+        amount = plan.get("price_yearly", 0)
         interval = "year"
     else:
         amount = plan["price_monthly"]
