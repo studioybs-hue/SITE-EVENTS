@@ -141,7 +141,7 @@ const AdminPage = () => {
       if (activeTab === 'providers') fetchProviders();
       if (activeTab === 'packs') fetchPacks();
       if (activeTab === 'moderation') { fetchFlaggedMessages(); fetchModerationKeywords(); }
-      if (activeTab === 'subscriptions') fetchSubscriptions();
+      if (activeTab === 'subscriptions') { fetchSubscriptions(); fetchSubscriptionPlans(); }
       if (activeTab === 'bookings') fetchBookings();
       if (activeTab === 'site') fetchSiteContent();
       if (activeTab === 'security') { fetchEmailConfig(); fetch2FAStatus(); fetchCommissionSettings(); }
