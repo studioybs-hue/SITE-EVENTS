@@ -1677,6 +1677,125 @@ const AdminPage = () => {
             </Card>
           </TabsContent>
 
+          {/* Community Events Tab */}
+          <TabsContent value="events">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Événements Communautaires
+                </CardTitle>
+                <CardDescription>
+                  Gérez les événements publiés par les prestataires
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Titre</TableHead>
+                        <TableHead>Prestataire</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Lieu</TableHead>
+                        <TableHead>Stats</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {communityEvents.map((event) => (
+                        <TableRow key={event.event_id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {event.image_url && (
+                                <img 
+                                  src={event.image_url.startsWith('/api') ? `${BACKEND_URL}${event.image_url}` : event.image_url}
+                                  alt=""
+                                  className="w-10 h-10 rounded object-cover"
+                                />
+                              )}
+                              <span className="font-medium">{event.title}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>{event.provider_name || 'N/A'}</TableCell>
+                          <TableCell>
+                            {new Date(event.event_date).toLocaleDateString('fr-FR')}
+                            {event.event_time && ` à ${event.event_time}`}
+                          </TableCell>
+                          <TableCell>{event.location}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2 text-sm">
+                              <span>❤️ {event.likes_count || 0}</span>
+                              <span>💬 {event.comments_count || 0}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Select
+                              value={event.status}
+                              onValueChange={(value) => updateEventStatus(event.event_id, value)}
+                            >
+                              <SelectTrigger className="w-28">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="published">Publié</SelectItem>
+                                <SelectItem value="hidden">Masqué</SelectItem>
+                                <SelectItem value="pending">En attente</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteCommunityEvent(event.event_id)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {communityEvents.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                            Aucun événement communautaire
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                {/* Pagination */}
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Page {eventsPage} sur {eventsTotalPages}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={eventsPage <= 1}
+                      onClick={() => setEventsPage(p => p - 1)}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={eventsPage >= eventsTotalPages}
+                      onClick={() => setEventsPage(p => p + 1)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Moderation Tab */}
           <TabsContent value="moderation">
             <div className="space-y-6">
