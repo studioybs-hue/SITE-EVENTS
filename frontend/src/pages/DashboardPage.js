@@ -513,6 +513,24 @@ const DashboardPage = () => {
                     <p className="text-muted-foreground">
                       Complétez ces informations pour commencer à recevoir des demandes
                     </p>
+                    <Button
+                      variant="link"
+                      className="mt-2 text-muted-foreground"
+                      onClick={async () => {
+                        try {
+                          await fetch(`${BACKEND_URL}/api/auth/profile?user_type=client`, {
+                            method: 'PATCH',
+                            credentials: 'include',
+                          });
+                          setUser({ ...user, user_type: 'client' });
+                          toast.success('Vous êtes maintenant en mode client');
+                        } catch (error) {
+                          toast.error('Erreur');
+                        }
+                      }}
+                    >
+                      ← Je suis un client, pas un prestataire
+                    </Button>
                   </div>
 
                   <form onSubmit={handleCreateProfile} className="space-y-6">
