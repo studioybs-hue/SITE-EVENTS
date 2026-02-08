@@ -204,6 +204,11 @@ Les clients peuvent rechercher, réserver et payer des prestataires, et les pres
 - `GET /api/providers` - Liste prestataires
 - `GET /api/providers/{id}` - Détail prestataire
 
+### Catégories (Nouveau - 08/02/2025)
+- `GET /api/categories/{mode}` - Catégories par mode (events/pro)
+- `POST /api/admin/categories/{mode}` - Ajouter une catégorie (admin)
+- `DELETE /api/admin/categories/{mode}/{id}` - Supprimer une catégorie (admin)
+
 ### Messagerie
 - `POST /api/messages` - Envoyer message
 - `GET /api/messages/conversations` - Liste conversations
