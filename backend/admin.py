@@ -715,6 +715,93 @@ async def delete_category(mode: str, category_id: str, admin: dict = Depends(get
     return {"message": "Catégorie supprimée"}
 
 
+# ============ CATEGORY SUGGESTIONS ============
+
+@router.get("/category-suggestions")
+async def get_category_suggestions(
+    admin: dict = Depends(get_admin_user),
+    status: Optional[str] = "pending"
+):
+    """Get category suggestions from providers"""
+    db = get_db()
+    
+    query = {}
+    if status:
+        query["status"] = status
+    
+    suggestions = await db.category_suggestions.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return suggestions
+
+
+@router.post("/category-suggestions/{suggestion_id}/approve")
+async def approve_category_suggestion(
+    suggestion_id: str,
+    request: Request,
+    admin: dict = Depends(get_admin_user)
+):
+    """Approve a category suggestion and add it to the categories list"""
+    db = get_db()
+    body = await request.json()
+    
+    # Find the suggestion
+    suggestion = await db.category_suggestions.find_one({"created_at": suggestion_id})
+    if not suggestion:
+        raise HTTPException(status_code=404, detail="Suggestion non trouvée")
+    
+    # Get the category details from request body
+    category_name = body.get("name", suggestion.get("suggestion"))
+    category_icon = body.get("icon", "🏷️")
+    category_id = body.get("id", category_name.lower().replace(" ", "_").replace("/", "_"))
+    mode = suggestion.get("mode")
+    
+    # Add to categories
+    key = f"categories_{mode}"
+    doc = await db.site_settings.find_one({"key": key}, {"_id": 0})
+    
+    if doc:
+        categories = doc.get("value", [])
+        # Check if category already exists
+        if not any(c.get("name") == category_name for c in categories):
+            # Insert before "Autre"
+            new_cat = {"id": category_id, "name": category_name, "icon": category_icon}
+            # Find "Autre" position and insert before it
+            autre_idx = next((i for i, c in enumerate(categories) if c.get("id") == "other"), len(categories))
+            categories.insert(autre_idx, new_cat)
+            
+            await db.site_settings.update_one(
+                {"key": key},
+                {"$set": {"value": categories}}
+            )
+    else:
+        # Create new categories list with this category
+        categories = [{"id": category_id, "name": category_name, "icon": category_icon}]
+        await db.site_settings.insert_one({"key": key, "value": categories})
+    
+    # Update suggestion status
+    await db.category_suggestions.update_one(
+        {"created_at": suggestion_id},
+        {"$set": {"status": "approved", "approved_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"message": f"Catégorie '{category_name}' ajoutée avec succès"}
+
+
+@router.post("/category-suggestions/{suggestion_id}/reject")
+async def reject_category_suggestion(
+    suggestion_id: str,
+    admin: dict = Depends(get_admin_user)
+):
+    """Reject a category suggestion"""
+    db = get_db()
+    
+    await db.category_suggestions.update_one(
+        {"created_at": suggestion_id},
+        {"$set": {"status": "rejected", "rejected_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"message": "Suggestion rejetée"}
+
+
 # ============ PACKS MANAGEMENT ============
 
 @router.get("/packs")
