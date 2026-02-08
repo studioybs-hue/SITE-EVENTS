@@ -461,6 +461,63 @@ const AdminPage = () => {
     }
   };
 
+  // Categories Functions
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/categories`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setCategoriesEvents(data.events || []);
+        setCategoriesPro(data.pro || []);
+      }
+    } catch (e) {
+      console.error('Error fetching categories:', e);
+    }
+  };
+
+  const addCategory = async () => {
+    if (!newCategoryName.trim()) {
+      toast.error('Entrez un nom de catégorie');
+      return;
+    }
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/categories/${categoryMode}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name: newCategoryName, icon: newCategoryIcon })
+      });
+      if (res.ok) {
+        toast.success('Catégorie ajoutée');
+        setNewCategoryName('');
+        setNewCategoryIcon('🔹');
+        fetchCategories();
+      } else {
+        toast.error('Erreur lors de l\'ajout');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const deleteCategory = async (mode, categoryId) => {
+    if (!window.confirm('Supprimer cette catégorie ?')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/categories/${mode}/${categoryId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        toast.success('Catégorie supprimée');
+        fetchCategories();
+      } else {
+        toast.error('Erreur lors de la suppression');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
   // Moderation Functions
   const fetchFlaggedMessages = async () => {
     try {
