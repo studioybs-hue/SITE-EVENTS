@@ -180,13 +180,14 @@ class TestAuthenticatedEndpoints:
         assert isinstance(data, list)
         print(f"SUCCESS: Found {len(data)} bookings for client")
     
-    def test_get_messages(self):
-        """Test GET /api/messages"""
-        response = self.session.get(f"{BASE_URL}/api/messages")
+    def test_get_recent_messages(self):
+        """Test GET /api/messages/recent"""
+        response = self.session.get(f"{BASE_URL}/api/messages/recent")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
-        print(f"SUCCESS: Found {len(data)} messages")
+        assert "messages" in data
+        assert "unread_count" in data
+        print(f"SUCCESS: Found {len(data['messages'])} recent messages, {data['unread_count']} unread")
     
     def test_get_favorites(self):
         """Test GET /api/favorites"""
@@ -317,8 +318,8 @@ class TestMessagingFlow:
             print(f"SUCCESS: Message sent - message_id: {data['message_id']}")
     
     def test_get_conversations(self):
-        """Test GET /api/conversations"""
-        response = self.session.get(f"{BASE_URL}/api/conversations")
+        """Test GET /api/messages/conversations"""
+        response = self.session.get(f"{BASE_URL}/api/messages/conversations")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
