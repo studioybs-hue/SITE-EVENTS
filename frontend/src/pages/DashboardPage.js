@@ -64,7 +64,68 @@ const DashboardPage = () => {
 
   useEffect(() => {
     fetchData();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      // Fetch categories for both modes and combine them
+      const [eventsRes, proRes] = await Promise.all([
+        fetch(`${BACKEND_URL}/api/categories/events`),
+        fetch(`${BACKEND_URL}/api/categories/pro`)
+      ]);
+      
+      const eventsData = eventsRes.ok ? await eventsRes.json() : [];
+      const proData = proRes.ok ? await proRes.json() : [];
+      
+      // Combine and dedupe, keeping "Autre" at the end
+      const allCategories = [...eventsData, ...proData];
+      const uniqueCategories = allCategories
+        .filter((cat, index, self) => 
+          cat.id !== 'other' && self.findIndex(c => c.name === cat.name) === index
+        )
+        .map(cat => cat.name);
+      
+      // Add "Autre" at the end
+      uniqueCategories.push('Autre');
+      setCategories(uniqueCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      // Fallback categories
+      setCategories(['Photographe', 'Vidéaste', 'DJ / Musique', 'Traiteur', 'Autre']);
+    }
+  };
+
+  const submitCategorySuggestion = async () => {
+    if (!customCategory.trim()) {
+      toast.error('Veuillez entrer un nom de métier');
+      return;
+    }
+    
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/category-suggestions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          suggestion: customCategory.trim(),
+          mode: 'events', // Default to events, admin will categorize
+          provider_id: user?.user_id,
+          provider_email: user?.email
+        })
+      });
+      
+      if (res.ok) {
+        toast.success('Votre suggestion de métier a été envoyée à l\'administrateur !');
+        setProfileData({ ...profileData, category: customCategory.trim() });
+        setCustomCategory('');
+      } else {
+        toast.error('Erreur lors de l\'envoi de la suggestion');
+      }
+    } catch (error) {
+      toast.error('Erreur de connexion');
+    }
+  };
 
   const fetchData = async () => {
     try {
