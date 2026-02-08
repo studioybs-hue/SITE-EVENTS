@@ -875,6 +875,94 @@ async def delete_pack_admin(
     return {"success": True, "message": "Pack supprimé"}
 
 
+# ============ COMMUNITY EVENTS MANAGEMENT ============
+
+@router.get("/community-events")
+async def get_all_community_events(
+    admin: dict = Depends(get_admin_user),
+    page: int = 1,
+    limit: int = 20,
+    status: Optional[str] = None
+):
+    """Get all community events for admin moderation"""
+    db = get_db()
+    
+    query = {}
+    if status:
+        query["status"] = status
+    
+    skip = (page - 1) * limit
+    
+    events = await db.community_events.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.community_events.count_documents(query)
+    
+    # Add provider info for each event
+    for event in events:
+        provider = await db.provider_profiles.find_one(
+            {"provider_id": event.get("provider_id")},
+            {"_id": 0, "business_name": 1}
+        )
+        event["provider_name"] = provider.get("business_name") if provider else "N/A"
+        
+        # Get likes and comments count
+        event["likes_count"] = await db.event_likes.count_documents({"event_id": event["event_id"]})
+        event["comments_count"] = await db.event_comments.count_documents({"event_id": event["event_id"]})
+    
+    return {
+        "events": events,
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit
+    }
+
+
+@router.delete("/community-events/{event_id}")
+async def delete_community_event_admin(
+    event_id: str,
+    admin: dict = Depends(get_admin_user)
+):
+    """Delete a community event (admin moderation)"""
+    db = get_db()
+    
+    # Delete the event
+    result = await db.community_events.delete_one({"event_id": event_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Événement non trouvé")
+    
+    # Also delete associated likes and comments
+    await db.event_likes.delete_many({"event_id": event_id})
+    await db.event_comments.delete_many({"event_id": event_id})
+    
+    return {"success": True, "message": "Événement supprimé"}
+
+
+@router.patch("/community-events/{event_id}/status")
+async def update_community_event_status(
+    event_id: str,
+    request: Request,
+    admin: dict = Depends(get_admin_user)
+):
+    """Update community event status (publish/unpublish)"""
+    db = get_db()
+    
+    body = await request.json()
+    new_status = body.get("status")
+    
+    if new_status not in ["published", "hidden", "pending"]:
+        raise HTTPException(status_code=400, detail="Statut invalide")
+    
+    result = await db.community_events.update_one(
+        {"event_id": event_id},
+        {"$set": {"status": new_status, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Événement non trouvé")
+    
+    return {"success": True, "message": f"Statut mis à jour: {new_status}"}
+
+
 # ============ SETUP ============
 
 @router.post("/setup")
