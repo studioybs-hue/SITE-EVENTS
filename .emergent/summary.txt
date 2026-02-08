@@ -27,84 +27,78 @@ L'utilisateur souhaite créer une plateforme web complète pour les prestataires
 **User's preferred language**: Français
 
 **what currently exists?**
-Une application full-stack (React/FastAPI/MongoDB) fonctionnelle avec deux modes de fonctionnement : Événements et Professionnels. La plupart des fonctionnalités de base sont implémentées, y compris l'authentification (personnalisée et Google), les profils, une messagerie, la gestion de packs, les réservations et un panneau d'administration très complet.
-
-Cette session a vu l'ajout de fonctionnalités de sécurité majeures (2FA, mot de passe oublié, gestion des emails SMTP), la gestion des packs et des catégories depuis l'admin, un système de commission configurable, et l'implémentation d'un système complet de notifications par email. L'agent a également passé un temps considérable à aider l'utilisateur à déboguer des problèmes de déploiement sur son VPS personnel.
+Une application full-stack (React/FastAPI/MongoDB) avec un double mode Événements et Professionnels pleinement fonctionnel. Le nom de l'application a été changé de Lumière à Je Suis.
+De nombreuses fonctionnalités ont été ajoutées dans cette session :
+- **Suggestions de Catégories :** Les prestataires peuvent suggérer de nouveaux métiers via un champ Autre, que l'admin peut approuver/rejeter.
+- **Événements Communautaires :** Les prestataires peuvent créer, gérer, et publier des événements. Les utilisateurs peuvent les voir, les liker et les commenter.
+- **Gestion Admin Avancée :** Le panneau d'administration permet de gérer les plans d'abonnement (prix, fonctionnalités) et leurs limites (nombre de photos, réservations, commission).
+- **Configuration Prestataire :** Les prestataires peuvent configurer leurs méthodes de paiement (Stripe, PayPal, virement) dans leur tableau de bord.
+Plusieurs bugs ont été corrigés, notamment un problème de navigation sur la page de sélection de mode et un bug dans le flux de changement d'abonnement. L'agent a également fourni un support intensif pour les déploiements sur le VPS de l'utilisateur.
 
 **Last working item**:
-- **Last item agent was working:** Implémentation de la fonctionnalité de double mode (Événements vs Professionnels). L'agent a mis en place la structure de base : une page de sélection à l'arrivée, un contexte React pour gérer le mode, et les endpoints backend et l'interface d'administration pour gérer les catégories de chaque mode.
+- **Last item agent was working:** Implémentation de l'upload d'images locales (depuis un PC/téléphone) pour les Événements à venir, remplaçant le champ de lien d'image par un champ de téléversement de fichier.
 - **Status**: IN PROGRESS
 - **Agent Testing Done**: N
-- **Which testing method agent to use?** frontend testing agent. Le test devra valider :
-    1. La page de sélection () s'affiche et le choix du mode redirige correctement.
-    2. Le mode est mémorisé et le site s'adapte (contenu de la page d'accueil, catégories de recherche).
-    3. L'onglet Catégories dans l'admin permet de gérer les catégories pour les deux modes.
-    4. Le flux d'inscription d'un prestataire lui permet de choisir une catégorie du mode pertinent.
+- **Which testing method agent to use?** frontend testing agent. Le test doit valider que l'upload d'un fichier image depuis le formulaire de création/modification d'événement fonctionne et que l'image s'affiche correctement.
 - **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Finaliser l'implémentation du double mode Événements / Professionnels (P0)**
-- **Issue 2: Le client ne peut pas envoyer de message au prestataire sur le site de production (P0)**
-- **Issue 3: Logique de disponibilité des réservations incomplète (P0)**
-- **Issue 4: Problème de z-index avec le menu déroulant des pays (P1)**
-- **Issue 5: Écran blanc lors du clic sur le statut du matériel (P1)**
-- **Issue 6: Le login Google ne fonctionne pas sur le site déployé (P1)**
+- **Issue 1: Logique de disponibilité des réservations incomplète (P0)**
+- **Issue 2: Problème de z-index avec le menu déroulant des pays (P1)**
+- **Issue 3: Écran blanc lors du clic sur le statut du matériel (P1)**
+- **Issue 4: Le login Google ne fonctionne pas sur le site déployé (P1)**
+- **Issue 5: Difficultés de déploiement récurrentes sur le VPS IONOS de l'utilisateur (P0)**
 
 **Issues Detail:**
-- **Issue 1: Finaliser l'implémentation du double mode Événements / Professionnels**
-    - **Attempted fixes:** Le backend a été préparé avec des endpoints pour gérer les catégories par type (). Le frontend a une nouvelle page de sélection (), un contexte React (), et l'admin a un nouvel onglet Catégories.
-    - **Next debug checklist:**
-        1. Adapter les composants clés (HomePage, page de recherche, inscription prestataire) pour qu'ils utilisent le  pour afficher le contenu et les catégories appropriés.
-        2. S'assurer que les appels API pour les catégories filtrent bien en fonction du mode sélectionné.
-        3. Persister le choix du mode dans  pour une expérience utilisateur continue.
-        4. Tester le flux complet de bout en bout pour chaque mode.
-    - **Status:** IN PROGRESS
-    - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** both
-
-- **Issue 2: Le client ne peut pas envoyer de message au prestataire sur le site de production**
-    - **Attempted fixes:** L'agent a mené une enquête approfondie sur le VPS de l'utilisateur, corrigeant de nombreux problèmes de configuration (service , , variables d'environnement , CORS). L'API répond correctement aux  locaux sur le serveur, mais la communication depuis le navigateur échoue, suggérant un problème persistant de CORS ou de WebSockets.
-    - **Next debug checklist:**
-        1. Demander à l'utilisateur de vérifier la console de son navigateur (onglet Réseau) au moment de l'envoi pour identifier la requête qui échoue.
-        2. Revoir la configuration  pour les WebSockets () dans le fichier Nginx de l'utilisateur.
-        3. Confirmer que la configuration  dans  charge bien les origines depuis le  et que celui-ci contient la bonne URL ().
-    - **Status:** BLOCKED (Nécessite une action de l'utilisateur pour reproduire et obtenir les logs du navigateur)
-    - **Is recurring issue?** Y
-    - **Should Test frontend/backend/both after fix?** both
-
-- **Issue 3: Logique de disponibilité des réservations incomplète**
-    - **Description:** Le système ne vérifie pas la présence géographique du prestataire à la date de l'événement.
-    - **Next debug checklist:** Modifier l'endpoint  dans  pour interroger la collection  avant de valider la réservation.
+- **Issue 1: Logique de disponibilité des réservations incomplète**
+    - **Attempted fixes:** Aucun.
+    - **Next debug checklist:** Modifier l'endpoint  dans  pour vérifier la présence géographique du prestataire () à la date de l'événement avant de valider la réservation.
+    - **Why fix this issue and what will be achieved with the fix?** Empêcher un client de réserver un prestataire qui n'est pas disponible dans le pays de l'événement à la date demandée. C'est une faille critique de la logique métier.
     - **Status:** NOT STARTED
     - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** backend
 
-- **Issue 4: Problème de z-index avec le menu déroulant des pays**
-    - **Description:** Le menu s'affiche derrière la modale dans le dashboard prestataire.
-    - **Next debug checklist:** Inspecter les styles CSS dans . La solution est probablement d'augmenter le  du portail du menu  de Shadcn ou de le faire s'afficher dans un .
+- **Issue 2: Problème de z-index avec le menu déroulant des pays**
+    - **Attempted fixes:** Aucun.
+    - **Next debug checklist:** Inspecter les styles CSS dans . La solution est probablement d'augmenter le  du portail du menu  de Shadcn.
+    - **Why fix this issue and what will be achieved with the fix?** Améliorer l'expérience utilisateur dans le tableau de bord prestataire.
     - **Status:** NOT STARTED
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** frontend
 
-- **Issue 5: Écran blanc lors du clic sur le statut du matériel**
-    - **Description:** Crash hérité d'un fork précédent.
-    - **Next debug checklist:** Localiser le gestionnaire d'événements  dans le composant de gestion du matériel et le déboguer.
+- **Issue 3: Écran blanc lors du clic sur le statut du matériel**
+    - **Attempted fixes:** Aucun.
+    - **Next debug checklist:** Localiser le gestionnaire d'événements  dans le composant de gestion du matériel ( ou ) et le déboguer.
+    - **Why fix this issue and what will be achieved with the fix?** Corriger un crash qui empêche la gestion du matériel.
     - **Status:** NOT STARTED
     - **Is recurring issue?** Y
     - **Should Test frontend/backend/both after fix?** frontend
 
-- **Issue 6: Le login Google ne fonctionne pas sur le site déployé**
-    - **Description:** Bug hérité.
-    - **Next debug checklist:** Demander à l'utilisateur de vérifier que l'URI de redirection autorisée dans sa console Google Cloud correspond exactement à l'URL de production.
+- **Issue 4: Le login Google ne fonctionne pas sur le site déployé**
+    - **Attempted fixes:** Aucun.
+    - **Next debug checklist:** Demander à l'utilisateur de vérifier que l'URI de redirection autorisée dans sa console Google Cloud correspond exactement à l'URL de production avec le chemin de callback.
+    - **Why fix this issue and what will be achieved with the fix?** Rendre fonctionnelle une méthode de connexion majeure.
     - **Status:** NOT STARTED
     - **Is recurring issue?** N
     - **Should Test frontend/backend/both after fix?** both
 
-**In progress Task List**:
-- **Task 1: Finaliser l'implémentation du double mode Événements / Professionnels (P0)**
-    - **Where to resume:** Dans le code frontend. Il faut maintenant utiliser le  pour conditionner l'affichage des catégories, des images et des textes sur la page d'accueil, les pages de recherche et les formulaires d'inscription.
-    - **What will be achieved with this?** Une plateforme unique desservant deux marchés distincts avec une expérience utilisateur adaptée.
+- **Issue 5: Difficultés de déploiement récurrentes sur le VPS IONOS de l'utilisateur**
+    - **Attempted fixes:** De nombreuses tentatives de guidage par commandes . Les problèmes incluent des chemins de projet incorrects, des dépendances manquantes, des noms de services  erronés et des problèmes de cache.
+    - **Next debug checklist:**
+        1. Confirmer le chemin absolu correct du projet sur le serveur (semble être ).
+        2. Confirmer le nom correct du service systemd (semble être ).
+        3. Créer un script de déploiement unique et fiable () que l'utilisateur peut exécuter en une seule commande pour éviter les erreurs de copier-coller.
+    - **Why fix this issue and what will be achieved with the fix?** C'est le principal obstacle empêchant l'utilisateur de voir les nouvelles fonctionnalités. Résoudre ce point fluidifiera considérablement le développement.
     - **Status:** IN PROGRESS
+    - **Is recurring issue?** Y
+    - **Should Test frontend/backend/both after fix?** backend (déploiement)
+
+**In progress Task List**:
+- **Task 1: Finaliser l'upload d'images pour les événements communautaires (P0)**
+    - **Where to resume:** Le code a été écrit (, , ), mais aucun test n'a été effectué. Le prochain agent doit tester la fonctionnalité de bout en bout.
+    - **What will be achieved with this?** Permettre aux prestataires d'uploader des images attrayantes pour leurs événements directement depuis leurs appareils.
+    - **Status:** IN PROGRESS
+    - **Should Test frontend/backend/both after fix?** both
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
@@ -114,143 +108,47 @@ Cette session a vu l'ajout de fonctionnalités de sécurité majeures (2FA, mot 
     - Synchronisation avec Google Calendar pour les disponibilités des prestataires.
 
 **Completed work in this session**
-- **Fonctionnalité :** Messagerie admin Voir la conversation complète finalisée.
-- **Fonctionnalité :** Bouton Contacter ajouté sur les réservations des prestataires.
-- **Fonctionnalité :** Panneau d'administration enrichi avec la gestion des packs et des catégories.
-- **Fonctionnalité :** Suite de sécurité complète pour l'admin :
-    - Mot de passe oublié par email.
-    - Double authentification (2FA) avec Google Authenticator.
-    - Configuration de l'email SMTP (IONOS) depuis l'admin.
-    - Changement de mot de passe depuis l'admin.
-- **Fonctionnalité :** Système de notifications par email pour les événements clés (bienvenue, réservation, message, avis).
-- **Fonctionnalité :** Système de commission sur les réservations, activable et configurable depuis l'admin.
-- **Support Déploiement :** Assistance intensive à l'utilisateur pour le déploiement sur son VPS (correction de services , configuration , gestion des , création manuelle d'utilisateur admin en BDD).
-- **Cosmétique :** Suppression du branding Emergent (badge, favicon, scripts) dans le code.
+- **Fonctionnalité :** Finalisation et test du double mode Événements / Professionnels.
+- **Fonctionnalité :** Renommage complet du site de Lumière à Je Suis.
+- **Fonctionnalité :** Ajout d'une catégorie Mise en beauté.
+- **Fonctionnalité :** Séparation complète des prestataires entre les modes Events et Pro.
+- **Fonctionnalité :** Système de suggestion de catégories (Autre) par les prestataires, avec validation par l'admin.
+- **Fonctionnalité :** Création d'un fil d'actualité Événements à venir avec création, likes et commentaires.
+- **Fonctionnalité :** Ajout d'un onglet Événements au tableau de bord prestataire.
+- **Fonctionnalité (Admin) :** Gestion complète des plans d'abonnement (prix, fonctionnalités) et de leurs limites (photos, réservations, commission).
+- **Fonctionnalité (Prestataire) :** Ajout d'un onglet Paiements pour configurer les informations Stripe, PayPal ou bancaires.
+- **Correction de Bug :** Résolution du bug de navigation sur la page de sélection de mode.
+- **Correction de Bug :** Résolution d'une erreur lors du clic sur Changer de formule.
+- **Correction de Bug :** Résolution d'un bug où un nouveau client était invité à créer un profil prestataire.
+- **Support :** Assistance intensive et répétée à l'utilisateur pour le déploiement sur son VPS.
+
+**Earlier issues found/mentioned but not fixed**
+- **Issue 1: Logique de disponibilité des réservations incomplète.** (P0, Not Started)
+- **Issue 2: Problème de z-index avec le menu déroulant des pays.** (P1, Not Started)
+- **Issue 3: Écran blanc lors du clic sur le statut du matériel.** (P1, Not Started)
+- **Issue 4: Le login Google ne fonctionne pas sur le site déployé.** (P1, Not Started)
+
+**Known issue recurrence from previous fork**
+- **Issue recurrence in previous fork:** Problème de z-index, écran blanc sur le statut du matériel, login Google défaillant en production.
+- **Recurrence count:** 2+
+- **Status:** NOT STARTED
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Backend:** FastAPI,  pour l'envoi d'emails via SMTP (IONOS),  &  pour la 2FA, stockage de la configuration (SMTP, commission) en base de données pour une gestion dynamique.
-- **Frontend:** React, React Context (),  pour persister le mode du site,  pour la navigation,  pour les composants.
-- **Déploiement:** L'utilisateur gère son propre VPS IONOS. L'agent doit fournir un support détaillé avec des commandes  pour , , npm <command>
-
-Usage:
-
-npm install        install all the dependencies in your project
-npm install <foo>  add the <foo> dependency to your project
-npm test           run this project's tests
-npm run <foo>      run the script named <foo>
-npm <command> -h   quick help on <command>
-npm -l             display usage info for all commands
-npm help <term>    search for help on <term>
-npm help npm       more involved overview
-
-All commands:
-
-    access, adduser, audit, bugs, cache, ci, completion,
-    config, dedupe, deprecate, diff, dist-tag, docs, doctor,
-    edit, exec, explain, explore, find-dupes, fund, get, help,
-    help-search, hook, init, install, install-ci-test,
-    install-test, link, ll, login, logout, ls, org, outdated,
-    owner, pack, ping, pkg, prefix, profile, prune, publish,
-    query, rebuild, repo, restart, root, run-script, sbom,
-    search, set, shrinkwrap, star, stars, start, stop, team,
-    test, token, uninstall, unpublish, unstar, update, version,
-    view, whoami
-
-Specify configs in the ini-formatted file:
-    /root/.npmrc
-or on the command line via: npm <command> --key=value
-
-More configuration info: npm help config
-Configuration fields: npm help 7 config
-
-npm@10.8.2 /usr/lib/node_modules/npm et 
-Usage:   
-  pip <command> [options]
-
-Commands:
-  install                     Install packages.
-  lock                        Generate a lock file.
-  download                    Download packages.
-  uninstall                   Uninstall packages.
-  freeze                      Output installed packages in requirements format.
-  inspect                     Inspect the python environment.
-  list                        List installed packages.
-  show                        Show information about installed packages.
-  check                       Verify installed packages have compatible 
-dependencies.
-  config                      Manage local and global configuration.
-  search                      Search PyPI for packages.
-  cache                       Inspect and manage pip's wheel cache.
-  index                       Inspect information available from package 
-indexes.
-  wheel                       Build wheels from your requirements.
-  hash                        Compute hashes of package archives.
-  completion                  A helper command used for command completion.
-  debug                       Show information useful for debugging.
-  help                        Show help for commands.
-
-General Options:
-  -h, --help                  Show help.
-  --debug                     Let unhandled exceptions propagate outside the
-                              main subroutine, instead of logging them to
-                              stderr.
-  --isolated                  Run pip in an isolated mode, ignoring
-                              environment variables and user configuration.
-  --require-virtualenv        Allow pip to only run in a virtual environment;
-                              exit with an error otherwise.
-  --python <python>           Run pip with the specified Python interpreter.
-  -v, --verbose               Give more output. Option is additive, and can be
-                              used up to 3 times.
-  -V, --version               Show version and exit.
-  -q, --quiet                 Give less output. Option is additive, and can be
-                              used up to 3 times (corresponding to WARNING,
-                              ERROR, and CRITICAL logging levels).
-  --log <path>                Path to a verbose appending log.
-  --no-input                  Disable prompting for input.
-  --keyring-provider <keyring_provider>
-                              Enable the credential lookup via the keyring
-                              library if user input is allowed. Specify which
-                              mechanism to use [auto, disabled, import,
-                              subprocess]. (default: auto)
-  --proxy <proxy>             Specify a proxy in the form
-                              scheme://[user:passwd@]proxy.server:port.
-  --retries <retries>         Maximum attempts to establish a new HTTP
-                              connection. (default: 5)
-  --timeout <sec>             Set the socket timeout (default 15 seconds).
-  --exists-action <action>    Default action when a path already exists:
-                              (s)witch, (i)gnore, (w)ipe, (b)ackup, (a)bort.
-  --trusted-host <hostname>   Mark this host or host:port pair as trusted,
-                              even though it does not have valid or any HTTPS.
-  --cert <path>               Path to PEM-encoded CA certificate bundle. If
-                              provided, overrides the default. See 'SSL
-                              Certificate Verification' in pip documentation
-                              for more information.
-  --client-cert <path>        Path to SSL client certificate, a single file
-                              containing the private key and the certificate
-                              in PEM format.
-  --cache-dir <dir>           Store the cache data in <dir>.
-  --no-cache-dir              Disable the cache.
-  --disable-pip-version-check
-                              Don't periodically check PyPI to determine
-                              whether a new version of pip is available for
-                              download. Implied with --no-
-                              index.
-  --no-color                  Suppress colored output.
-  --use-feature <feature>     Enable new functionality, that may be backward
-                              incompatible.
-  --use-deprecated <feature>  Enable deprecated functionality, that will be
-                              removed in the future.
-  --resume-retries <resume_retries>
-                              Maximum attempts to resume or restart an
-                              incomplete download. (default: 5).
+- **Backend:** FastAPI,  pour l'upload de fichiers,  models, .
+- **Frontend:** React, React Context, , , , .
+- **Déploiement:** VPS IONOS géré par l'utilisateur avec  et . C'est un point de friction majeur.
 
 **key DB schema**
-- **admin_users:** 
-- **site_settings:** (Nouveau) , 
-- **bookings:** 
+- **events:** (Nouveau) 
+- **category_suggestions:** (Nouveau) 
+- **site_settings:** (Modifié) Stocke les plans d'abonnement () et les catégories.
+- **users:** (Modifié) Stocke les paramètres de paiement du prestataire ().
+
+**changes in tech stack**
+- Aucune modification.
 
 **All files of reference**
 - 
@@ -260,69 +158,67 @@ General Options:
 - 
 - 
 - 
-- 
 
 **Areas that need refactoring**:
--  est devenu un fichier massif et difficile à maintenir. Chaque onglet devrait être extrait dans son propre composant.
--  continue de grossir. La logique de notification ( a été un bon début) et la logique de réservation pourraient être davantage modularisées.
+-  et  sont devenus extrêmement volumineux et complexes. Chaque onglet ou section majeure devrait être extrait dans son propre composant pour améliorer la maintenabilité. C'est maintenant une dette technique critique.
 
 **key api endpoints**
-- : Récupère les catégories pour le mode event ou professional.
-- : Ajoute une nouvelle catégorie.
-- : Supprime une catégorie.
-- : Gère les paramètres de la commission.
-- : Déclenche l'envoi d'email de réinitialisation.
-- : Met à jour le mot de passe avec un token.
-- : Permet à un admin connecté de changer son mot de passe.
-- , : Gère le flux 2FA.
+- : (Nouveau) Uploade une image pour un événement.
+- : (Nouveau) CRUD complet pour les événements communautaires, likes et commentaires.
+- : (Modifié) Filtre les prestataires par mode.
+- , : (Nouveau) Endpoints pour la suggestion et la gestion des catégories.
+- : (Nouveau) CRUD pour les plans d'abonnement.
+- : (Nouveau) Sauvegarde la configuration de paiement du prestataire.
 
 **Critical Info for New Agent**
-- Le déploiement est un point sensible. L'utilisateur utilise un VPS IONOS avec une configuration spécifique (,  user, ). Soyez prêt à fournir des commandes  très précises et à déboguer des problèmes d'environnement.
-- Le domaine de production est . Toutes les URLs (, ,  dans les ) doivent pointer vers cette adresse.
-- Le problème de messagerie en production est le bug le plus critique pour l'utilisateur. Bien que l'API fonctionne en local sur le VPS, la communication échoue depuis le navigateur. L'investigation doit se concentrer sur les CORS et la configuration du proxy WebSocket Nginx.
+- **Le déploiement sur le VPS de l'utilisateur est le blocage le plus important.** Soyez prêt à fournir des commandes  extrêmement précises et à guider l'utilisateur pas à pas. Le chemin correct du projet semble être  et le service . Envisagez de créer un script de déploiement  pour simplifier le processus pour l'utilisateur.
+- Les bases de données de l'environnement de preview et de production sont séparées. Les comptes de test n'existent pas en production.
+- Les fichiers  et  sont très volumineux. Naviguez-y avec prudence et envisagez de proposer un refactoring si l'occasion se présente.
+- Le flux de travail de l'utilisateur est très agile ; il change souvent de priorité. Restez flexible tout en gardant une trace des bogues critiques non résolus.
 
 **documents and test reports created in this job**
 - 
+- 
+-  (mis à jour plusieurs fois)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1. **User:** Demande à ajouter un côté professionnel (électricien, plombier) au site.
-2. **Agent:** Propose une approche avec un choix de mode (Événements / Professionnels) à l'entrée du site.
-3. **User:** Valide l'approche et demande à pouvoir ajouter/supprimer les corps de métier depuis l'admin.
-4. **Agent:** Commence l'implémentation de la fonctionnalité de double mode.
-5. **User:** Confirme la proposition de message de bienvenue client amélioré.
-6. **Agent:** Commence l'implémentation du système de notifications et de la commission.
-7. **User:** Demande de désactiver la commission pour le lancement, mais de pouvoir la réactiver plus tard.
-8. **Agent:** Implémente la gestion de la commission (ON/OFF + pourcentage) depuis le panneau d'administration.
-9. **User:** Rencontre des problèmes de connexion admin sur son VPS après mise à jour.
-10. **Agent:** Passe beaucoup de temps à diagnostiquer et corriger la configuration du VPS (service systemd, Nginx, .env, CORS) jusqu'à ce que la connexion fonctionne.
+1. **Demande d'upload d'image:** L'utilisateur demande à pouvoir uploader des images pour les événements depuis son appareil, au lieu d'utiliser un lien.
+2. **Bug Changer de formule:** L'utilisateur signale une erreur en cliquant sur changer de formule.
+3. **Demande de configuration de paiement:** L'utilisateur souhaite que les prestataires puissent configurer leurs informations de paiement (Stripe/PayPal).
+4. **Demande de gestion des limites d'abonnement:** L'utilisateur veut pouvoir modifier les limites (photos, réservations) des abonnements depuis l'admin.
+5. **Question sur les limites du plan gratuit:** L'utilisateur demande les limites actuelles du plan gratuit.
+6. **Question sur l'onglet Événements:** L'utilisateur demande où se trouve la gestion des événements pour un prestataire.
+7. **Bug d'inscription:** L'utilisateur signale qu'en créant un compte client, on lui demande de créer un profil professionnel.
+8. **Demande de fonctionnalité Événements à venir:** L'utilisateur suggère un fil d'actualité où les prestataires peuvent publier des événements.
+9. **Demande de gestion des abonnements:** L'utilisateur veut pouvoir modifier les prix et fonctionnalités des abonnements depuis l'admin.
+10. **Problème d'affichage dans l'admin:** L'utilisateur signale que l'onglet Utilisateurs mélange clients et prestataires et souhaite les séparer.
 
 **Project Health Check:**
 - **Broken:**
-    - Messagerie client-prestataire en production (problème le plus critique).
     - Logique de disponibilité des réservations (faille métier).
     - Authentification Google en production.
-    - Divers bugs UI (z-index, crash matériel).
+    - Divers bugs UI hérités (z-index, crash matériel).
 - **Mocked:**
-    - Intégration PayPal.
-    - Notifications in-app (seuls les emails sont faits).
+    - Intégration PayPal pour les abonnements.
 
 **3rd Party Integrations**
-- **Stripe:** Intégré pour les paiements.
-- **Google Auth:** Intégré mais cassé en production.
+- **Stripe:** Intégré pour les paiements des abonnements.
+- **Google Auth:** Intégré mais ne fonctionne pas en production.
 - **IONOS SMTP:** Intégré via  pour l'envoi d'emails.
-- **PayPal:** En attente d'implémentation.
+- **PayPal:** En attente d'implémentation pour les abonnements (playbook obtenu).
 
 **Testing status**
-- **Testing agent used after significant changes:** YES, pour valider les fonctionnalités de modération et le bouton Contacter.
+- **Testing agent used after significant changes:** YES, pour valider le double mode et faire un bilan de santé complet.
 - **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:** None.
-- **Known regressions:** La messagerie en production semble s'être dégradée ou le problème est devenu plus apparent après les récents changements.
+- **Test files created:** None
+- **Known regressions:** Les bugs hérités du fork précédent (z-index, crash matériel, Google Auth) sont toujours présents.
 
 **Credentials to test flow:**
 - **Prestataire (dev):**  / 
 - **Client (dev):**  / 
-- **Admin (prod):**  / 
+- **Admin (prod):**  / (mot de passe réinitialisé pendant la session, l'utilisateur a le nouveau)
+- **Note:** Les identifiants de dev ne fonctionnent que dans l'environnement de preview. Le compte admin  n'existe que sur le VPS de production de l'utilisateur.
 
 **What agent forgot to execute**
-- L'agent a été détourné des bugs existants par les nouvelles demandes de fonctionnalités de l'utilisateur. Les problèmes critiques comme la logique de réservation et le bug de messagerie en production n'ont pas été résolus.
-- L'implémentation de PayPal a été mentionnée mais pas commencée.</analysis>
+- L'agent a été très réactif aux demandes de l'utilisateur, mais n'a pas traité les bugs critiques hérités du fork précédent (logique de réservation, z-index, crash matériel, Google Auth).
+- L'implémentation de PayPal a été initiée (playbook récupéré) mais mise en attente sur demande implicite de l'utilisateur qui a changé de sujet.</analysis>
