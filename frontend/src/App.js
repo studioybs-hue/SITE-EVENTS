@@ -25,6 +25,7 @@ import PricingPage from '@/pages/PricingPage';
 import AdminPage from '@/pages/AdminPage';
 import AdminLoginPage from '@/pages/AdminLoginPage';
 import AdminResetPasswordPage from '@/pages/AdminResetPasswordPage';
+import CommunityEventsPage from '@/pages/CommunityEventsPage';
 
 // Components
 import AuthCallback from '@/components/AuthCallback';
