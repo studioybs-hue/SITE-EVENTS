@@ -1028,7 +1028,7 @@ const AdminPage = () => {
           <TabsContent value="users">
             <Card>
               <CardHeader>
-                <CardTitle>Gestion des utilisateurs</CardTitle>
+                <CardTitle>Gestion des clients</CardTitle>
                 <div className="flex gap-4 mt-4">
                   <div className="flex-1">
                     <Input
