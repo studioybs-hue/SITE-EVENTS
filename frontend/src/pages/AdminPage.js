@@ -523,6 +523,69 @@ const AdminPage = () => {
     }
   };
 
+  // Category Suggestions Functions
+  const fetchCategorySuggestions = async () => {
+    try {
+      setSuggestionsLoading(true);
+      const res = await fetch(`${BACKEND_URL}/api/admin/category-suggestions?status=pending`, { 
+        credentials: 'include' 
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCategorySuggestions(data);
+      }
+    } catch (e) {
+      console.error('Error fetching suggestions:', e);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
+  const approveSuggestion = async (suggestion) => {
+    const icon = prompt('Choisissez un emoji pour cette catégorie:', '🏷️');
+    if (!icon) return;
+    
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/category-suggestions/${suggestion.created_at}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: suggestion.suggestion,
+          icon: icon,
+          id: suggestion.suggestion.toLowerCase().replace(/ /g, '_').replace(/\//g, '_')
+        })
+      });
+      if (res.ok) {
+        toast.success(`Catégorie "${suggestion.suggestion}" ajoutée !`);
+        fetchCategorySuggestions();
+        fetchCategories();
+      } else {
+        toast.error('Erreur lors de l\'approbation');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
+  const rejectSuggestion = async (suggestion) => {
+    if (!window.confirm('Rejeter cette suggestion ?')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/category-suggestions/${suggestion.created_at}/reject`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        toast.success('Suggestion rejetée');
+        fetchCategorySuggestions();
+      } else {
+        toast.error('Erreur lors du rejet');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    }
+  };
+
   // Moderation Functions
   const fetchFlaggedMessages = async () => {
     try {
