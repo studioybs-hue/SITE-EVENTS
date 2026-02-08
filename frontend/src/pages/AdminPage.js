@@ -124,6 +124,11 @@ const AdminPage = () => {
   // Category Suggestions
   const [categorySuggestions, setCategorySuggestions] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  
+  // Subscription Plans Management
+  const [subscriptionPlans, setSubscriptionPlans] = useState([]);
+  const [editingPlan, setEditingPlan] = useState(null);
+  const [plansLoading, setPlansLoading] = useState(false);
 
   useEffect(() => {
     checkAdminAuth();
