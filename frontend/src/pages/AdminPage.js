@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Users, TrendingUp, CreditCard, BarChart3, Shield, Lock,
+  Users, TrendingUp, CreditCard, BarChart3, Shield, Lock, Euro,
   Search, ChevronLeft, ChevronRight, Eye, Ban, Trash2,
   CheckCircle, XCircle, Crown, Star, LogOut, Settings,
   Calendar, Package, MessageSquare, Globe, Image, Phone, Mail, MapPin, Video, Plus, Save, Quote, AlertTriangle, MessageCircle, X
