@@ -269,7 +269,7 @@ class TestBookingFlow:
                 "provider_name": provider["business_name"],
                 "event_type": "TEST_Mariage",
                 "event_date": future_date,
-                "location": "Paris, France",
+                "event_location": "Paris, France",
                 "total_amount": 1500.00,
                 "notes": "Test booking from automated tests"
             }
