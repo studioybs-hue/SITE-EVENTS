@@ -31,7 +31,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Calendar, Euro, MapPin, User, Building, MessageCircle, 
   Star, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle,
-  Settings, Edit, Reply, CalendarCheck, Lock, Search, Package, ShoppingBag, Heart, Video, Gift, CreditCard, Crown, ArrowRight
+  Settings, Edit, Reply, CalendarCheck, Lock, Search, Package, ShoppingBag, Heart, Video, Gift, CreditCard, Crown, ArrowRight, Plus, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
