@@ -815,6 +815,10 @@ const DashboardPage = () => {
                       Événements
                     </TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-provider-bookings">Réservations</TabsTrigger>
+                    <TabsTrigger value="payment-settings" data-testid="tab-payment-settings" className="flex items-center gap-1" onClick={fetchPaymentSettings}>
+                      <Euro className="h-3 w-3" />
+                      Paiements
+                    </TabsTrigger>
                     <TabsTrigger value="subscription" data-testid="tab-subscription" className="flex items-center gap-1">
                       <CreditCard className="h-3 w-3" />
                       Abonnement
