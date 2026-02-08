@@ -113,6 +113,13 @@ const AdminPage = () => {
   const [commissionEnabled, setCommissionEnabled] = useState(false);
   const [commissionRate, setCommissionRate] = useState(5);
   const [commissionLoading, setCommissionLoading] = useState(false);
+  
+  // Categories Management
+  const [categoriesEvents, setCategoriesEvents] = useState([]);
+  const [categoriesPro, setCategoriesPro] = useState([]);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryIcon, setNewCategoryIcon] = useState('🔹');
+  const [categoryMode, setCategoryMode] = useState('events');
 
   useEffect(() => {
     checkAdminAuth();
