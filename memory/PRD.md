@@ -22,6 +22,16 @@ Les clients peuvent rechercher, réserver et payer des prestataires, et les pres
 
 ## Fonctionnalités Implémentées
 
+### ✅ Double Mode "Événements" / "Professionnels" (Nouveau - 08/02/2025)
+- **Page de sélection** (`/welcome`) : Choix du mode à l'entrée du site
+- **Thèmes visuels distincts** : Doré/Or pour Événements, Bleu pour Professionnels
+- **Catégories dynamiques** : 10 catégories par mode, chargées depuis l'API
+- **Contenu adaptatif** : Textes, images, et labels adaptés au mode
+- **Navbar adaptée** : "Lumière Events" ou "Lumière Pro" selon le mode
+- **Indicateur de mode** : Badge cliquable dans la navbar pour changer de mode
+- **Persistance** : Mode sauvegardé dans localStorage
+- **Gestion admin** : Onglet "Catégories" pour ajouter/supprimer les catégories par mode
+
 ### ✅ Authentification (Complète)
 - Inscription/Connexion par email et mot de passe
 - Connexion via Google OAuth
