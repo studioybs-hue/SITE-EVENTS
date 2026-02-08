@@ -195,7 +195,7 @@ const LoginProPage = () => {
             Espace Prestataire
           </h1>
           <p className="text-xl text-white/70 mb-8">
-            Développez votre activité événementielle avec Lumière Events
+            Développez votre activité avec Je Suis
           </p>
         </div>
 
