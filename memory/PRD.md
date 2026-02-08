@@ -136,10 +136,12 @@ Les clients peuvent rechercher, réserver et payer des prestataires, et les pres
 - [x] ~~Modale de réservation de pack se fermait toute seule~~ (Corrigé 06/02/2025 - createPortal)
 - [x] ~~Voir conversation complète en modération~~ (Corrigé 06/02/2025 - Modale ajoutée)
 - [x] ~~Contacter client depuis fiche réservation~~ (Corrigé 06/02/2025 - Bouton ajouté)
+- [x] ~~Double mode "Événements" / "Professionnels"~~ (Implémenté 08/02/2025)
 - [ ] Écran blanc en cliquant sur le statut "Disponible" (menu déroulant - erreur JS)
 - [ ] Problèmes de chevauchement UI (z-index) sur sélecteur de pays dans modale "Ajouter une période"
 - [ ] Logique de disponibilité incomplète (ne vérifie pas le pays du prestataire)
 - [ ] Google OAuth à reconfigurer pour le domaine de production
+- [ ] Le client ne peut pas envoyer de message au prestataire sur le site de production (problème CORS/WebSocket probable)
 
 ### P1 - Abonnements (COMPLÉTÉ ✅)
 - [x] ~~Système d'abonnement avec 3 formules~~ (Gratuit/Pro/Premium)
