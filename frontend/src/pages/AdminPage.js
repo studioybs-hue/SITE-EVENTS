@@ -2135,6 +2135,61 @@ const AdminPage = () => {
                               </Button>
                             </div>
                           </div>
+
+                          {/* Limits */}
+                          <div className="pt-4 border-t">
+                            <Label className="text-sm font-medium text-orange-600">⚙️ Limites du plan</Label>
+                            <div className="grid grid-cols-2 gap-3 mt-2">
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Max photos/vidéos</Label>
+                                <Input
+                                  type="number"
+                                  value={plan.limits?.max_portfolio_items ?? 5}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value);
+                                    const newLimits = { ...plan.limits, max_portfolio_items: val === -1 ? -1 : Math.max(0, val) };
+                                    updatePlanField(plan.plan_id, 'limits', newLimits);
+                                  }}
+                                  className="mt-1"
+                                  placeholder="-1 = illimité"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">-1 = illimité</p>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Max réservations/mois</Label>
+                                <Input
+                                  type="number"
+                                  value={plan.limits?.max_bookings_per_month ?? 5}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value);
+                                    const newLimits = { ...plan.limits, max_bookings_per_month: val === -1 ? -1 : Math.max(0, val) };
+                                    updatePlanField(plan.plan_id, 'limits', newLimits);
+                                  }}
+                                  className="mt-1"
+                                  placeholder="-1 = illimité"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">-1 = illimité</p>
+                              </div>
+                              <div className="col-span-2">
+                                <Label className="text-xs text-muted-foreground">Commission (%)</Label>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  max="1"
+                                  value={plan.limits?.commission_rate ?? 0.15}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    const newLimits = { ...plan.limits, commission_rate: Math.min(1, Math.max(0, val)) };
+                                    updatePlanField(plan.plan_id, 'limits', newLimits);
+                                  }}
+                                  className="mt-1"
+                                  placeholder="0.15 = 15%"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">0.15 = 15%, 0 = pas de commission</p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
