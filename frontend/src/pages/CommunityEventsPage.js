@@ -37,6 +37,7 @@ const CommunityEventsPage = () => {
     ticket_link: '',
     price_info: ''
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
