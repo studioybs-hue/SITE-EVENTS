@@ -1339,6 +1339,74 @@ const AdminPage = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Category Suggestions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="text-2xl">💡</span>
+                    Suggestions de métiers
+                    {categorySuggestions.length > 0 && (
+                      <span className="bg-orange-500 text-white text-sm px-2 py-1 rounded-full">
+                        {categorySuggestions.length}
+                      </span>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    Métiers proposés par les prestataires qui n'ont pas trouvé leur catégorie
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {suggestionsLoading ? (
+                    <div className="text-center py-4">Chargement...</div>
+                  ) : categorySuggestions.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-4">
+                      Aucune suggestion en attente
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {categorySuggestions.map((suggestion, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg"
+                        >
+                          <div className="flex-1">
+                            <div className="font-semibold text-lg">{suggestion.suggestion}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Mode: <span className={suggestion.mode === 'events' ? 'text-yellow-600' : 'text-blue-600'}>
+                                {suggestion.mode === 'events' ? '🎉 Événements' : '🔧 Professionnels'}
+                              </span>
+                              {suggestion.provider_email && (
+                                <span className="ml-3">• Proposé par: {suggestion.provider_email}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              onClick={() => approveSuggestion(suggestion)}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Ajouter
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              onClick={() => rejectSuggestion(suggestion)}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Rejeter
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
