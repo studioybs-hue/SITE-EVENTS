@@ -887,6 +887,166 @@ const DashboardPage = () => {
                     <MyEquipmentManager />
                   </TabsContent>
 
+                  {/* My Events Tab */}
+                  <TabsContent value="my-events" onFocus={fetchMyEvents}>
+                    <Card className="p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-heading font-semibold">Mes événements</h2>
+                        <Button 
+                          onClick={() => setShowCreateEvent(!showCreateEvent)}
+                          className="bg-gradient-to-r from-pink-500 to-orange-500 text-white"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          {showCreateEvent ? 'Annuler' : 'Créer un événement'}
+                        </Button>
+                      </div>
+
+                      {/* Create Event Form */}
+                      {showCreateEvent && (
+                        <Card className="p-6 mb-6 border-2 border-dashed border-orange-300 bg-orange-50">
+                          <h3 className="text-lg font-semibold mb-4">📅 Nouvel événement</h3>
+                          <form onSubmit={handleCreateEvent} className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="md:col-span-2">
+                                <Label>Titre de l'événement *</Label>
+                                <Input
+                                  value={newEvent.title}
+                                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                                  placeholder="Concert Jazz, Soirée Networking..."
+                                />
+                              </div>
+                              <div>
+                                <Label>Date *</Label>
+                                <Input
+                                  type="date"
+                                  value={newEvent.event_date}
+                                  onChange={(e) => setNewEvent({ ...newEvent, event_date: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <Label>Heure</Label>
+                                <Input
+                                  type="time"
+                                  value={newEvent.event_time}
+                                  onChange={(e) => setNewEvent({ ...newEvent, event_time: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <Label>Lieu *</Label>
+                                <Input
+                                  value={newEvent.location}
+                                  onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+                                  placeholder="La Friche Belle de Mai"
+                                />
+                              </div>
+                              <div>
+                                <Label>Adresse</Label>
+                                <Input
+                                  value={newEvent.address}
+                                  onChange={(e) => setNewEvent({ ...newEvent, address: e.target.value })}
+                                  placeholder="41 Rue Jobin, 13003 Marseille"
+                                />
+                              </div>
+                              <div className="md:col-span-2">
+                                <Label>Description</Label>
+                                <Textarea
+                                  value={newEvent.description}
+                                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                                  placeholder="Décrivez votre événement..."
+                                  rows={3}
+                                />
+                              </div>
+                              <div>
+                                <Label>URL de l'image</Label>
+                                <Input
+                                  value={newEvent.image_url}
+                                  onChange={(e) => setNewEvent({ ...newEvent, image_url: e.target.value })}
+                                  placeholder="https://..."
+                                />
+                              </div>
+                              <div>
+                                <Label>Info prix</Label>
+                                <Input
+                                  value={newEvent.price_info}
+                                  onChange={(e) => setNewEvent({ ...newEvent, price_info: e.target.value })}
+                                  placeholder="Gratuit, 15€..."
+                                />
+                              </div>
+                              <div className="md:col-span-2">
+                                <Label>Lien billetterie / Plus d'infos</Label>
+                                <Input
+                                  value={newEvent.ticket_link}
+                                  onChange={(e) => setNewEvent({ ...newEvent, ticket_link: e.target.value })}
+                                  placeholder="https://..."
+                                />
+                              </div>
+                            </div>
+                            <Button type="submit" className="w-full">
+                              Publier l'événement
+                            </Button>
+                          </form>
+                        </Card>
+                      )}
+
+                      {/* Events List */}
+                      {myEventsLoading ? (
+                        <div className="text-center py-12">
+                          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        </div>
+                      ) : myEvents.length === 0 ? (
+                        <div className="text-center py-12">
+                          <Calendar className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+                          <p className="text-muted-foreground mb-4">Vous n'avez pas encore publié d'événement</p>
+                          <Button variant="outline" onClick={() => setShowCreateEvent(true)}>
+                            Créer mon premier événement
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {myEvents.map((event) => (
+                            <Card key={event.event_id} className="p-4 hover:shadow-md transition-shadow">
+                              <div className="flex gap-4">
+                                {event.image_url && (
+                                  <img 
+                                    src={event.image_url} 
+                                    alt={event.title}
+                                    className="w-24 h-24 object-cover rounded-lg"
+                                  />
+                                )}
+                                <div className="flex-1">
+                                  <h3 className="font-semibold text-lg">{event.title}</h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    📅 {new Date(event.event_date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                    {event.event_time && ` à ${event.event_time}`}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">📍 {event.location}</p>
+                                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                                    <span>❤️ {event.likes_count || 0} likes</span>
+                                    <span>💬 {event.comments_count || 0} commentaires</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-500 hover:text-red-700"
+                                  onClick={() => handleDeleteEvent(event.event_id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="mt-6 pt-6 border-t text-center">
+                        <Button variant="outline" onClick={() => window.open('/community-events', '_blank')}>
+                          Voir tous les événements de la communauté →
+                        </Button>
+                      </div>
+                    </Card>
+                  </TabsContent>
+
                   {/* Provider Bookings Tab */}
                   <TabsContent value="bookings">
                     <Card className="p-6">
