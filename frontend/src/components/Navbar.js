@@ -50,9 +50,28 @@ const Navbar = ({ user, onLogout }) => {
       <div className="px-6 md:px-12 lg:px-24">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2" data-testid="nav-logo">
-            <div className="text-2xl font-heading font-semibold text-primary">Lumière Events</div>
+          <Link to="/home" className="flex items-center space-x-2" data-testid="nav-logo">
+            <div className={`text-2xl font-heading font-semibold ${isPro ? 'text-blue-600' : 'text-primary'}`}>
+              Lumière {isEvents ? 'Events' : 'Pro'}
+            </div>
           </Link>
+          
+          {/* Mode Indicator */}
+          {mode && (
+            <button
+              onClick={clearMode}
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                isPro 
+                  ? 'bg-blue-500/10 text-blue-600 hover:bg-blue-500/20' 
+                  : 'bg-accent/10 text-accent hover:bg-accent/20'
+              }`}
+              data-testid="mode-indicator"
+              title="Cliquez pour changer de mode"
+            >
+              {isPro ? <Wrench className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+              {isPro ? 'Professionnels' : 'Événements'}
+            </button>
+          )}
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
