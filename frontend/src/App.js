@@ -1,9 +1,11 @@
 import '@/App.css';
 import '@/index.css';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { SiteModeProvider, useSiteMode } from '@/contexts/SiteModeContext';
 
 // Pages
+import ModeSelectionPage from '@/pages/ModeSelectionPage';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import LoginProPage from '@/pages/LoginProPage';
@@ -27,6 +29,17 @@ import AdminResetPasswordPage from '@/pages/AdminResetPasswordPage';
 // Components
 import AuthCallback from '@/components/AuthCallback';
 
+// Route guard for mode selection
+const ModeGuard = ({ children }) => {
+  const { mode } = useSiteMode();
+  
+  if (!mode) {
+    return <Navigate to="/welcome" replace />;
+  }
+  
+  return children;
+};
+
 function AppRouter() {
   const location = useLocation();
   
@@ -37,13 +50,22 @@ function AppRouter() {
 
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      {/* Mode Selection */}
+      <Route path="/welcome" element={<ModeSelectionPage />} />
+      
+      {/* Public routes that need mode */}
+      <Route path="/" element={<ModeGuard><HomePage /></ModeGuard>} />
+      <Route path="/home" element={<ModeGuard><HomePage /></ModeGuard>} />
+      <Route path="/search" element={<ModeGuard><SearchPage /></ModeGuard>} />
+      <Route path="/packages" element={<ModeGuard><PackagesPage /></ModeGuard>} />
+      
+      {/* Auth routes (no mode needed) */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/login/pro" element={<LoginProPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/search" element={<SearchPage />} />
-      <Route path="/packages" element={<PackagesPage />} />
+      
+      {/* Protected routes */}
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/marketplace" element={<MarketplacePage />} />
       <Route path="/marketplace/:itemId" element={<MarketplaceItemPage />} />
@@ -53,6 +75,8 @@ function AppRouter() {
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/payment/success" element={<PaymentSuccessPage />} />
       <Route path="/pricing" element={<PricingPage />} />
+      
+      {/* Admin routes */}
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/admin/reset-password" element={<AdminResetPasswordPage />} />
@@ -63,10 +87,12 @@ function AppRouter() {
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-      <Toaster position="top-right" richColors />
+      <SiteModeProvider>
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
+        <Toaster position="top-right" richColors />
+      </SiteModeProvider>
     </div>
   );
 }
