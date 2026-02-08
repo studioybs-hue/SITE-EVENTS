@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Wrench, ArrowRight, Sparkles } from 'lucide-react';
+import { useSiteMode } from '@/contexts/SiteModeContext';
 
 const ModeSelectionPage = () => {
   const navigate = useNavigate();
+  const { setMode } = useSiteMode();
 
   const selectMode = (mode) => {
-    localStorage.setItem('siteMode', mode);
+    setMode(mode);
     navigate('/home');
   };
 
