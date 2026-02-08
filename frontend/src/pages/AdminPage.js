@@ -62,7 +62,7 @@ const AdminPage = () => {
   const [usersPage, setUsersPage] = useState(1);
   const [usersTotalPages, setUsersTotalPages] = useState(1);
   const [usersSearch, setUsersSearch] = useState('');
-  const [usersTypeFilter, setUsersTypeFilter] = useState('all');
+  const [usersTypeFilter, setUsersTypeFilter] = useState('client');
   
   // Providers
   const [providers, setProviders] = useState([]);
