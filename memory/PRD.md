@@ -1,4 +1,4 @@
-# Lumière - Plateforme de Services (Événements & Professionnels)
+# Je Suis - Plateforme de Services (Événements & Professionnels)
 
 ## Vision Produit
 Plateforme web complète pour les prestataires de services, opérant en deux modes distincts :
