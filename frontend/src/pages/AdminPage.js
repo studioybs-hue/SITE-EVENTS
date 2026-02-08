@@ -2028,6 +2028,120 @@ const AdminPage = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Plans Management Card */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Configuration des plans d'abonnement
+                  </span>
+                  <Button onClick={saveSubscriptionPlans} className="bg-green-600 hover:bg-green-700">
+                    <Save className="h-4 w-4 mr-2" />
+                    Enregistrer les modifications
+                  </Button>
+                </CardTitle>
+                <CardDescription>
+                  Modifiez les prix et les fonctionnalités de chaque plan
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {plansLoading ? (
+                  <div className="text-center py-8">Chargement...</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {subscriptionPlans.map((plan) => (
+                      <div 
+                        key={plan.plan_id} 
+                        className={`border rounded-lg p-4 ${
+                          plan.plan_id === 'premium' ? 'border-yellow-400 bg-yellow-50' :
+                          plan.plan_id === 'pro' ? 'border-blue-400 bg-blue-50' : 
+                          'border-gray-300 bg-gray-50'
+                        }`}
+                      >
+                        <div className="space-y-4">
+                          {/* Plan Name */}
+                          <div>
+                            <Label className="text-sm font-medium">Nom du plan</Label>
+                            <Input
+                              value={plan.name}
+                              onChange={(e) => updatePlanField(plan.plan_id, 'name', e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+
+                          {/* Description */}
+                          <div>
+                            <Label className="text-sm font-medium">Description</Label>
+                            <Input
+                              value={plan.description}
+                              onChange={(e) => updatePlanField(plan.plan_id, 'description', e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+
+                          {/* Prices */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-sm font-medium">Prix mensuel (€)</Label>
+                              <Input
+                                type="number"
+                                value={plan.price_monthly}
+                                onChange={(e) => updatePlanField(plan.plan_id, 'price_monthly', parseFloat(e.target.value) || 0)}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium">Prix annuel (€)</Label>
+                              <Input
+                                type="number"
+                                value={plan.price_yearly}
+                                onChange={(e) => updatePlanField(plan.plan_id, 'price_yearly', parseFloat(e.target.value) || 0)}
+                                className="mt-1"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Features */}
+                          <div>
+                            <Label className="text-sm font-medium">Fonctionnalités</Label>
+                            <div className="space-y-2 mt-2">
+                              {plan.features.map((feature, idx) => (
+                                <div key={idx} className="flex gap-2">
+                                  <Input
+                                    value={feature}
+                                    onChange={(e) => updatePlanFeature(plan.plan_id, idx, e.target.value)}
+                                    className="flex-1"
+                                  />
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => removePlanFeature(plan.plan_id, idx)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => addPlanFeature(plan.plan_id)}
+                                className="w-full mt-2"
+                              >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Ajouter une fonctionnalité
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Bookings Tab */}
