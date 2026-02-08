@@ -112,6 +112,23 @@ async def get_subscription_plans():
     }
 
 
+async def get_plan_by_id(plan_id: str):
+    """Helper function to get a plan by ID from database or defaults"""
+    db = get_db()
+    
+    # Try to get plans from database
+    plans_doc = await db.site_settings.find_one({"key": "subscription_plans"}, {"_id": 0})
+    
+    if plans_doc and plans_doc.get("value"):
+        plans = plans_doc["value"]
+        for plan in plans:
+            if plan.get("plan_id") == plan_id:
+                return plan
+    
+    # Fallback to default plans
+    return SUBSCRIPTION_PLANS.get(plan_id)
+
+
 # Admin endpoints for managing subscription plans
 @router.get("/admin/plans")
 async def admin_get_plans(request: Request):
