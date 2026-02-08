@@ -688,6 +688,10 @@ const DashboardPage = () => {
                       <ShoppingBag className="h-3 w-3" />
                       Matériel
                     </TabsTrigger>
+                    <TabsTrigger value="my-events" data-testid="tab-my-events" className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Événements
+                    </TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-provider-bookings">Réservations</TabsTrigger>
                     <TabsTrigger value="subscription" data-testid="tab-subscription" className="flex items-center gap-1">
                       <CreditCard className="h-3 w-3" />
