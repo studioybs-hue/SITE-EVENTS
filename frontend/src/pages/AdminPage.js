@@ -1145,6 +1145,136 @@ const AdminPage = () => {
             </Card>
           </TabsContent>
 
+          {/* Categories Tab */}
+          <TabsContent value="categories">
+            <div className="space-y-6">
+              {/* Add Category */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5" />
+                    Ajouter une catégorie
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-4 items-end">
+                    <div>
+                      <Label>Mode</Label>
+                      <select
+                        className="w-full border rounded-lg px-3 py-2 mt-1"
+                        value={categoryMode}
+                        onChange={(e) => setCategoryMode(e.target.value)}
+                      >
+                        <option value="events">🎉 Événements</option>
+                        <option value="pro">🔧 Professionnels</option>
+                      </select>
+                    </div>
+                    <div className="flex-1 min-w-[200px]">
+                      <Label>Nom de la catégorie</Label>
+                      <Input
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="Ex: Photographe, Électricien..."
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="w-24">
+                      <Label>Icône</Label>
+                      <Input
+                        value={newCategoryIcon}
+                        onChange={(e) => setNewCategoryIcon(e.target.value)}
+                        placeholder="📸"
+                        className="mt-1 text-center text-xl"
+                      />
+                    </div>
+                    <Button onClick={addCategory}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Ajouter
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Events Categories */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="text-2xl">🎉</span>
+                    Catégories Événements
+                  </CardTitle>
+                  <CardDescription>
+                    Mariages, anniversaires, soirées...
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {categoriesEvents.map((cat) => (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{cat.icon}</span>
+                          <span className="font-medium">{cat.name}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => deleteCategory('events', cat.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  {categoriesEvents.length === 0 && (
+                    <p className="text-center text-muted-foreground py-4">Aucune catégorie</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Pro Categories */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="text-2xl">🔧</span>
+                    Catégories Professionnels
+                  </CardTitle>
+                  <CardDescription>
+                    Électriciens, plombiers, artisans...
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {categoriesPro.map((cat) => (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{cat.icon}</span>
+                          <span className="font-medium">{cat.name}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => deleteCategory('pro', cat.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  {categoriesPro.length === 0 && (
+                    <p className="text-center text-muted-foreground py-4">Aucune catégorie</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           {/* Packs Tab */}
           <TabsContent value="packs">
             <Card>
