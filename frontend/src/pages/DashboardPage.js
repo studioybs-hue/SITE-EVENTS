@@ -237,11 +237,15 @@ const DashboardPage = () => {
 
   const handleBecomeProvider = async () => {
     try {
-      await fetch(`${BACKEND_URL}/api/auth/profile?user_type=provider`, {
+      const res = await fetch(`${BACKEND_URL}/api/auth/profile?user_type=provider`, {
         method: 'PATCH',
         credentials: 'include',
       });
-      setCreateProfileOpen(true);
+      if (res.ok) {
+        // Update local user state
+        setUser({ ...user, user_type: 'provider' });
+        setCreateProfileOpen(true);
+      }
     } catch (error) {
       console.error('Error updating user type:', error);
     }
