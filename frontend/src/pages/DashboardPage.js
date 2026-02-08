@@ -68,6 +68,17 @@ const DashboardPage = () => {
     title: '', description: '', event_date: '', event_time: '',
     location: '', address: '', image_url: '', ticket_link: '', price_info: ''
   });
+  
+  // Payment Settings
+  const [paymentSettings, setPaymentSettings] = useState({
+    payment_method: 'stripe', // 'stripe' or 'paypal'
+    stripe_account_id: '',
+    paypal_email: '',
+    bank_iban: '',
+    bank_bic: '',
+    bank_holder_name: ''
+  });
+  const [paymentSettingsLoading, setPaymentSettingsLoading] = useState(false);
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
