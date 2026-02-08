@@ -740,13 +740,29 @@ async def get_providers(
     location: Optional[str] = Query(None),
     country: Optional[str] = Query(None),
     event_date: Optional[str] = Query(None),  # ISO date YYYY-MM-DD
-    search: Optional[str] = Query(None)
+    search: Optional[str] = Query(None),
+    mode: Optional[str] = Query(None)  # 'events' or 'pro' to filter by mode
 ):
     query = {}
     if category:
         query["category"] = category
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
+    
+    # Filter by mode (events or pro categories)
+    if mode:
+        # Get categories for this mode
+        events_categories = ["Photographe", "Vidéaste", "DJ / Musique", "Traiteur", "Fleuriste", 
+                           "Décorateur", "Mise en beauté", "Salle / Lieu", "Animateur", "Wedding Planner",
+                           "Maquilleur / Coiffeur"]
+        pro_categories = ["Électricien", "Plombier", "Serrurier", "Peintre", "Menuisier",
+                         "Jardinier / Paysagiste", "Climatisation / Chauffage", "Nettoyage / Ménage",
+                         "Maçonnerie", "Déménagement"]
+        
+        if mode == "events":
+            query["category"] = {"$in": events_categories}
+        elif mode == "pro":
+            query["category"] = {"$in": pro_categories}
     
     # Find providers who have a presence in this country on this date
     providers_with_presence = set()
