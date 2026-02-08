@@ -11,8 +11,8 @@ import base64
 
 router = APIRouter(prefix="/api/events", tags=["events"])
 
-# Directory for uploaded images
-UPLOAD_DIR = "/app/backend/uploads/events"
+# Directory for uploaded images (relative to this file's location)
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads", "events")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
