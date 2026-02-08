@@ -134,7 +134,8 @@ async def get_public_categories(mode: str):
             {"id": "beauty", "name": "Mise en beauté", "icon": "💄"},
             {"id": "venue", "name": "Salle / Lieu", "icon": "🏰"},
             {"id": "animator", "name": "Animateur", "icon": "🎤"},
-            {"id": "wedding_planner", "name": "Wedding Planner", "icon": "📋"}
+            {"id": "wedding_planner", "name": "Wedding Planner", "icon": "📋"},
+            {"id": "other", "name": "Autre", "icon": "➕"}
         ]
     else:
         return [
