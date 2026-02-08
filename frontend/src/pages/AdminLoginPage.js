@@ -202,7 +202,7 @@ const AdminLoginPage = () => {
           <CardDescription>
             {requires2FA 
               ? 'Entrez le code de Google Authenticator'
-              : 'Lumière Events - Panneau d\'administration'
+              : 'Je Suis - Panneau d\'administration'
             }
           </CardDescription>
         </CardHeader>

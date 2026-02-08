@@ -879,7 +879,7 @@ const AdminPage = () => {
             <Shield className="h-8 w-8 text-yellow-500" />
             <div>
               <h1 className="text-xl font-bold">Administration</h1>
-              <p className="text-sm text-gray-400">Lumière Events</p>
+              <p className="text-sm text-gray-400">Je Suis</p>
             </div>
           </div>
           
