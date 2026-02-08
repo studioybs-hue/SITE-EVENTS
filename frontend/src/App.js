@@ -76,6 +76,7 @@ function AppRouter() {
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/payment/success" element={<PaymentSuccessPage />} />
       <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/community-events" element={<CommunityEventsPage />} />
       
       {/* Admin routes */}
       <Route path="/admin" element={<AdminPage />} />
