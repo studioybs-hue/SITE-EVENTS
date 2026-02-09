@@ -1314,6 +1314,41 @@ async def create_booking(
     
     booking_doc = booking_data.model_dump()
     
+    # Check provider availability in the event country if specified
+    event_country = booking_doc.get('event_country')
+    event_date = booking_doc.get('event_date')
+    provider_id = booking_doc.get('provider_id')
+    
+    if event_country and event_date:
+        # Check if provider has a presence in this country covering the event date
+        presences = await db.country_presences.find({
+            "provider_id": provider_id,
+            "country": event_country
+        }, {"_id": 0}).to_list(100)
+        
+        is_available = False
+        for presence in presences:
+            start_date = presence.get('start_date', '')
+            end_date = presence.get('end_date', '')
+            
+            # Check if event_date falls within the presence period
+            if start_date <= event_date <= end_date:
+                is_available = True
+                break
+        
+        if not is_available:
+            # Get country name for error message
+            country_names = {
+                'FR': 'France', 'KM': 'Comores', 'MG': 'Madagascar',
+                'ES': 'Espagne', 'GB': 'Royaume-Uni', 'BE': 'Belgique',
+                'CH': 'Suisse', 'DE': 'Allemagne', 'IT': 'Italie', 'PT': 'Portugal'
+            }
+            country_name = country_names.get(event_country, event_country)
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Le prestataire n'est pas disponible en {country_name} à cette date. Veuillez consulter ses périodes de disponibilité."
+            )
+    
     # Handle total_price as alias for total_amount
     if booking_doc.get('total_price') and not booking_doc.get('total_amount'):
         booking_doc['total_amount'] = booking_doc['total_price']
