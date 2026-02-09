@@ -212,6 +212,7 @@ const ProviderCard = ({ provider }) => {
           provider_id: provider.provider_id,
           event_date: formattedDate,
           event_location: packBookingForm.event_location,
+          event_country: packBookingForm.event_country,
           event_type: selectedPack.name,
           total_amount: selectedPack.price,
           notes: `Pack: ${selectedPack.name}\n${packBookingForm.message || ''}`,
