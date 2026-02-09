@@ -45,6 +45,7 @@ const ProviderCard = ({ provider }) => {
   const [packBookingForm, setPackBookingForm] = useState({
     event_date: '',
     event_location: '',
+    event_country: '',
     message: ''
   });
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
