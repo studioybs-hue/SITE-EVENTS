@@ -457,13 +457,17 @@ const MyEquipmentManager = () => {
                     {/* Actions */}
                     <div className="flex flex-wrap items-center gap-2 relative z-10">
                       <Select
-                        value={item.status}
-                        onValueChange={(value) => handleStatusChange(item.item_id, value)}
+                        value={item.status || 'available'}
+                        onValueChange={(value) => {
+                          if (value && value !== item.status) {
+                            handleStatusChange(item.item_id, value);
+                          }
+                        }}
                       >
                         <SelectTrigger className="w-[130px] h-8 text-xs">
-                          <SelectValue />
+                          <SelectValue placeholder="Statut" />
                         </SelectTrigger>
-                        <SelectContent className="z-[9999]" position="popper" sideOffset={5}>
+                        <SelectContent position="popper" sideOffset={5}>
                           <SelectItem value="available">Disponible</SelectItem>
                           <SelectItem value="reserved">Réservé</SelectItem>
                           <SelectItem value="sold">Vendu</SelectItem>
