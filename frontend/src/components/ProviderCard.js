@@ -175,6 +175,12 @@ const ProviderCard = ({ provider }) => {
     e.preventDefault();
     if (!selectedPack) return;
 
+    // Validate country is selected
+    if (!packBookingForm.event_country) {
+      toast.error('Veuillez sélectionner le pays de l\'événement');
+      return;
+    }
+
     // Convert date from DD/MM/YYYY to YYYY-MM-DD
     let formattedDate = packBookingForm.event_date;
     if (formattedDate.includes('/')) {
