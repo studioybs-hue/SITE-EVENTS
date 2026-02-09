@@ -202,6 +202,7 @@ class BookingCreate(BaseModel):
     event_type: str
     event_date: str
     event_location: str
+    event_country: Optional[str] = None  # Country code for availability check
     total_amount: Optional[float] = None
     total_price: Optional[float] = None  # Alias for total_amount
     pack_id: Optional[str] = None
