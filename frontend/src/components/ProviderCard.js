@@ -967,6 +967,33 @@ const ProviderCard = ({ provider }) => {
               </div>
 
               <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                <Label>Pays de l'événement *</Label>
+                <select
+                  required
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                  data-testid="pack-booking-country"
+                  value={packBookingForm.event_country}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setPackBookingForm({ ...packBookingForm, event_country: e.target.value });
+                  }}
+                >
+                  <option value="">Sélectionner un pays</option>
+                  <option value="FR">🇫🇷 France</option>
+                  <option value="KM">🇰🇲 Comores</option>
+                  <option value="MG">🇲🇬 Madagascar</option>
+                  <option value="BE">🇧🇪 Belgique</option>
+                  <option value="CH">🇨🇭 Suisse</option>
+                  <option value="ES">🇪🇸 Espagne</option>
+                  <option value="GB">🇬🇧 Royaume-Uni</option>
+                  <option value="DE">🇩🇪 Allemagne</option>
+                  <option value="IT">🇮🇹 Italie</option>
+                  <option value="PT">🇵🇹 Portugal</option>
+                </select>
+              </div>
+
+              <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
                 <Label>Message (optionnel)</Label>
                 <Textarea
                   rows={2}
