@@ -1032,7 +1032,7 @@ async def get_site_content(admin: dict = Depends(get_admin_user)):
                 "background_video": ""
             },
             "contact": {
-                "email": "contact@lumiere-events.com",
+                "email": "contact@jesuis.com",
                 "phone": "+33 1 23 45 67 89",
                 "vip_phone": "+33 1 23 45 67 90",
                 "address": "Paris, France"
@@ -1497,7 +1497,7 @@ async def get_public_site_content():
                 "background_video": ""
             },
             "contact": {
-                "email": "contact@lumiere-events.com",
+                "email": "contact@jesuis.com",
                 "phone": "+33 1 23 45 67 89",
                 "vip_phone": "+33 1 23 45 67 90",
                 "address": "Paris, France"
