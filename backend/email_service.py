@@ -81,7 +81,7 @@ def get_email_header():
     <body>
         <div class="container">
             <div class="header">
-                <h1>✨ Lumière Events</h1>
+                <h1>✨ Je Suis</h1>
                 <p>Votre plateforme événementielle</p>
             </div>
             <div class="content">
@@ -94,7 +94,7 @@ def get_email_footer():
                 <p><strong>Votre avis compte !</strong></p>
                 <p>N'hésitez pas à nous communiquer votre expérience et vos suggestions.</p>
                 <p>📩 <a href="mailto:contact@creativindustry.com">contact@creativindustry.com</a></p>
-                <p>© 2025 Lumière Events - Tous droits réservés</p>
+                <p>© 2025 Je Suis - Tous droits réservés</p>
             </div>
         </div>
     </body>
@@ -105,14 +105,14 @@ def get_email_footer():
 
 async def send_welcome_email_client(user_email: str, user_name: str):
     """Send welcome email to new client"""
-    subject = "Bienvenue sur Lumière Events ✨"
+    subject = "Bienvenue sur Je Suis ✨"
     
     html_content = get_email_header() + f"""
     <h2>Bonjour {user_name} 👋</h2>
     
-    <p>Bienvenue sur <strong>Lumière Events</strong> ! 🎉</p>
+    <p>Bienvenue sur <strong>Je Suis</strong> ! 🎉</p>
     
-    <p>Lumière Events n'est pas un simple annuaire, c'est un <strong>véritable outil</strong> conçu pour vous accompagner dans la réussite de vos événements.</p>
+    <p>Je Suis n'est pas un simple annuaire, c'est un <strong>véritable outil</strong> conçu pour vous accompagner dans la réussite de vos événements.</p>
     
     <div class="highlight-box">
         <strong>Ce que vous pouvez faire :</strong>
@@ -129,10 +129,10 @@ async def send_welcome_email_client(user_email: str, user_name: str):
     </p>
     
     <p><strong>Votre avis compte !</strong><br>
-    N'hésitez pas à nous communiquer votre expérience et ce que vous aimeriez voir sur la plateforme. Nous construisons Lumière Events avec vous !</p>
+    N'hésitez pas à nous communiquer votre expérience et ce que vous aimeriez voir sur la plateforme. Nous construisons Je Suis avec vous !</p>
     
     <p>À très bientôt,<br>
-    <strong>L'équipe Lumière Events</strong></p>
+    <strong>L'équipe Je Suis</strong></p>
     """ + get_email_footer()
     
     await send_email(user_email, subject, html_content)
@@ -140,14 +140,14 @@ async def send_welcome_email_client(user_email: str, user_name: str):
 
 async def send_welcome_email_provider(user_email: str, user_name: str):
     """Send welcome email to new provider"""
-    subject = "Bienvenue dans la communauté Lumière Events 🌟"
+    subject = "Bienvenue dans la communauté Je Suis 🌟"
     
     html_content = get_email_header() + f"""
     <h2>Bonjour {user_name} 👋</h2>
     
-    <p>Félicitations et bienvenue dans la communauté <strong>Lumière Events</strong> ! 🎊</p>
+    <p>Félicitations et bienvenue dans la communauté <strong>Je Suis</strong> ! 🎊</p>
     
-    <p>Lumière Events n'est pas un simple annuaire, c'est un <strong>véritable outil de travail</strong> conçu pour développer votre activité événementielle.</p>
+    <p>Je Suis n'est pas un simple annuaire, c'est un <strong>véritable outil de travail</strong> conçu pour développer votre activité événementielle.</p>
     
     <div class="highlight-box">
         <strong>Votre espace prestataire vous permet de :</strong>
@@ -178,7 +178,7 @@ async def send_welcome_email_provider(user_email: str, user_name: str):
     Cette plateforme évolue grâce à vous. N'hésitez pas à nous faire part de votre expérience et de vos idées d'amélioration.</p>
     
     <p>À votre succès,<br>
-    <strong>L'équipe Lumière Events</strong></p>
+    <strong>L'équipe Je Suis</strong></p>
     """ + get_email_footer()
     
     await send_email(user_email, subject, html_content)
@@ -215,7 +215,7 @@ async def send_new_booking_notification(provider_email: str, provider_name: str,
     <p>Connectez-vous pour accepter ou refuser cette demande.</p>
     
     <p>Cordialement,<br>
-    <strong>L'équipe Lumière Events</strong></p>
+    <strong>L'équipe Je Suis</strong></p>
     """ + get_email_footer()
     
     await send_email(provider_email, subject, html_content)
@@ -250,7 +250,7 @@ async def send_booking_confirmed_notification(client_email: str, client_name: st
     <p>Vous pouvez échanger avec votre prestataire via la messagerie pour finaliser les détails.</p>
     
     <p>Cordialement,<br>
-    <strong>L'équipe Lumière Events</strong></p>
+    <strong>L'équipe Je Suis</strong></p>
     """ + get_email_footer()
     
     await send_email(client_email, subject, html_content)
@@ -274,7 +274,7 @@ async def send_booking_rejected_notification(client_email: str, client_name: str
     </p>
     
     <p>Cordialement,<br>
-    <strong>L'équipe Lumière Events</strong></p>
+    <strong>L'équipe Je Suis</strong></p>
     """ + get_email_footer()
     
     await send_email(client_email, subject, html_content)
@@ -307,7 +307,7 @@ async def send_new_message_notification(recipient_email: str, recipient_name: st
     </p>
     
     <p>Cordialement,<br>
-    <strong>L'équipe Lumière Events</strong></p>
+    <strong>L'équipe Je Suis</strong></p>
     """ + get_email_footer()
     
     await send_email(recipient_email, subject, html_content)
@@ -341,7 +341,7 @@ async def send_new_review_notification(provider_email: str, provider_name: str, 
     <p>N'hésitez pas à remercier votre client pour son retour !</p>
     
     <p>Cordialement,<br>
-    <strong>L'équipe Lumière Events</strong></p>
+    <strong>L'équipe Je Suis</strong></p>
     """ + get_email_footer()
     
     await send_email(provider_email, subject, html_content)

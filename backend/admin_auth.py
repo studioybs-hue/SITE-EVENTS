@@ -141,7 +141,7 @@ async def forgot_password(request: PasswordResetRequest):
     <body>
         <div class="container">
             <div class="header">
-                <h1>🔐 Lumière Events</h1>
+                <h1>🔐 Je Suis</h1>
             </div>
             <div class="content">
                 <h2>Réinitialisation de mot de passe</h2>
@@ -158,14 +158,14 @@ async def forgot_password(request: PasswordResetRequest):
                 </p>
             </div>
             <div class="footer">
-                <p>© 2025 Lumière Events - Administration</p>
+                <p>© 2025 Je Suis - Administration</p>
             </div>
         </div>
     </body>
     </html>
     """
     
-    await send_email(request.email, "🔐 Réinitialisation de mot de passe - Lumière Events", html_content)
+    await send_email(request.email, "🔐 Réinitialisation de mot de passe - Je Suis", html_content)
     
     return {"message": "Si cet email existe, un lien de réinitialisation a été envoyé."}
 
@@ -261,7 +261,7 @@ async def setup_2fa(request: Request):
     totp = pyotp.TOTP(secret)
     provisioning_uri = totp.provisioning_uri(
         name=admin.get("email", "admin"),
-        issuer_name="Lumière Events Admin"
+        issuer_name="Je Suis Admin"
     )
     
     # Generate QR code
@@ -455,10 +455,10 @@ async def test_email(request: Request):
     
     html_content = """
     <h2>✅ Test Email Réussi</h2>
-    <p>Cet email confirme que la configuration SMTP de Lumière Events fonctionne correctement.</p>
+    <p>Cet email confirme que la configuration SMTP de Je Suis fonctionne correctement.</p>
     <p>Date du test: """ + datetime.now().strftime("%d/%m/%Y %H:%M") + """</p>
     """
     
-    await send_email(config["receiver_email"], "✅ Test Email - Lumière Events", html_content)
+    await send_email(config["receiver_email"], "✅ Test Email - Je Suis", html_content)
     
     return {"message": f"Email de test envoyé à {config['receiver_email']}"}
