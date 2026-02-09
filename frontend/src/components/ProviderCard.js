@@ -166,7 +166,7 @@ const ProviderCard = ({ provider }) => {
     // Then open pack booking after a short delay
     setTimeout(() => {
       setSelectedPack(pack);
-      setPackBookingForm({ event_date: '', event_location: '', message: '' });
+      setPackBookingForm({ event_date: '', event_location: '', event_country: '', message: '' });
       setPackBookingOpen(true);
     }, 100);
   };
