@@ -1,0 +1,8 @@
+{
+  "appId": "com.jesuis.app",
+  "appName": "Je Suis",
+  "webDir": "build",
+  "server": {
+    "androidScheme": "https"
+  }
+}
