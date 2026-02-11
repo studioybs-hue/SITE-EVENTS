@@ -1321,6 +1321,9 @@ const AdminPage = () => {
                                   </Badge>
                                   <div className="text-xs text-gray-500">
                                     {!user.provider_has_photo && <div>• Pas de photo</div>}
+                                    {!user.provider_has_description && <div>• Pas de description</div>}
+                                    {!user.provider_has_address && <div>• Pas d'adresse</div>}
+                                    {!user.provider_has_category && <div>• Pas de catégorie</div>}
                                     {!user.provider_is_searchable && <div>• Non visible</div>}
                                   </div>
                                 </div>
