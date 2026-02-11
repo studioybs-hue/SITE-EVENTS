@@ -88,10 +88,10 @@ const HomePage = () => {
       const response = await fetch(`${BACKEND_URL}/api/categories/${mode}`);
       if (response.ok) {
         const data = await response.json();
-        // Add images to categories
+        // Add images to categories - use custom image from DB if available
         const categoriesWithImages = data.slice(0, 4).map(cat => ({
           ...cat,
-          image: categoryImages[cat.id] || 'https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=srgb&fm=jpg&q=85'
+          image: cat.image || categoryImages[cat.id] || 'https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=srgb&fm=jpg&q=85'
         }));
         setCategories(categoriesWithImages);
       }
