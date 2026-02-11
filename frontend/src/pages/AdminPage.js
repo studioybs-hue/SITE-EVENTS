@@ -1424,24 +1424,94 @@ const AdminPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {categoriesEvents.map((cat) => (
                       <div
                         key={cat.id}
-                        className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+                        className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{cat.icon}</span>
-                          <span className="font-medium">{cat.name}</span>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{cat.icon}</span>
+                            <span className="font-medium">{cat.name}</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => deleteCategory('events', cat.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => deleteCategory('events', cat.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {/* Category Image Upload */}
+                        <div className="mt-2">
+                          {cat.image ? (
+                            <div className="relative">
+                              <img 
+                                src={cat.image.startsWith('/api') ? `${BACKEND_URL}${cat.image}` : cat.image}
+                                alt={cat.name} 
+                                className="w-full h-24 object-cover rounded"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute top-1 right-1"
+                                onClick={async () => {
+                                  await fetch(`${BACKEND_URL}/api/admin/categories/events/${cat.id}/image`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    credentials: 'include',
+                                    body: JSON.stringify({ image_url: '' })
+                                  });
+                                  fetchCategories();
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-yellow-300 rounded cursor-pointer hover:border-yellow-500 hover:bg-yellow-100 transition-colors">
+                              <Upload className="w-6 h-6 text-yellow-500" />
+                              <span className="text-xs text-yellow-600 mt-1">Ajouter image</span>
+                              <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files[0];
+                                  if (!file) return;
+                                  const reader = new FileReader();
+                                  reader.onload = async (event) => {
+                                    try {
+                                      const uploadRes = await fetch(`${BACKEND_URL}/api/admin/upload-image`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        credentials: 'include',
+                                        body: JSON.stringify({ image: event.target.result, type: `category_${cat.id}` })
+                                      });
+                                      if (uploadRes.ok) {
+                                        const data = await uploadRes.json();
+                                        await fetch(`${BACKEND_URL}/api/admin/categories/events/${cat.id}/image`, {
+                                          method: 'PATCH',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          credentials: 'include',
+                                          body: JSON.stringify({ image_url: data.image_url })
+                                        });
+                                        fetchCategories();
+                                        toast.success('Image ajoutée !');
+                                      }
+                                    } catch (err) {
+                                      toast.error('Erreur upload');
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }}
+                              />
+                            </label>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
