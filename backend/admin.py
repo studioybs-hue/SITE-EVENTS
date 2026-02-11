@@ -304,17 +304,28 @@ async def get_users(
         user_data['has_provider_profile'] = False
         user_data['provider_profile_complete'] = False
         user_data['provider_business_name'] = None
+        user_data['provider_has_photo'] = False
+        user_data['provider_is_searchable'] = False
         
         if user.get("user_type") == "provider":
             provider = await db.provider_profiles.find_one(
                 {"user_id": user["user_id"]},
-                {"_id": 0, "business_name": 1, "description": 1, "category": 1, "address": 1}
+                {"_id": 0, "business_name": 1, "description": 1, "category": 1, "address": 1, "avatar_url": 1, "photos": 1, "is_searchable": 1, "profile_visible": 1}
             )
             if provider:
                 user_data['has_provider_profile'] = True
                 user_data['provider_business_name'] = provider.get('business_name', '')
-                # Vérifier si le profil est complet (a au moins une description et une catégorie)
-                if provider.get('description') and provider.get('category'):
+                
+                # Vérifier s'il a une photo (avatar ou photos portfolio)
+                has_photo = bool(provider.get('avatar_url')) or (provider.get('photos') and len(provider.get('photos', [])) > 0)
+                user_data['provider_has_photo'] = has_photo
+                
+                # Vérifier s'il est visible à la recherche
+                is_searchable = provider.get('is_searchable', False) or provider.get('profile_visible', False)
+                user_data['provider_is_searchable'] = is_searchable
+                
+                # Fiche complète = a une photo ET est visible à la recherche
+                if has_photo and is_searchable:
                     user_data['provider_profile_complete'] = True
         
         enriched_users.append(user_data)
