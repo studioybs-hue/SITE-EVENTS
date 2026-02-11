@@ -2494,15 +2494,77 @@ const AdminPage = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>URL Image de fond</Label>
-                      <Input
-                        value={siteContent?.hero?.background_image || ''}
-                        onChange={(e) => setSiteContent({
-                          ...siteContent,
-                          hero: { ...siteContent?.hero, background_image: e.target.value }
-                        })}
-                        placeholder="https://..."
-                      />
+                      <Label>Image de fond</Label>
+                      <div className="mt-2">
+                        {siteContent?.hero?.background_image ? (
+                          <div className="relative">
+                            <img 
+                              src={siteContent.hero.background_image.startsWith('/api') ? `${BACKEND_URL}${siteContent.hero.background_image}` : siteContent.hero.background_image}
+                              alt="Hero" 
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-2 right-2"
+                              onClick={() => setSiteContent({
+                                ...siteContent,
+                                hero: { ...siteContent?.hero, background_image: '' }
+                              })}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
+                            <div className="flex flex-col items-center justify-center py-4">
+                              <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                              <p className="text-sm text-gray-500">
+                                <span className="font-semibold">Parcourir</span>
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">PNG, JPG (max 5MB)</p>
+                            </div>
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                if (file.size > 5 * 1024 * 1024) {
+                                  toast.error('Image trop grande (max 5MB)');
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = async (event) => {
+                                  try {
+                                    const res = await fetch(`${BACKEND_URL}/api/admin/upload-image`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      credentials: 'include',
+                                      body: JSON.stringify({ image: event.target.result, type: 'hero' })
+                                    });
+                                    if (res.ok) {
+                                      const data = await res.json();
+                                      setSiteContent({
+                                        ...siteContent,
+                                        hero: { ...siteContent?.hero, background_image: data.image_url }
+                                      });
+                                      toast.success('Image uploadée !');
+                                    } else {
+                                      toast.error('Erreur lors de l\'upload');
+                                    }
+                                  } catch (err) {
+                                    toast.error('Erreur de connexion');
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
+                          </label>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <Label>URL Vidéo de fond (optionnel)</Label>
