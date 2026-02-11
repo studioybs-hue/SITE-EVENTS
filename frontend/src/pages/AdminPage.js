@@ -3566,6 +3566,30 @@ const AdminPage = () => {
                     Photo de profil
                   </li>
                   <li className="flex items-center gap-2">
+                    {emailModalUser.provider_has_description ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-500" />
+                    )}
+                    Description
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {emailModalUser.provider_has_address ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-500" />
+                    )}
+                    Adresse
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {emailModalUser.provider_has_category ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-500" />
+                    )}
+                    Catégorie
+                  </li>
+                  <li className="flex items-center gap-2">
                     {emailModalUser.provider_is_searchable ? (
                       <Check className="h-4 w-4 text-green-500" />
                     ) : (
