@@ -276,16 +276,17 @@ async def get_users(
     search: Optional[str] = None,
     user_type: Optional[str] = None
 ):
-    """Get all users with pagination"""
+    """Get all users with pagination and provider profile status"""
     db = get_db()
     
     query = {}
     if search:
         query["$or"] = [
             {"name": {"$regex": search, "$options": "i"}},
-            {"email": {"$regex": search, "$options": "i"}}
+            {"email": {"$regex": search, "$options": "i"}},
+            {"phone": {"$regex": search, "$options": "i"}}
         ]
-    if user_type:
+    if user_type and user_type != 'all':
         query["user_type"] = user_type
     
     skip = (page - 1) * limit
@@ -296,8 +297,30 @@ async def get_users(
         {"_id": 0, "password_hash": 0}
     ).skip(skip).limit(limit).sort("created_at", -1).to_list(limit)
     
+    # Pour chaque utilisateur de type "provider", vérifier s'il a créé une fiche
+    enriched_users = []
+    for user in users:
+        user_data = dict(user)
+        user_data['has_provider_profile'] = False
+        user_data['provider_profile_complete'] = False
+        user_data['provider_business_name'] = None
+        
+        if user.get("user_type") == "provider":
+            provider = await db.provider_profiles.find_one(
+                {"user_id": user["user_id"]},
+                {"_id": 0, "business_name": 1, "description": 1, "category": 1, "address": 1}
+            )
+            if provider:
+                user_data['has_provider_profile'] = True
+                user_data['provider_business_name'] = provider.get('business_name', '')
+                # Vérifier si le profil est complet (a au moins une description et une catégorie)
+                if provider.get('description') and provider.get('category'):
+                    user_data['provider_profile_complete'] = True
+        
+        enriched_users.append(user_data)
+    
     return {
-        "users": users,
+        "users": enriched_users,
         "total": total,
         "page": page,
         "pages": (total + limit - 1) // limit
