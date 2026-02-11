@@ -64,6 +64,13 @@ const AdminPage = () => {
   const [usersSearch, setUsersSearch] = useState('');
   const [usersTypeFilter, setUsersTypeFilter] = useState('client');
   
+  // Email reminder modal
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailModalUser, setEmailModalUser] = useState(null);
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
+  
   // Providers
   const [providers, setProviders] = useState([]);
   const [providersPage, setProvidersPage] = useState(1);
