@@ -2582,8 +2582,8 @@ async def upload_site_image(request: Request):
         import base64
         content = base64.b64decode(image_data)
         
-        if len(content) > 5 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="Image trop volumineuse (max 5MB)")
+        if len(content) > 100 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Image trop volumineuse (max 100MB)")
         
         file_id = f"site_{image_type}_{uuid.uuid4().hex[:12]}.jpg"
         file_path = UPLOAD_DIR / file_id
