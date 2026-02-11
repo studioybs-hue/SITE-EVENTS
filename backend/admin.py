@@ -3,6 +3,7 @@ Admin Panel Module
 Handles administration features: users, providers, stats, subscriptions
 """
 from fastapi import APIRouter, HTTPException, Request, Response, Depends
+from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
 import uuid
 import bcrypt
