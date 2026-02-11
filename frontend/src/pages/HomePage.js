@@ -89,10 +89,17 @@ const HomePage = () => {
       if (response.ok) {
         const data = await response.json();
         // Add images to categories - use custom image from DB if available
-        const categoriesWithImages = data.slice(0, 4).map(cat => ({
-          ...cat,
-          image: cat.image || categoryImages[cat.id] || 'https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=srgb&fm=jpg&q=85'
-        }));
+        const categoriesWithImages = data.slice(0, 4).map(cat => {
+          let imageUrl = cat.image || categoryImages[cat.id] || 'https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=srgb&fm=jpg&q=85';
+          // Prefix with BACKEND_URL if it's a relative path
+          if (imageUrl && imageUrl.startsWith('/api')) {
+            imageUrl = `${BACKEND_URL}${imageUrl}`;
+          }
+          return {
+            ...cat,
+            image: imageUrl
+          };
+        });
         setCategories(categoriesWithImages);
       }
     } catch (error) {
