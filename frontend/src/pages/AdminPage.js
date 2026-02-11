@@ -1306,10 +1306,16 @@ const AdminPage = () => {
                                   Complète
                                 </Badge>
                               ) : (
-                                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-                                  <AlertCircle className="h-3 w-3 mr-1" />
-                                  Incomplète
-                                </Badge>
+                                <div className="space-y-1">
+                                  <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                                    <AlertCircle className="h-3 w-3 mr-1" />
+                                    Incomplète
+                                  </Badge>
+                                  <div className="text-xs text-gray-500">
+                                    {!user.provider_has_photo && <div>• Pas de photo</div>}
+                                    {!user.provider_is_searchable && <div>• Non visible</div>}
+                                  </div>
+                                </div>
                               )
                             ) : (
                               <Badge variant="destructive">
@@ -1335,23 +1341,8 @@ const AdminPage = () => {
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                title="Envoyer un rappel"
-                                onClick={async () => {
-                                  try {
-                                    const res = await fetch(`${BACKEND_URL}/api/admin/users/${user.user_id}/send-profile-reminder`, {
-                                      method: 'POST',
-                                      credentials: 'include'
-                                    });
-                                    if (res.ok) {
-                                      toast.success('Rappel envoyé !');
-                                    } else {
-                                      const data = await res.json();
-                                      toast.error(data.detail || 'Erreur');
-                                    }
-                                  } catch (e) {
-                                    toast.error('Erreur de connexion');
-                                  }
-                                }}
+                                title="Envoyer un email de rappel"
+                                onClick={() => openEmailModal(user)}
                               >
                                 <Mail className="h-4 w-4 text-blue-500" />
                               </Button>
