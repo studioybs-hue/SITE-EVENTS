@@ -989,6 +989,53 @@ const AdminPage = () => {
     }
   };
 
+  // Open email modal for a user
+  const openEmailModal = (user) => {
+    setEmailModalUser(user);
+    setEmailSubject(`[Je Suis] ${user.has_provider_profile ? 'Complétez votre fiche' : 'Créez votre fiche prestataire'}`);
+    setEmailMessage(user.has_provider_profile 
+      ? `Nous avons remarqué que votre fiche prestataire n'est pas encore complète.\n\nPour apparaître dans les résultats de recherche, assurez-vous d'avoir :\n- Une photo de profil\n- Votre profil visible aux clients\n\nConnectez-vous et complétez votre fiche pour attirer plus de clients !`
+      : `Vous êtes inscrit(e) sur Je Suis en tant que prestataire, mais vous n'avez pas encore créé votre fiche.\n\nCréez votre fiche prestataire dès maintenant pour présenter vos services et recevoir des demandes de devis !`
+    );
+    setEmailModalOpen(true);
+  };
+
+  // Send email reminder
+  const handleSendEmailReminder = async () => {
+    if (!emailModalUser || !emailSubject || !emailMessage) {
+      toast.error('Veuillez remplir tous les champs');
+      return;
+    }
+    
+    setSendingEmail(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/users/${emailModalUser.user_id}/send-profile-reminder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          subject: emailSubject,
+          message: emailMessage
+        })
+      });
+      
+      if (res.ok) {
+        toast.success(`Email envoyé à ${emailModalUser.email}`);
+        setEmailModalOpen(false);
+        setEmailModalUser(null);
+        setEmailSubject('');
+        setEmailMessage('');
+      } else {
+        const data = await res.json();
+        toast.error(data.detail || 'Erreur lors de l\'envoi');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   const handleVerifyProvider = async (providerId) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/admin/providers/${providerId}/verify`, {
