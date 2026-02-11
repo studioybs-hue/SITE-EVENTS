@@ -2532,8 +2532,8 @@ const AdminPage = () => {
                               onChange={async (e) => {
                                 const file = e.target.files[0];
                                 if (!file) return;
-                                if (file.size > 5 * 1024 * 1024) {
-                                  toast.error('Image trop grande (max 5MB)');
+                                if (file.size > 100 * 1024 * 1024) {
+                                  toast.error('Image trop grande (max 100MB)');
                                   return;
                                 }
                                 const reader = new FileReader();
