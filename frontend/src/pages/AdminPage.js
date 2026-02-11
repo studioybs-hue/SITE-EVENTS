@@ -3500,125 +3500,149 @@ const AdminPage = () => {
         </Tabs>
       </div>
 
-      {/* Email Reminder Modal */}
-      <Dialog open={emailModalOpen} onOpenChange={setEmailModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              Envoyer un email de rappel
-            </DialogTitle>
-            <DialogDescription>
-              {emailModalUser && (
-                <span>
-                  À : <strong>{emailModalUser.name}</strong> ({emailModalUser.email})
-                  {emailModalUser.provider_business_name && (
-                    <span> - {emailModalUser.provider_business_name}</span>
-                  )}
-                </span>
-              )}
-            </DialogDescription>
-          </DialogHeader>
+      {/* Email Reminder Modal - Simple Version */}
+      {emailModalOpen && (
+        <div 
+          className="fixed inset-0 flex items-center justify-center"
+          style={{ zIndex: 999999 }}
+        >
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setEmailModalOpen(false)}
+          />
           
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="email-subject">Sujet</Label>
-              <Input
-                id="email-subject"
-                value={emailSubject}
-                onChange={(e) => setEmailSubject(e.target.value)}
-                placeholder="Sujet de l'email..."
-              />
+          {/* Modal Content */}
+          <div 
+            className="relative bg-white rounded-lg shadow-xl w-full max-w-[600px] mx-4 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Envoyer un email de rappel
+                </h2>
+                {emailModalUser && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    À : <strong>{emailModalUser.name}</strong> ({emailModalUser.email})
+                    {emailModalUser.provider_business_name && (
+                      <span> - {emailModalUser.provider_business_name}</span>
+                    )}
+                  </p>
+                )}
+              </div>
+              <button 
+                onClick={() => setEmailModalOpen(false)}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="email-message">Message</Label>
-              <Textarea
-                id="email-message"
-                value={emailMessage}
-                onChange={(e) => setEmailMessage(e.target.value)}
-                placeholder="Rédigez votre message..."
-                className="min-h-[200px]"
-              />
-              <p className="text-xs text-muted-foreground">
-                Le nom du destinataire et un bouton de connexion seront ajoutés automatiquement.
-              </p>
-            </div>
-
-            {emailModalUser && (
-              <div className="p-3 bg-gray-50 rounded-lg text-sm">
-                <p className="font-medium mb-1">Statut du prestataire :</p>
-                <ul className="space-y-1 text-gray-600">
-                  <li className="flex items-center gap-2">
-                    {emailModalUser.has_provider_profile ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <X className="h-4 w-4 text-red-500" />
-                    )}
-                    Fiche créée
-                  </li>
-                  <li className="flex items-center gap-2">
-                    {emailModalUser.provider_has_photo ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <X className="h-4 w-4 text-red-500" />
-                    )}
-                    Photo de profil
-                  </li>
-                  <li className="flex items-center gap-2">
-                    {emailModalUser.provider_has_description ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <X className="h-4 w-4 text-red-500" />
-                    )}
-                    Description
-                  </li>
-                  <li className="flex items-center gap-2">
-                    {emailModalUser.provider_has_address ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <X className="h-4 w-4 text-red-500" />
-                    )}
-                    Adresse
-                  </li>
-                  <li className="flex items-center gap-2">
-                    {emailModalUser.provider_has_category ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <X className="h-4 w-4 text-red-500" />
-                    )}
-                    Catégorie
-                  </li>
-                  <li className="flex items-center gap-2">
-                    {emailModalUser.provider_is_searchable ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <X className="h-4 w-4 text-red-500" />
-                    )}
-                    Visible à la recherche
-                  </li>
-                </ul>
+            {/* Form */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email-subject">Sujet</Label>
+                <Input
+                  id="email-subject"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Sujet de l'email..."
+                />
               </div>
-            )}
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEmailModalOpen(false)}>
-              Annuler
-            </Button>
-            <Button onClick={handleSendEmailReminder} disabled={sendingEmail}>
-              {sendingEmail ? (
-                <>Envoi en cours...</>
-              ) : (
-                <>
-                  <Mail className="h-4 w-4 mr-2" />
-                  Envoyer l'email
-                </>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email-message">Message</Label>
+                <Textarea
+                  id="email-message"
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  placeholder="Rédigez votre message..."
+                  className="min-h-[150px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Le nom du destinataire et un bouton de connexion seront ajoutés automatiquement.
+                </p>
+              </div>
+
+              {emailModalUser && (
+                <div className="p-3 bg-gray-50 rounded-lg text-sm">
+                  <p className="font-medium mb-1">Statut du prestataire :</p>
+                  <ul className="space-y-1 text-gray-600">
+                    <li className="flex items-center gap-2">
+                      {emailModalUser.has_provider_profile ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                      Fiche créée
+                    </li>
+                    <li className="flex items-center gap-2">
+                      {emailModalUser.provider_has_photo ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                      Photo de profil
+                    </li>
+                    <li className="flex items-center gap-2">
+                      {emailModalUser.provider_has_description ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                      Description
+                    </li>
+                    <li className="flex items-center gap-2">
+                      {emailModalUser.provider_has_address ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                      Adresse
+                    </li>
+                    <li className="flex items-center gap-2">
+                      {emailModalUser.provider_has_category ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                      Catégorie
+                    </li>
+                    <li className="flex items-center gap-2">
+                      {emailModalUser.provider_is_searchable ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                      Visible à la recherche
+                    </li>
+                  </ul>
+                </div>
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </div>
+            
+            {/* Footer */}
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => setEmailModalOpen(false)}>
+                Annuler
+              </Button>
+              <Button onClick={handleSendEmailReminder} disabled={sendingEmail}>
+                {sendingEmail ? (
+                  <>Envoi en cours...</>
+                ) : (
+                  <>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Envoyer l'email
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
