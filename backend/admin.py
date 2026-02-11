@@ -675,7 +675,8 @@ async def add_category(mode: str, request: Request, admin: dict = Depends(get_ad
     new_category = {
         "id": cat_id,
         "name": body.get("name"),
-        "icon": body.get("icon", "🔹")
+        "icon": body.get("icon", "🔹"),
+        "image": body.get("image", "")
     }
     
     categories.append(new_category)
@@ -687,6 +688,37 @@ async def add_category(mode: str, request: Request, admin: dict = Depends(get_ad
     )
     
     return {"message": "Catégorie ajoutée", "category": new_category}
+
+
+@router.patch("/categories/{mode}/{category_id}/image")
+async def update_category_image(mode: str, category_id: str, request: Request, admin: dict = Depends(get_admin_user)):
+    """Update a category's image"""
+    db = get_db()
+    body = await request.json()
+    image_url = body.get("image_url", "")
+    
+    if mode not in ["events", "pro"]:
+        raise HTTPException(status_code=400, detail="Mode invalide")
+    
+    key = f"categories_{mode}"
+    
+    # Get existing categories
+    doc = await db.site_settings.find_one({"key": key}, {"_id": 0})
+    categories = doc.get("value", []) if doc else []
+    
+    # Update the category image
+    for cat in categories:
+        if cat.get("id") == category_id:
+            cat["image"] = image_url
+            break
+    
+    await db.site_settings.update_one(
+        {"key": key},
+        {"$set": {"value": categories}},
+        upsert=True
+    )
+    
+    return {"message": "Image mise à jour"}
 
 
 @router.delete("/categories/{mode}/{category_id}")
