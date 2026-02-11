@@ -2633,15 +2633,19 @@ const AdminPage = () => {
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
+                    {/* Image héro Mode Événements */}
                     <div>
-                      <Label>Image de fond</Label>
+                      <Label className="flex items-center gap-2">
+                        <span className="inline-block w-3 h-3 rounded-full bg-yellow-500"></span>
+                        Image Mode Événements
+                      </Label>
                       <div className="mt-2">
-                        {siteContent?.hero?.background_image ? (
+                        {siteContent?.hero?.background_image_events ? (
                           <div className="relative">
                             <img 
-                              src={siteContent.hero.background_image.startsWith('/api') ? `${BACKEND_URL}${siteContent.hero.background_image}` : siteContent.hero.background_image}
-                              alt="Hero" 
-                              className="w-full h-32 object-cover rounded-lg"
+                              src={siteContent.hero.background_image_events.startsWith('/api') ? `${BACKEND_URL}${siteContent.hero.background_image_events}` : siteContent.hero.background_image_events}
+                              alt="Hero Events" 
+                              className="w-full h-32 object-cover rounded-lg border-2 border-yellow-400"
                             />
                             <Button
                               type="button"
@@ -2650,20 +2654,20 @@ const AdminPage = () => {
                               className="absolute top-2 right-2"
                               onClick={() => setSiteContent({
                                 ...siteContent,
-                                hero: { ...siteContent?.hero, background_image: '' }
+                                hero: { ...siteContent?.hero, background_image_events: '' }
                               })}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         ) : (
-                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-yellow-400 rounded-lg cursor-pointer hover:border-yellow-500 hover:bg-yellow-50 transition-colors">
                             <div className="flex flex-col items-center justify-center py-4">
-                              <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                              <Upload className="w-8 h-8 mb-2 text-yellow-500" />
                               <p className="text-sm text-gray-500">
                                 <span className="font-semibold">Parcourir</span>
                               </p>
-                              <p className="text-xs text-gray-400 mt-1">PNG, JPG (max 100MB)</p>
+                              <p className="text-xs text-gray-400 mt-1">Mariages, fêtes...</p>
                             </div>
                             <input 
                               type="file" 
@@ -2683,15 +2687,15 @@ const AdminPage = () => {
                                       method: 'POST',
                                       headers: { 'Content-Type': 'application/json' },
                                       credentials: 'include',
-                                      body: JSON.stringify({ image: event.target.result, type: 'hero' })
+                                      body: JSON.stringify({ image: event.target.result, type: 'hero_events' })
                                     });
                                     if (res.ok) {
                                       const data = await res.json();
                                       setSiteContent({
                                         ...siteContent,
-                                        hero: { ...siteContent?.hero, background_image: data.image_url }
+                                        hero: { ...siteContent?.hero, background_image_events: data.image_url }
                                       });
-                                      toast.success('Image uploadée !');
+                                      toast.success('Image Événements uploadée !');
                                     } else {
                                       toast.error('Erreur lors de l\'upload');
                                     }
@@ -2706,17 +2710,94 @@ const AdminPage = () => {
                         )}
                       </div>
                     </div>
+                    {/* Image héro Mode Professionnels */}
                     <div>
-                      <Label>URL Vidéo de fond (optionnel)</Label>
-                      <Input
-                        value={siteContent?.hero?.background_video || ''}
-                        onChange={(e) => setSiteContent({
-                          ...siteContent,
-                          hero: { ...siteContent?.hero, background_video: e.target.value }
-                        })}
-                        placeholder="https://..."
-                      />
+                      <Label className="flex items-center gap-2">
+                        <span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>
+                        Image Mode Professionnels
+                      </Label>
+                      <div className="mt-2">
+                        {siteContent?.hero?.background_image_pro ? (
+                          <div className="relative">
+                            <img 
+                              src={siteContent.hero.background_image_pro.startsWith('/api') ? `${BACKEND_URL}${siteContent.hero.background_image_pro}` : siteContent.hero.background_image_pro}
+                              alt="Hero Pro" 
+                              className="w-full h-32 object-cover rounded-lg border-2 border-blue-400"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-2 right-2"
+                              onClick={() => setSiteContent({
+                                ...siteContent,
+                                hero: { ...siteContent?.hero, background_image_pro: '' }
+                              })}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-400 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                            <div className="flex flex-col items-center justify-center py-4">
+                              <Upload className="w-8 h-8 mb-2 text-blue-500" />
+                              <p className="text-sm text-gray-500">
+                                <span className="font-semibold">Parcourir</span>
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">Artisans, travaux...</p>
+                            </div>
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                if (file.size > 100 * 1024 * 1024) {
+                                  toast.error('Image trop grande (max 100MB)');
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = async (event) => {
+                                  try {
+                                    const res = await fetch(`${BACKEND_URL}/api/admin/upload-image`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      credentials: 'include',
+                                      body: JSON.stringify({ image: event.target.result, type: 'hero_pro' })
+                                    });
+                                    if (res.ok) {
+                                      const data = await res.json();
+                                      setSiteContent({
+                                        ...siteContent,
+                                        hero: { ...siteContent?.hero, background_image_pro: data.image_url }
+                                      });
+                                      toast.success('Image Professionnels uploadée !');
+                                    } else {
+                                      toast.error('Erreur lors de l\'upload');
+                                    }
+                                  } catch (err) {
+                                    toast.error('Erreur de connexion');
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
+                          </label>
+                        )}
+                      </div>
                     </div>
+                  </div>
+                  <div>
+                    <Label>URL Vidéo de fond (optionnel)</Label>
+                    <Input
+                      value={siteContent?.hero?.background_video || ''}
+                      onChange={(e) => setSiteContent({
+                        ...siteContent,
+                        hero: { ...siteContent?.hero, background_video: e.target.value }
+                      })}
+                      placeholder="https://..."
+                    />
                   </div>
                 </CardContent>
               </Card>
