@@ -992,10 +992,30 @@ const AdminPage = () => {
   // Open email modal for a user
   const openEmailModal = (user) => {
     setEmailModalUser(user);
-    setEmailSubject(`[Je Suis] ${user.has_provider_profile ? 'Complétez votre fiche' : 'Créez votre fiche prestataire'}`);
+    setEmailSubject(`[Je Suis] ${user.has_provider_profile ? 'Complétez votre fiche pour obtenir le badge Vérifié' : 'Créez votre fiche prestataire'}`);
     setEmailMessage(user.has_provider_profile 
-      ? `Nous avons remarqué que votre fiche prestataire n'est pas encore complète.\n\nPour apparaître dans les résultats de recherche, assurez-vous d'avoir :\n- Une photo de profil\n- Votre profil visible aux clients\n\nConnectez-vous et complétez votre fiche pour attirer plus de clients !`
-      : `Vous êtes inscrit(e) sur Je Suis en tant que prestataire, mais vous n'avez pas encore créé votre fiche.\n\nCréez votre fiche prestataire dès maintenant pour présenter vos services et recevoir des demandes de devis !`
+      ? `Nous avons remarqué que votre fiche prestataire n'est pas encore complète.
+
+Pour obtenir le badge "Vérifié" et apparaître dans les résultats de recherche, votre fiche doit contenir :
+- Une photo de profil
+- Une description de votre activité
+- Votre adresse
+- Une catégorie de métier
+- Votre profil doit être visible aux clients
+
+Une fois tous ces critères remplis, votre fiche sera vérifiée par notre équipe et vous obtiendrez le badge "Vérifié" qui renforce la confiance des clients.
+
+Connectez-vous et complétez votre fiche dès maintenant !`
+      : `Vous êtes inscrit(e) sur Je Suis en tant que prestataire, mais vous n'avez pas encore créé votre fiche.
+
+Créez votre fiche prestataire dès maintenant pour :
+- Présenter vos services aux clients
+- Recevoir des demandes de devis
+- Obtenir le badge "Vérifié" après validation
+
+Pour être vérifié, votre fiche devra contenir : une photo de profil, une description, votre adresse, et une catégorie de métier.
+
+Connectez-vous et créez votre fiche en quelques minutes !`
     );
     setEmailModalOpen(true);
   };
