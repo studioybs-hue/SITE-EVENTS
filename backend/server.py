@@ -110,6 +110,15 @@ async def get_current_user_optional(request: Request) -> Optional[User]:
 
 # ============ PUBLIC ROUTES ============
 
+@api_router.get("/site-content")
+async def get_site_content():
+    """Get public site content (contact info, etc.)"""
+    doc = await db.site_settings.find_one({"key": "site_content"}, {"_id": 0})
+    if doc:
+        return doc.get("value", {})
+    return {}
+
+
 @api_router.get("/categories/{mode}")
 async def get_public_categories(mode: str):
     """Get categories for a specific mode (events or pro)"""
