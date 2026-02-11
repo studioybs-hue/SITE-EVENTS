@@ -113,9 +113,16 @@ async def get_current_user_optional(request: Request) -> Optional[User]:
 @api_router.get("/site-content")
 async def get_site_content():
     """Get public site content (contact info, etc.)"""
-    doc = await db.site_settings.find_one({"key": "site_content"}, {"_id": 0})
+    # Check in site_content collection first (admin panel saves here)
+    doc = await db.site_content.find_one({"type": "homepage"}, {"_id": 0})
     if doc:
-        return doc.get("value", {})
+        return doc
+    
+    # Fallback to site_settings
+    settings_doc = await db.site_settings.find_one({"key": "site_content"}, {"_id": 0})
+    if settings_doc:
+        return settings_doc.get("value", {})
+    
     return {}
 
 
