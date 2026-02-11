@@ -113,6 +113,20 @@ const ContactPage = () => {
                     </div>
                   </div>
                 )}
+
+                {contactInfo.vip_phone && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-yellow-500/20 rounded-full">
+                      <Phone className="h-5 w-5 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Ligne VIP (urgences)</p>
+                      <a href={`tel:${contactInfo.vip_phone}`} className="font-medium hover:text-yellow-600">
+                        {contactInfo.vip_phone}
+                      </a>
+                    </div>
+                  </div>
+                )}
                 
                 {contactInfo.address && (
                   <div className="flex items-center gap-3">
