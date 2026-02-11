@@ -424,9 +424,17 @@ async def delete_user(user_id: str, admin: dict = Depends(get_admin_user)):
 
 
 
+class EmailReminderRequest(BaseModel):
+    subject: str = None
+    message: str = None
+
 @router.post("/users/{user_id}/send-profile-reminder")
-async def send_profile_reminder(user_id: str, admin: dict = Depends(get_admin_user)):
-    """Send a reminder email to a provider to complete their profile"""
+async def send_profile_reminder(
+    user_id: str, 
+    request: Request,
+    admin: dict = Depends(get_admin_user)
+):
+    """Send a custom reminder email to a provider to complete their profile"""
     db = get_db()
     
     user = await db.users.find_one({"user_id": user_id})
@@ -436,57 +444,47 @@ async def send_profile_reminder(user_id: str, admin: dict = Depends(get_admin_us
     if user.get("user_type") != "provider":
         raise HTTPException(status_code=400, detail="L'utilisateur n'est pas un prestataire")
     
-    # Check if they already have a profile
-    provider = await db.provider_profiles.find_one({"user_id": user_id})
-    
-    # Get site settings for contact info
-    site_content = await db.site_content.find_one({"key": "site_content"})
-    site_name = "Je Suis"
-    
     email = user.get("email")
     name = user.get("name", "Prestataire")
     
-    if provider:
-        # Profile exists but may be incomplete
-        subject = f"[{site_name}] Complétez votre fiche prestataire"
-        message = f"""
-Bonjour {name},
-
-Nous avons remarqué que votre fiche prestataire sur {site_name} n'est pas encore complète.
-
-Une fiche complète vous permettra :
-- D'apparaître dans les résultats de recherche
-- De recevoir des demandes de devis
-- D'attirer plus de clients
-
-Connectez-vous à votre compte et complétez votre profil pour profiter de tous les avantages de la plateforme.
-
-Cordialement,
-L'équipe {site_name}
-        """
-    else:
-        # No profile at all
-        subject = f"[{site_name}] Créez votre fiche prestataire"
-        message = f"""
-Bonjour {name},
-
-Vous êtes inscrit(e) sur {site_name} en tant que prestataire, mais vous n'avez pas encore créé votre fiche.
-
-Créez votre fiche prestataire dès maintenant pour :
-- Présenter vos services aux clients
-- Recevoir des demandes de devis
-- Développer votre activité
-
-Connectez-vous à votre compte et créez votre fiche en quelques minutes !
-
-Cordialement,
-L'équipe {site_name}
-        """
+    # Get custom subject and message from request body
+    try:
+        body = await request.json()
+        subject = body.get("subject", "")
+        message = body.get("message", "")
+    except:
+        subject = ""
+        message = ""
+    
+    # If no custom message provided, return error
+    if not subject or not message:
+        raise HTTPException(status_code=400, detail="Sujet et message requis")
+    
+    # Format email as HTML
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #c9a227 0%, #d4af37 100%); padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Je Suis</h1>
+        </div>
+        <div style="padding: 30px; background: #f9f9f9;">
+            <p>Bonjour <strong>{name}</strong>,</p>
+            <div style="white-space: pre-line;">{message}</div>
+            <div style="margin-top: 30px; text-align: center;">
+                <a href="https://jesuisapp.cloud/login" style="background: #c9a227; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                    Se connecter
+                </a>
+            </div>
+        </div>
+        <div style="padding: 20px; text-align: center; color: #666; font-size: 12px;">
+            <p>L'équipe Je Suis</p>
+        </div>
+    </div>
+    """
     
     # Try to send email
     try:
-        from server import send_email
-        await send_email(email, subject, message)
+        from email_service import send_email
+        await send_email(email, subject, html_content)
         
         # Log the reminder
         await db.admin_actions.insert_one({
@@ -494,12 +492,14 @@ L'équipe {site_name}
             "user_id": user_id,
             "admin_id": admin.get("admin_id"),
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "email_sent_to": email
+            "email_sent_to": email,
+            "subject": subject,
+            "message": message
         })
         
         return {
             "success": True,
-            "message": f"Rappel envoyé à {email}"
+            "message": f"Email envoyé à {email}"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de l'envoi: {str(e)}")
