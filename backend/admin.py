@@ -307,6 +307,9 @@ async def get_users(
         user_data['provider_business_name'] = None
         user_data['provider_has_photo'] = False
         user_data['provider_is_searchable'] = False
+        user_data['provider_has_description'] = False
+        user_data['provider_has_address'] = False
+        user_data['provider_has_category'] = False
         
         if user.get("user_type") == "provider":
             provider = await db.provider_profiles.find_one(
@@ -325,8 +328,20 @@ async def get_users(
                 is_searchable = provider.get('is_searchable', False) or provider.get('profile_visible', False)
                 user_data['provider_is_searchable'] = is_searchable
                 
-                # Fiche complète = a une photo ET est visible à la recherche
-                if has_photo and is_searchable:
+                # Vérifier description
+                has_description = bool(provider.get('description') and len(provider.get('description', '').strip()) > 0)
+                user_data['provider_has_description'] = has_description
+                
+                # Vérifier adresse
+                has_address = bool(provider.get('address') and len(provider.get('address', '').strip()) > 0)
+                user_data['provider_has_address'] = has_address
+                
+                # Vérifier catégorie
+                has_category = bool(provider.get('category') and len(provider.get('category', '').strip()) > 0)
+                user_data['provider_has_category'] = has_category
+                
+                # Fiche complète = TOUS les critères remplis
+                if has_photo and is_searchable and has_description and has_address and has_category:
                     user_data['provider_profile_complete'] = True
         
         enriched_users.append(user_data)
