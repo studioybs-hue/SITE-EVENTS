@@ -26,6 +26,8 @@ import AdminPage from '@/pages/AdminPage';
 import AdminLoginPage from '@/pages/AdminLoginPage';
 import AdminResetPasswordPage from '@/pages/AdminResetPasswordPage';
 import CommunityEventsPage from '@/pages/CommunityEventsPage';
+import ContactPage from '@/pages/ContactPage';
+import AboutPage from '@/pages/AboutPage';
 
 // Components
 import AuthCallback from '@/components/AuthCallback';
