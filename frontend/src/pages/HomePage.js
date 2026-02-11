@@ -47,10 +47,25 @@ const HomePage = () => {
     pro: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?crop=entropy&cs=srgb&fm=jpg&q=85',
   };
 
+  const [siteContent, setSiteContent] = useState(null);
+
   useEffect(() => {
     checkAuth();
     fetchCategories();
+    fetchSiteContent();
   }, [mode]);
+
+  const fetchSiteContent = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/site-content`);
+      if (res.ok) {
+        const data = await res.json();
+        setSiteContent(data);
+      }
+    } catch (e) {
+      console.error('Error fetching site content:', e);
+    }
+  };
 
   const checkAuth = async () => {
     try {
