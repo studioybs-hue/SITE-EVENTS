@@ -2567,6 +2567,18 @@ async def upload_marketplace_image(
 @api_router.post("/admin/upload-image")
 async def upload_site_image(request: Request):
     """Upload an image for site content (admin only)"""
+    # Check admin authentication
+    admin_token = request.cookies.get('admin_session_token')
+    if not admin_token:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    
+    session = await db.admin_sessions.find_one(
+        {"session_token": admin_token},
+        {"_id": 0}
+    )
+    if not session:
+        raise HTTPException(status_code=401, detail="Session invalide")
+    
     body = await request.json()
     image_data = body.get("image", "")
     image_type = body.get("type", "site")  # hero, category, etc.
