@@ -251,7 +251,11 @@ const HomePage = () => {
             >
               <div className="relative">
                 <img
-                  src={heroImages[mode] || heroImages.events}
+                  src={siteContent?.hero?.background_image 
+                    ? (siteContent.hero.background_image.startsWith('/api') 
+                      ? `${BACKEND_URL}${siteContent.hero.background_image}` 
+                      : siteContent.hero.background_image)
+                    : (heroImages[mode] || heroImages.events)}
                   alt={isEvents ? 'Évènement élégant' : 'Artisan professionnel'}
                   className="rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.15)] w-full"
                 />
