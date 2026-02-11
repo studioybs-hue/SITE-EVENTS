@@ -258,11 +258,24 @@ const HomePage = () => {
             >
               <div className="relative">
                 <img
-                  src={siteContent?.hero?.background_image 
-                    ? (siteContent.hero.background_image.startsWith('/api') 
-                      ? `${BACKEND_URL}${siteContent.hero.background_image}` 
-                      : siteContent.hero.background_image)
-                    : (heroImages[mode] || heroImages.events)}
+                  src={(() => {
+                    // Utiliser l'image correspondant au mode
+                    const modeImage = mode === 'pro' 
+                      ? siteContent?.hero?.background_image_pro 
+                      : siteContent?.hero?.background_image_events;
+                    
+                    // Fallback vers l'ancienne image unique si les nouvelles ne sont pas définies
+                    const fallbackImage = siteContent?.hero?.background_image;
+                    
+                    const selectedImage = modeImage || fallbackImage;
+                    
+                    if (selectedImage) {
+                      return selectedImage.startsWith('/api') 
+                        ? `${BACKEND_URL}${selectedImage}` 
+                        : selectedImage;
+                    }
+                    return heroImages[mode] || heroImages.events;
+                  })()}
                   alt={isEvents ? 'Évènement élégant' : 'Artisan professionnel'}
                   className="rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.15)] w-full"
                 />
