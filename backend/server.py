@@ -3648,6 +3648,50 @@ async def create_provider_pack(
     
     return {"pack_id": pack_id}
 
+
+# ============ CONTACT FORM ============
+
+@api_router.post("/contact")
+async def submit_contact_form(request: Request):
+    """Submit a contact form message"""
+    body = await request.json()
+    
+    contact_doc = {
+        "contact_id": f"contact_{uuid.uuid4().hex[:12]}",
+        "name": body.get("name"),
+        "email": body.get("email"),
+        "subject": body.get("subject"),
+        "message": body.get("message"),
+        "status": "new",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.contact_messages.insert_one(contact_doc)
+    
+    # Try to send email notification
+    try:
+        site_content = await db.site_settings.find_one({"key": "site_content"})
+        if site_content and site_content.get("value", {}).get("contact", {}).get("email"):
+            admin_email = site_content["value"]["contact"]["email"]
+            from email_service import send_email
+            await send_email(
+                to_email=admin_email,
+                subject=f"Nouveau message de contact: {body.get('subject')}",
+                body=f"""
+                <h2>Nouveau message de contact</h2>
+                <p><strong>Nom:</strong> {body.get('name')}</p>
+                <p><strong>Email:</strong> {body.get('email')}</p>
+                <p><strong>Sujet:</strong> {body.get('subject')}</p>
+                <p><strong>Message:</strong></p>
+                <p>{body.get('message')}</p>
+                """
+            )
+    except Exception as e:
+        print(f"Error sending contact notification: {e}")
+    
+    return {"success": True, "message": "Message envoyé"}
+
+
 @api_router.patch("/providers/packs/{pack_id}")
 async def update_provider_pack(
     pack_id: str,
