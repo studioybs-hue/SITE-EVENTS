@@ -152,7 +152,7 @@ const AboutPage = () => {
               <Button onClick={() => navigate('/search')}>
                 Trouver un prestataire
               </Button>
-              <Button variant="outline" onClick={() => navigate('/register')}>
+              <Button variant="outline" onClick={() => navigate('/login')}>
                 Devenir prestataire
               </Button>
             </div>
