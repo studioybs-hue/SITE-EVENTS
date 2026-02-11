@@ -2523,7 +2523,7 @@ const AdminPage = () => {
                               <p className="text-sm text-gray-500">
                                 <span className="font-semibold">Parcourir</span>
                               </p>
-                              <p className="text-xs text-gray-400 mt-1">PNG, JPG (max 5MB)</p>
+                              <p className="text-xs text-gray-400 mt-1">PNG, JPG (max 100MB)</p>
                             </div>
                             <input 
                               type="file" 
