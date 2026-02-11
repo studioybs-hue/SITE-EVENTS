@@ -2563,6 +2563,40 @@ async def upload_marketplace_image(
     image_url = f"/api/files/{file_id}"
     return {"image_url": image_url}
 
+
+@api_router.post("/admin/upload-image")
+async def upload_site_image(request: Request):
+    """Upload an image for site content (admin only)"""
+    body = await request.json()
+    image_data = body.get("image", "")
+    image_type = body.get("type", "site")  # hero, category, etc.
+    
+    if not image_data:
+        raise HTTPException(status_code=400, detail="Image requise")
+    
+    # Decode base64 image
+    try:
+        if "base64," in image_data:
+            image_data = image_data.split("base64,")[1]
+        
+        import base64
+        content = base64.b64decode(image_data)
+        
+        if len(content) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Image trop volumineuse (max 5MB)")
+        
+        file_id = f"site_{image_type}_{uuid.uuid4().hex[:12]}.jpg"
+        file_path = UPLOAD_DIR / file_id
+        
+        async with aiofiles.open(file_path, 'wb') as f:
+            await f.write(content)
+        
+        image_url = f"/api/files/{file_id}"
+        return {"image_url": image_url, "filename": file_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erreur lors de l'upload: {str(e)}")
+
+
 # ============ FAVORITES ROUTES ============
 
 @api_router.get("/favorites")
