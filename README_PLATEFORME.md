@@ -64,7 +64,7 @@ Plateforme web complète pour connecter clients et prestataires événementiels 
 ## 🚀 Démarrage
 
 Les services sont déjà configurés et lancés :
-- Frontend : https://servicehub-214.preview.emergentagent.com
+- Frontend : https://servicepro-68.preview.emergentagent.com
 - Backend : Port 8001 (interne)
 - MongoDB : localhost:27017
 
